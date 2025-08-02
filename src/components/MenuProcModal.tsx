@@ -76,10 +76,10 @@ export const MenuProcModal: React.FC<MenuProcModalProps> = ({
               {menuProc.title}
             </h2>
 
-            {menuProc.venue && (
+            {menuProc.venues && (
               <div className="flex items-center text-orange-600 mb-4">
                 <MapPin size={16} className="mr-2" />
-                <span className="font-medium">{menuProc.venue.name}</span>
+                <span className="font-medium">{menuProc.venues.name}</span>
               </div>
             )}
 
@@ -93,7 +93,7 @@ export const MenuProcModal: React.FC<MenuProcModalProps> = ({
             <div className="flex items-center justify-between text-sm text-gray-500 border-t pt-4">
               <div className="flex items-center">
                 <User size={14} className="mr-1" />
-                <span>by {menuProc.user?.username || 'Anonymous'}</span>
+                <span>by {menuProc.profiles?.username || 'Anonymous'}</span>
               </div>
               <div className="flex items-center">
                 <Calendar size={14} className="mr-1" />
@@ -102,14 +102,14 @@ export const MenuProcModal: React.FC<MenuProcModalProps> = ({
             </div>
 
             {/* Action button */}
-            {menuProc.venue && (
+            {menuProc.venues && (
               <div className="mt-6">
                 <Link
-                  to={`/venues/${menuProc.venue.slug}`}
+                  to={`/venues/${menuProc.venues.slug}`}
                   className="btn-yellow inline-flex items-center space-x-2"
                   onClick={onClose}
                 >
-                  <span>View {menuProc.venue.name}</span>
+                  <span>View {menuProc.venues.name}</span>
                   <ExternalLink size={16} />
                 </Link>
               </div>

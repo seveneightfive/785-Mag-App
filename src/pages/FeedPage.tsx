@@ -32,8 +32,8 @@ export const FeedPage: React.FC = () => {
         .from('menu_procs')
         .select(`
           *,
-          venue:venues(*),
-          user:profiles(username, full_name)
+          venues!menu_procs_venue_id_fkey(*),
+          profiles!menu_procs_user_id_fkey(username, full_name)
         `)
         .order('created_at', { ascending: false })
         .limit(10)

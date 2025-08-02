@@ -179,8 +179,8 @@ export interface MenuProc {
   user_id: string
   created_at?: string
   updated_at?: string
-  venue?: Venue
-  user?: Profile
+  venues?: Venue
+  profiles?: Profile
 }
 
 export interface Follow {

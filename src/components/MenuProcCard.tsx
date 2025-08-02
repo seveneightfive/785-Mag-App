@@ -41,10 +41,10 @@ export const MenuProcCard: React.FC<MenuProcCardProps> = ({
           {menuProc.title}
         </h3>
 
-        {showVenue && menuProc.venue && (
+        {showVenue && menuProc.venues && (
           <div className="flex items-center text-orange-600 mb-2">
             <MapPin size={14} className="mr-1" />
-            <span className="text-sm font-medium">{menuProc.venue.name}</span>
+            <span className="text-sm font-medium">{menuProc.venues.name}</span>
           </div>
         )}
 
@@ -55,7 +55,7 @@ export const MenuProcCard: React.FC<MenuProcCardProps> = ({
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center">
             <User size={12} className="mr-1" />
-            <span>{menuProc.user?.username || 'Anonymous'}</span>
+            <span>{menuProc.profiles?.username || 'Anonymous'}</span>
           </div>
           <div className="flex items-center">
             <Calendar size={12} className="mr-1" />
