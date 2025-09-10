@@ -429,7 +429,7 @@ export const EventsDirectoryPage: React.FC = () => {
               </div>
               
               {/* Desktop Layout - Grid */}
-              <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="hidden lg:grid grid-cols-4 gap-6">
                 {filteredEvents.map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
