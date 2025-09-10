@@ -165,7 +165,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             />
           </Link>
           
-          {navigation.filter(item => item.name !== 'Home' && item.name !== 'Dashboard').map((item) => {
           {navigation.filter(item => item.name !== 'Home' && item.name !== 'Dashboard' && item.name !== 'Feed').map((item) => {
             const isActive = isActiveRoute(item.href)
             return (
