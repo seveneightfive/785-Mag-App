@@ -243,7 +243,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
           <div className="hidden lg:block mb-8">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">Artists Directory</h1>
+                <h1 className="text-3xl font-bold font-oswald text-gray-900">ARTIST DIRECTORY</h1>
                 <p className="text-gray-600 mt-2">Discover amazing local artists</p>
               </div>
               <div className="flex items-center space-x-4">
