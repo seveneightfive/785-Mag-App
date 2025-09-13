@@ -1,6 +1,6 @@
 import React from 'react'
 import { MapPin, User, Calendar } from 'lucide-react'
-import { MenuProc } from '../lib/supabase'
+import { MenuProc } from '../lib/airtable'
 
 interface MenuProcCardProps {
   menuProc: MenuProc

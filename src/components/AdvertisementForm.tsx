@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { X, DollarSign, Calendar, Link as LinkIcon, Image, Type, FileText } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/airtable'
 
 interface AdvertisementFormProps {
   isOpen: boolean

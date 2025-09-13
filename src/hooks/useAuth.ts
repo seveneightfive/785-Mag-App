@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase, type Profile } from '../lib/supabase'
+import { supabase, type Profile } from '../lib/airtable'
 import type { User } from '@supabase/supabase-js'
 
 export const useAuth = () => {
@@ -9,7 +9,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => {
       setUser(session?.user ?? null)
       if (session?.user) {
         getProfile(session.user.id)
@@ -21,7 +21,7 @@ export const useAuth = () => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
       setUser(session?.user ?? null)
       if (session?.user) {
         getProfile(session.user.id)
@@ -38,13 +38,13 @@ export const useAuth = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select()
         .eq('id', userId)
         .single()
 
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist, create one
-        const { data: userData } = await supabase.auth.getUser()
+        const { data: userData }: any = await supabase.auth.getUser()
         if (userData.user) {
           const newProfile = {
             id: userData.user.id,

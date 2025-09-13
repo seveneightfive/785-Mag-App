@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Calendar, Link as LinkIcon, Megaphone } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Event, type Artist, type Venue } from '../lib/supabase'
+import { supabase, type Event, type Artist, type Venue } from '../lib/airtable'
 
 interface AnnouncementFormProps {
   isOpen: boolean
@@ -39,9 +39,9 @@ export const AnnouncementForm: React.FC<AnnouncementFormProps> = ({ isOpen, onCl
 
   const fetchEntities = async () => {
     const [eventsData, artistsData, venuesData] = await Promise.all([
-      supabase.from('events').select('id, title, slug').order('title'),
-      supabase.from('artists').select('id, name, slug').order('name'),
-      supabase.from('venues').select('id, name, slug').order('name')
+      supabase.from('events').select().order('title'),
+      supabase.from('artists').select().order('name'),
+      supabase.from('venues').select().order('name')
     ])
 
     setEntities({

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Upload, Plus, HelpCircle, Camera } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Venue } from '../lib/supabase'
+import { supabase, type Venue } from '../lib/airtable'
 
 interface MenuProcFormProps {
   isOpen: boolean
@@ -51,12 +51,15 @@ export const MenuProcForm: React.FC<MenuProcFormProps> = ({
   const fetchRestaurantVenues = async () => {
     const { data } = await supabase
       .from('venues')
-      .select('*')
-      .in('venue_type', ['Restaurant', 'Bar/Tavern'])
+      .select()
       .order('name')
 
     if (data) {
-      setVenues(data)
+      // Filter venues by type in JavaScript since Airtable doesn't have .in()
+      const restaurantVenues = data.filter((venue: Venue) => 
+        ['Restaurant', 'Bar/Tavern'].includes(venue.venue_type)
+      )
+      setVenues(restaurantVenues)
     }
   }
 

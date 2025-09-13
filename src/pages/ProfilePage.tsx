@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { User, Mail, Globe, Edit3, Save, X, Camera } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, trackPageView } from '../lib/supabase'
+import { supabase, trackPageView } from '../lib/airtable'
 
 export const ProfilePage: React.FC = () => {
   const { user, profile } = useAuth()

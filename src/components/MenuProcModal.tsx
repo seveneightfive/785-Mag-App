@@ -1,7 +1,7 @@
 import React from 'react'
 import { X, MapPin, User, Calendar, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { MenuProc } from '../lib/supabase'
+import { MenuProc } from '../lib/airtable'
 
 interface MenuProcModalProps {
   menuProc: MenuProc | null

@@ -8,7 +8,7 @@ import { VenueCard } from '../components/VenueCard'
 import { AnnouncementForm } from '../components/AnnouncementForm'
 import { AdvertisementForm } from '../components/AdvertisementForm'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Event, type Artist, type Venue, type Follow, type EventRSVP, type Announcement, type Advertisement, trackPageView } from '../lib/supabase'
+import { supabase, type Event, type Artist, type Venue, type Follow, type EventRSVP, type Announcement, type Advertisement, trackPageView } from '../lib/airtable'
 
 interface DashboardModal {
   type: 'artists' | 'venues' | 'rsvps' | 'interested' | 'upcoming' | 'announcements' | 'advertisements' | null
@@ -53,15 +53,15 @@ export const DashboardPage: React.FC = () => {
       // Fetch followed artists
       const { data: artistFollows } = await supabase
         .from('follows')
-        .select(`
-          *,
-          artist:artists(*)
-        `)
+        .select()
         .eq('follower_id', user.id)
         .eq('entity_type', 'artist')
 
       if (artistFollows) {
-        const artists = artistFollows.map(follow => follow.artist).filter(Boolean)
+        // You'll need to fetch artists separately in Airtable
+        const artistIds = artistFollows.map((follow: Follow) => follow.entity_id)
+        const { data: artists } = await supabase.from('artists').select()
+        const followedArtists = artists?.filter((artist: Artist) => artistIds.includes(artist.id)) || []
         setFollowedArtists(artists)
       }
 

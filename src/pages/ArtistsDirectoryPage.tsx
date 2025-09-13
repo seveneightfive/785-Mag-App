@@ -4,7 +4,7 @@ import { Search, Filter, Music, X, Palette, Mic, BookOpen, Heart } from 'lucide-
 import { Layout } from '../components/Layout'
 import { ArtistCard } from '../components/ArtistCard'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Artist, trackPageView } from '../lib/supabase'
+import { supabase, type Artist, trackPageView } from '../lib/airtable'
 
 const ARTIST_TYPES = ['Musician', 'Visual', 'Performance', 'Literary']
 const MUSICAL_GENRES = ['Rock', 'Pop', 'Jazz', 'Classical', 'Electronic', 'Hip-Hop', 'Country', 'Reggae', 'Blues', 'Folk', 'Singer-Songwriter', 'Spoken Word', 'Motown', 'Funk', 'Americana', 'Punk', 'Grunge', 'Jam Band', 'Tejano', 'Latin', 'DJ']
@@ -32,7 +32,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
   const fetchArtists = async () => {
     const { data, error } = await supabase
       .from('artists')
-      .select('*')
+      .select()
       .order('name', { ascending: true })
 
     if (error) {

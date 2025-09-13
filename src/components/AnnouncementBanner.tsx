@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { supabase, type Announcement, type AnnouncementReaction } from '../lib/supabase'
+import { supabase, type Announcement, type AnnouncementReaction } from '../lib/airtable'
 import { useAuth } from '../hooks/useAuth'
 
 export const AnnouncementBanner: React.FC = () => {
@@ -120,14 +120,17 @@ export const AnnouncementBanner: React.FC = () => {
   const fetchAnnouncements = async () => {
     const { data } = await supabase
       .from('announcements')
-      .select('*')
-      .eq('active', true)
-      .or('expires_at.is.null,expires_at.gt.now()')
+      .select()
       .order('priority', { ascending: false })
       .order('created_at', { ascending: false })
 
     if (data) {
-      setAnnouncements(data)
+      // Filter active and non-expired announcements in JavaScript
+      const activeAnnouncements = data.filter((announcement: Announcement) => 
+        announcement.active && 
+        (!announcement.expires_at || new Date(announcement.expires_at) > new Date())
+      )
+      setAnnouncements(activeAnnouncements)
       fetchReactionCounts(data.map(a => a.id))
       if (user) {
         fetchUserReactions(data.map(a => a.id))
@@ -140,8 +143,7 @@ export const AnnouncementBanner: React.FC = () => {
 
     const { data } = await supabase
       .from('announcement_reactions')
-      .select('announcement_id, reaction_type')
-      .in('announcement_id', announcementIds)
+      .select()
 
     const counts: Record<string, { no: number, yes: number }> = {}
     announcementIds.forEach(id => {
@@ -149,7 +151,7 @@ export const AnnouncementBanner: React.FC = () => {
     })
 
     data?.forEach(reaction => {
-      if (counts[reaction.announcement_id]) {
+      if (counts[reaction.announcement_id] && announcementIds.includes(reaction.announcement_id)) {
         if (reaction.reaction_type === 'thumbs_up') {
           counts[reaction.announcement_id].yes++
         } else if (reaction.reaction_type === 'heart') {
@@ -166,12 +168,13 @@ export const AnnouncementBanner: React.FC = () => {
 
     const { data } = await supabase
       .from('announcement_reactions')
-      .select('announcement_id, reaction_type')
+      .select()
       .eq('user_id', user.id)
-      .in('announcement_id', announcementIds)
 
     const reactions: Record<string, string[]> = {}
-    data?.forEach(reaction => {
+    data?.filter((reaction: AnnouncementReaction) => 
+      announcementIds.includes(reaction.announcement_id)
+    ).forEach((reaction: AnnouncementReaction) => {
       if (!reactions[reaction.announcement_id]) {
         reactions[reaction.announcement_id] = []
       }
