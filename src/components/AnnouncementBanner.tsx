@@ -122,7 +122,6 @@ export const AnnouncementBanner: React.FC = () => {
       .from('announcements')
       .select()
       .order('priority', { ascending: false })
-      .order('created_at', { ascending: false })
 
     if (data) {
       // Filter active and non-expired announcements in JavaScript
@@ -130,7 +129,18 @@ export const AnnouncementBanner: React.FC = () => {
         announcement.active && 
         (!announcement.expires_at || new Date(announcement.expires_at) > new Date())
       )
-      setAnnouncements(activeAnnouncements)
+      
+      // Apply secondary sorting by created_at in JavaScript
+      const sortedAnnouncements = activeAnnouncements.sort((a, b) => {
+        // First sort by priority (descending)
+        if (a.priority !== b.priority) {
+          return (b.priority || 0) - (a.priority || 0)
+        }
+        // Then sort by created_at (descending)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
+      
+      setAnnouncements(sortedAnnouncements)
       fetchReactionCounts(data.map(a => a.id))
       if (user) {
         fetchUserReactions(data.map(a => a.id))
