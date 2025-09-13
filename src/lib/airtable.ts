@@ -1,11 +1,23 @@
 import Airtable from 'airtable'
 
+// Check if environment variables are available
+const airtableApiKey = import.meta.env.VITE_AIRTABLE_API_KEY
+const airtableBaseId = import.meta.env.VITE_AIRTABLE_BASE_ID
+
+if (!airtableApiKey) {
+  throw new Error('VITE_AIRTABLE_API_KEY is required. Please check your .env file.')
+}
+
+if (!airtableBaseId) {
+  throw new Error('VITE_AIRTABLE_BASE_ID is required. Please check your .env file.')
+}
+
 // Configure Airtable
 const airtable = new Airtable({
-  apiKey: import.meta.env.VITE_AIRTABLE_API_KEY
+  apiKey: airtableApiKey
 })
 
-const base = airtable.base(import.meta.env.VITE_AIRTABLE_BASE_ID)
+const base = airtable.base(airtableBaseId)
 
 // Database Types
 export interface Profile {
