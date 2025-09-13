@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ArtistCard } from '../components/ArtistCard'
-import { supabase, type Event, type EventRSVP, trackPageView } from '../lib/airtable'
+import { supabase, type Event, type EventRSVP, trackPageView } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 export const EventDetailPage: React.FC = () => {
@@ -53,7 +53,11 @@ export const EventDetailPage: React.FC = () => {
   const fetchEvent = async () => {
     const { data, error } = await supabase
       .from('events')
-      .select()
+      .select(`
+        *,
+        venue:venues(*),
+        event_artists(artist:artists(*))
+      `)
       .eq('slug', slug)
       .single()
 

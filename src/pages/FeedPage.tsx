@@ -4,7 +4,7 @@ import { Layout } from '../components/Layout'
 import { MenuProcCard } from '../components/MenuProcCard'
 import { MenuProcModal } from '../components/MenuProcModal'
 import { MenuProcForm } from '../components/MenuProcForm'
-import { supabase, type MenuProc, type Review, trackPageView } from '../lib/airtable'
+import { supabase, type MenuProc, type Review, trackPageView } from '../lib/supabase'
 
 interface FeedItem {
   id: string
@@ -29,8 +29,12 @@ export const FeedPage: React.FC = () => {
     try {
       // Fetch menu procs
       const { data: menuProcs } = await supabase
-      .from('menu_procs')
-      .select()
+        .from('menu_procs')
+        .select(`
+          *,
+          venues!menu_procs_venue_id_fkey(*),
+          profiles!menu_procs_user_id_fkey(username, full_name)
+        `)
         .order('created_at', { ascending: false })
         .limit(10)
 

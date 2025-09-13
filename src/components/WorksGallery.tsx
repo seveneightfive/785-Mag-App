@@ -1,6 +1,6 @@
 import React from 'react'
 import { DollarSign, MapPin, Calendar, User } from 'lucide-react'
-import { Work } from '../lib/airtable'
+import { Work } from '../lib/supabase'
 
 interface WorksGalleryProps {
   works: Work[]

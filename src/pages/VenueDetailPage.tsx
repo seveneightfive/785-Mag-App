@@ -8,7 +8,7 @@ import { MenuProcCard } from '../components/MenuProcCard'
 import { MenuProcModal } from '../components/MenuProcModal'
 import { MenuProcForm } from '../components/MenuProcForm'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Venue, type Event, type MenuProc, trackPageView } from '../lib/airtable'
+import { supabase, type Venue, type Event, type MenuProc, trackPageView } from '../lib/supabase'
 
 export const VenueDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -45,7 +45,7 @@ export const VenueDetailPage: React.FC = () => {
 
     const { data, error } = await supabase
       .from('venues')
-      .select()
+      .select('*')
       .eq('slug', slug)
       .single()
 

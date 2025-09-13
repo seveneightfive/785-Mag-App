@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Star, ThumbsUp, MessageCircle, Plus, Upload, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Review } from '../lib/airtable'
+import { supabase, type Review } from '../lib/supabase'
 
 interface ReviewSectionProps {
   entityType: 'event' | 'artist' | 'venue'
@@ -35,7 +35,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
 
     const { data } = await supabase
       .from('reviews')
-      .select()
+      .select('id')
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .eq('user_id', user.id)
@@ -47,7 +47,10 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
   const fetchReviews = async () => {
     const { data } = await supabase
       .from('reviews')
-      .select()
+      .select(`
+        *,
+        profile:profiles(username, full_name, avatar_url)
+      `)
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .order('created_at', { ascending: false })

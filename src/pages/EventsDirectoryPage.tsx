@@ -3,7 +3,7 @@ import { Search, Filter, Calendar, X, Clock, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
-import { supabase, type Event, trackPageView } from '../lib/airtable'
+import { supabase, type Event, trackPageView } from '../lib/supabase'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
 
@@ -39,7 +39,11 @@ export const EventsDirectoryPage: React.FC = () => {
     
     const { data, error } = await supabase
       .from('events')
-      .select()
+      .select(`
+        *,
+        venue:venues(*),
+        event_artists(artist:artists(*))
+      `)
       .gte('start_date', today.toISOString())
       .order('start_date', { ascending: true })
 

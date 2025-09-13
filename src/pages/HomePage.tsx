@@ -10,7 +10,7 @@ import { MenuProcModal } from '../components/MenuProcModal'
 import { AnimatedStats } from '../components/AnimatedStats'
 import { AnnouncementBanner } from '../components/AnnouncementBanner'
 import { AdvertisementBanner } from '../components/AdvertisementBanner'
-import { supabase, type Event, type Artist, type Venue, type MenuProc, trackPageView } from '../lib/airtable'
+import { supabase, type Event, type Artist, type Venue, type MenuProc, trackPageView } from '../lib/supabase'
 
 export const HomePage: React.FC = () => {
   const [starredEvents, setStarredEvents] = useState<Event[]>([])
@@ -51,63 +51,70 @@ export const HomePage: React.FC = () => {
       // Fetch starred events
       const { data: starredData } = await supabase
         .from('events')
-        .select()
+        .select(`
+          *,
+          venue:venues(*),
+          event_artists(artist:artists(*))
+        `)
+        .eq('star', true)
         .gte('start_date', today.toISOString())
         .order('start_date', { ascending: true })
         .limit(5)
 
       if (starredData) {
-        // Filter starred events
-        const starred = starredData.filter((event: Event) => event.star === true)
-        setStarredEvents(starred)
+        setStarredEvents(starredData)
       }
 
       // Fetch upcoming events (non-starred)
       const { data: upcomingData } = await supabase
         .from('events')
-        .select()
+        .select(`
+          *,
+          venue:venues(*),
+          event_artists(artist:artists(*))
+        `)
+        .neq('star', true)
         .gte('start_date', today.toISOString())
         .order('start_date', { ascending: true })
         .limit(6)
 
       if (upcomingData) {
-        // Filter non-starred events
-        const nonStarred = upcomingData.filter((event: Event) => !event.star)
-        setUpcomingEvents(nonStarred)
+        setUpcomingEvents(upcomingData)
       }
 
       // Fetch featured artists (verified ones)
       const { data: artistsData } = await supabase
         .from('artists')
-        .select()
+        .select('*')
+        .not('avatar_url', 'is', null)
+        .not('image_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(6)
 
       if (artistsData) {
-        // Filter artists with images
-        const withImages = artistsData.filter((artist: Artist) => 
-          artist.avatar_url || artist.image_url
-        )
-        setFeaturedArtists(withImages)
+        setFeaturedArtists(artistsData)
       }
 
       // Fetch featured venues (random selection)
       const { data: venuesData } = await supabase
         .from('venues')
-        .select()
+        .select('*')
+        .not('image_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(6)
 
       if (venuesData) {
-        // Filter venues with images
-        const withImages = venuesData.filter((venue: Venue) => venue.image_url)
-        setFeaturedVenues(withImages)
+        setFeaturedVenues(venuesData)
       }
 
       // Fetch latest menu procs
       const { data: menuProcsData } = await supabase
         .from('menu_procs')
-        .select()
+        .select(`
+          *,
+          venue:venues(*),
+          user:profiles(username, full_name)
+        `)
         .order('created_at', { ascending: false })
         .limit(5)
 
@@ -117,9 +124,9 @@ export const HomePage: React.FC = () => {
 
       // Fetch total counts for stats
       const [eventsCount, artistsCount, venuesCount] = await Promise.all([
-        supabase.from('events').select('*', { count: 'exact', head: true }),
-        supabase.from('artists').select('*', { count: 'exact', head: true }),
-        supabase.from('venues').select('*', { count: 'exact', head: true })
+        supabase.from('events').select('id', { count: 'exact', head: true }),
+        supabase.from('artists').select('id', { count: 'exact', head: true }),
+        supabase.from('venues').select('id', { count: 'exact', head: true })
       ])
 
       setStats({

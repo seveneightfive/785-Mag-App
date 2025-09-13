@@ -1,7 +1,7 @@
 import React from 'react'
 import { Calendar, MapPin, Clock, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Event } from '../lib/airtable'
+import { Event } from '../lib/supabase'
 
 interface EventCardProps {
   event: Event

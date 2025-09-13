@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ScrollToTop } from './components/ScrollToTop'
+import { PWAInstallPrompt } from './components/PWAInstallPrompt'
 import { HomePage } from './pages/HomePage'
 import { EventsDirectoryPage } from './pages/EventsDirectoryPage'
 import { ArtistsDirectoryPage } from './pages/ArtistsDirectoryPage'
@@ -16,6 +17,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <PWAInstallPrompt />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />

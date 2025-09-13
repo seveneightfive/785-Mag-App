@@ -8,7 +8,7 @@ import { AudioPlayer } from '../components/AudioPlayer'
 import { VideoPlayer } from '../components/VideoPlayer'
 import { WorksGallery } from '../components/WorksGallery'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Artist, type Event, type Work, trackPageView } from '../lib/airtable'
+import { supabase, type Artist, type Event, type Work, trackPageView } from '../lib/supabase'
 
 export const ArtistDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -52,7 +52,7 @@ export const ArtistDetailPage: React.FC = () => {
 
     const { data, error } = await supabase
       .from('artists')
-      .select()
+      .select('*')
       .eq('slug', slug)
       .single()
 

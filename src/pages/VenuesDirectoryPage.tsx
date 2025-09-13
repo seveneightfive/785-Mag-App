@@ -3,7 +3,7 @@ import { Search, Filter, MapPin, X, ArrowUpDown, ChevronLeft } from 'lucide-reac
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { VenueCard } from '../components/VenueCard'
-import { supabase, type Venue, trackPageView } from '../lib/airtable'
+import { supabase, type Venue, trackPageView } from '../lib/supabase'
 
 const VENUE_TYPES = ['Art Gallery', 'Live Music', 'Bar/Tavern', 'Retail', 'Restaurant', 'Event Space', 'Brewery/Winery', 'Outdoor Space', 'Theatre', 'Studio/Class', 'Community Space', 'First Friday ArtWalk', 'Coffee Shop', 'Church', 'Experiences', 'Trades + Services']
 const NEIGHBORHOODS = ['Downtown', 'NOTO', 'North Topeka', 'Oakland', 'Westboro Mart', 'College Hill', 'Lake Shawnee', 'Golden Mile', 'A Short Drive', 'South Topeka', 'Midtown', 'West Topeka']
@@ -42,7 +42,7 @@ export const VenuesDirectoryPage: React.FC = () => {
   const fetchVenues = async () => {
     const { data, error } = await supabase
       .from('venues')
-      .select()
+      .select('*')
       .order('name', { ascending: true })
 
     if (error) {
@@ -427,7 +427,7 @@ export const VenuesDirectoryPage: React.FC = () => {
           <div className="hidden lg:block mb-8">
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">Venues Directory</h1>
+                <h1 className="text-3xl font-bold font-oswald text-gray-900">LOCAL PLACES</h1>
                 <p className="text-gray-600 mt-2">Discover amazing local venues</p>
               </div>
               

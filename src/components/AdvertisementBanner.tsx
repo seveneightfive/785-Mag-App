@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ExternalLink, Eye } from 'lucide-react'
-import { supabase, type Advertisement } from '../lib/airtable'
+import { supabase, type Advertisement } from '../lib/supabase'
 
 export const AdvertisementBanner: React.FC = () => {
   const [advertisement, setAdvertisement] = useState<Advertisement | null>(null)
@@ -15,27 +15,19 @@ export const AdvertisementBanner: React.FC = () => {
     try {
       const { data } = await supabase
         .from('advertisements')
-        .select()
+        .select('*')
+        .lte('start_date', new Date().toISOString().split('T')[0])
+        .gte('end_date', new Date().toISOString().split('T')[0])
         .order('created_at', { ascending: false })
         .limit(1)
 
       if (data && data.length > 0) {
-        // Filter active advertisements in JavaScript
-        const today = new Date().toISOString().split('T')[0]
-        const activeAds = data.filter((ad: Advertisement) => 
-          ad.start_date <= today && ad.end_date >= today
-        )
-        
-        if (activeAds.length > 0) {
-          setAdvertisement(activeAds[0])
-        }
+        setAdvertisement(data[0])
         // Track view
-        if (activeAds.length > 0) {
-          await supabase
+        await supabase
           .from('advertisements')
           .update({ views: data[0].views + 1 })
           .eq('id', data[0].id)
-        }
 
         // Determine image orientation if background image exists
         if (data[0].background_image) {

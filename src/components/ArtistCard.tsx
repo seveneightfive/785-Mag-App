@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, Music, Palette, Mic, BookOpen, Heart } from 'lucide-react'
-import { supabase, type Artist } from '../lib/airtable'
+import { supabase, type Artist } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 interface ArtistCardProps {

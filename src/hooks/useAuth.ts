@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase, type Profile } from '../lib/airtable'
+import { supabase, type Profile } from '../lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
 export const useAuth = () => {
@@ -9,7 +9,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user) {
         getProfile(session.user.id)
@@ -21,7 +21,7 @@ export const useAuth = () => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
         getProfile(session.user.id)
@@ -38,13 +38,13 @@ export const useAuth = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select()
+        .select('*')
         .eq('id', userId)
         .single()
 
       if (error && error.code === 'PGRST116') {
         // Profile doesn't exist, create one
-        const { data: userData }: any = await supabase.auth.getUser()
+        const { data: userData } = await supabase.auth.getUser()
         if (userData.user) {
           const newProfile = {
             id: userData.user.id,
@@ -102,6 +102,32 @@ export const useAuth = () => {
     return { data, error }
   }
 
+  const signInWithPhoneOtp = async (phone: string) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone,
+    })
+    return { data, error }
+  }
+
+  const verifyPhoneOtp = async (phone: string, token: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms'
+    })
+    return { data, error }
+  }
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    })
+    return { data, error }
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     return { error }
@@ -114,6 +140,9 @@ export const useAuth = () => {
     signIn,
     signUp,
     signInWithMagicLink,
+    signInWithPhoneOtp,
+    verifyPhoneOtp,
+    signInWithGoogle,
     signOut,
   }
 }
