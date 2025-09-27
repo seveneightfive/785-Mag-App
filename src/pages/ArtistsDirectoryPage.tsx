@@ -18,6 +18,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [selectedMediums, setSelectedMediums] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const [artistsWithEventCounts, setArtistsWithEventCounts] = useState<(Artist & { upcomingEventsCount: number })[]>([])
 
   useEffect(() => {
     trackPageView('artists-directory')
@@ -26,7 +27,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
 
   useEffect(() => {
     filterArtists()
-  }, [artists, searchQuery, selectedTypes, selectedGenres, selectedMediums])
+  }, [artists, artistsWithEventCounts, searchQuery, selectedTypes, selectedGenres, selectedMediums])
 
   const fetchArtists = async () => {
     const { data, error } = await supabase
@@ -37,13 +38,34 @@ export const ArtistsDirectoryPage: React.FC = () => {
     if (error) {
       console.error('Error fetching artists:', error)
     } else {
-      setArtists(data || [])
+      const artistsData = data || []
+      setArtists(artistsData)
+      await fetchUpcomingEventCounts(artistsData)
     }
     setLoading(false)
   }
 
+  const fetchUpcomingEventCounts = async (artistsData: Artist[]) => {
+    const artistsWithCounts = await Promise.all(
+      artistsData.map(async (artist) => {
+        const { count } = await supabase
+          .from('event_artists')
+          .select('events!inner(start_date)', { count: 'exact', head: true })
+          .eq('artist_id', artist.id)
+          .gte('events.start_date', new Date().toISOString())
+
+        return {
+          ...artist,
+          upcomingEventsCount: count || 0
+        }
+      })
+    )
+    setArtistsWithEventCounts(artistsWithCounts)
+  }
+
   const filterArtists = () => {
-    let filtered = artists
+    // Use artists with event counts for filtering and sorting
+    let filtered = artistsWithEventCounts.length > 0 ? artistsWithEventCounts : artists.map(artist => ({ ...artist, upcomingEventsCount: 0 }))
 
     // Search filter
     if (searchQuery) {
@@ -74,6 +96,14 @@ export const ArtistsDirectoryPage: React.FC = () => {
         artist.visual_mediums?.some(medium => selectedMediums.includes(medium))
       )
     }
+
+    // Sort by upcoming events count (descending), then by name (ascending)
+    filtered.sort((a, b) => {
+      if (b.upcomingEventsCount !== a.upcomingEventsCount) {
+        return b.upcomingEventsCount - a.upcomingEventsCount
+      }
+      return a.name.localeCompare(b.name)
+    })
 
     setFilteredArtists(filtered)
   }
