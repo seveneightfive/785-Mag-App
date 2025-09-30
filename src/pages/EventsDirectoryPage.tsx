@@ -3,6 +3,7 @@ import { Search, Filter, Calendar, X, Clock, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
+import { EventDetailPanel } from '../components/EventDetailPanel'
 import { supabase, type Event, trackPageView } from '../lib/supabase'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
@@ -15,6 +16,7 @@ export const EventsDirectoryPage: React.FC = () => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all')
+  const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(null)
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({
     all: 0,
     today: 0,
@@ -31,6 +33,13 @@ export const EventsDirectoryPage: React.FC = () => {
     filterEvents()
     calculateEventCounts()
   }, [events, searchQuery, selectedTypes, dateFilter])
+
+  useEffect(() => {
+    // Auto-select first event on desktop when events are loaded
+    if (filteredEvents.length > 0 && !selectedEventSlug) {
+      setSelectedEventSlug(filteredEvents[0].slug || null)
+    }
+  }, [filteredEvents])
 
   const fetchEvents = async () => {
     // Get current date in local timezone, start of today
@@ -428,11 +437,35 @@ export const EventsDirectoryPage: React.FC = () => {
                 })}
               </div>
               
-              {/* Desktop Layout - Grid */}
-              <div className="hidden lg:grid grid-cols-4 gap-6">
-                {filteredEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
+              {/* Desktop Layout - Split Screen */}
+              <div className="hidden lg:block">
+                <div className="grid grid-cols-3 gap-6 h-[calc(100vh-300px)]">
+                  {/* Left Panel - Event List */}
+                  <div className="col-span-2 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-4 pr-4">
+                      {filteredEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className={`rounded-xl transition-all ${
+                            selectedEventSlug === event.slug
+                              ? 'ring-2 ring-blue-500 shadow-lg'
+                              : ''
+                          }`}
+                        >
+                          <EventCard 
+                            event={event} 
+                            onSelect={setSelectedEventSlug}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Right Panel - Event Details */}
+                  <div className="col-span-1 overflow-y-auto">
+                    <EventDetailPanel eventSlug={selectedEventSlug} />
+                  </div>
+                </div>
               </div>
             </>
           )}

@@ -5,15 +5,24 @@ import { Event } from '../lib/supabase'
 
 interface EventCardProps {
   event: Event
+  onSelect?: (slug: string) => void
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event }) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
   const allArtists = event.event_artists || []
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (onSelect) {
+      e.preventDefault()
+      onSelect(event.slug || '')
+    }
+  }
 
   return (
     <Link 
       to={`/events/${event.slug}`}
       className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+      onClick={handleClick}
     >
       {/* Event Image - Taller aspect ratio */}
       <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
