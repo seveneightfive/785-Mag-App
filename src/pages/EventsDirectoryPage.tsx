@@ -439,9 +439,9 @@ export const EventsDirectoryPage: React.FC = () => {
               
               {/* Desktop Layout - Split Screen */}
               <div className="hidden lg:block">
-                <div className="grid grid-cols-3 gap-8 min-h-[600px]">
+                <div className="grid grid-cols-3 gap-8 h-[calc(100vh-300px)]">
                   {/* Left Panel - Event List */}
-                  <div className="col-span-2 overflow-y-auto max-h-[80vh]">
+                  <div className="col-span-2 overflow-y-auto">
                     <div className="grid grid-cols-2 gap-6 pr-6">
                       {filteredEvents.map((event) => (
                         <div
@@ -462,7 +462,7 @@ export const EventsDirectoryPage: React.FC = () => {
                   </div>
                   
                   {/* Right Panel - Event Details */}
-                  <div className="col-span-1 overflow-y-auto max-h-[80vh]">
+                  <div className="col-span-1 overflow-y-auto">
                     <EventDetailPanel eventSlug={selectedEventSlug} />
                   </div>
                 </div>
