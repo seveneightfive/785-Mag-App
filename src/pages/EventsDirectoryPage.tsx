@@ -316,49 +316,47 @@ export const EventsDirectoryPage: React.FC = () => {
           </div>
         )}
 
-        {/* Desktop Header */}
-        <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold font-oswald text-gray-900">Events Directory</h1>
-              <p className="text-gray-600 mt-2">Discover amazing upcoming events</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search events..."
-                  className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C80650]"
-                />
-              </div>
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-                >
-                  <X size={16} />
-                  <span>Clear Filters</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Desktop Layout - Sidebar + Content */}
-        <div className="hidden lg:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="hidden lg:flex h-screen">
           {/* Left Sidebar - Filters */}
-          <div className="w-64 flex-shrink-0">
-            <div className="sticky top-6 bg-white rounded-xl p-6 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold font-oswald text-gray-900 text-xl">FILTERS</h3>
+          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 overflow-y-auto">
+            <div className="p-6">
+              {/* Header with Search and Clear */}
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold font-oswald text-gray-900 mb-2">Events Directory</h1>
+                <p className="text-sm text-gray-600 mb-4">Discover amazing upcoming events</p>
+
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search events..."
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C80650]"
+                  />
+                </div>
+
                 {activeFiltersCount > 0 && (
-                  <span className="text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#C80650' }}>
-                    {activeFiltersCount}
-                  </span>
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1"
+                  >
+                    <X size={12} />
+                    <span>Clear all filters</span>
+                  </button>
                 )}
+              </div>
+
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold font-oswald text-gray-900 text-base">FILTERS</h3>
+                  {activeFiltersCount > 0 && (
+                    <span className="text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#C80650' }}>
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Date Filter */}
@@ -412,13 +410,14 @@ export const EventsDirectoryPage: React.FC = () => {
           </div>
 
           {/* Right Content Area */}
-          <div className="flex-1 ml-8">
-            {/* Results Count */}
-            <div className="mb-4">
-              <p className="text-gray-600">
-                {loading ? 'Loading...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
-              </p>
-            </div>
+          <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className="p-6">
+              {/* Results Count */}
+              <div className="mb-4">
+                <p className="text-gray-600">
+                  {loading ? 'Loading...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
+                </p>
+              </div>
 
             {/* Events Grid */}
             {loading ? (
@@ -464,6 +463,7 @@ export const EventsDirectoryPage: React.FC = () => {
                 )}
               </>
             )}
+            </div>
           </div>
         </div>
 
