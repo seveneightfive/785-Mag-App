@@ -238,26 +238,28 @@ export const EventsDirectoryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Filter Drawer */}
+        {/* Mobile Filter Modal - Full Screen */}
         {showFilters && (
-          <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
-            <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}></div>
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
-              <div className="p-6 pb-24">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-                
+          <div className="lg:hidden fixed inset-0 z-50 bg-white">
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
+                <h3 className="text-2xl font-bold font-oswald text-gray-900">FILTERS</h3>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Close filters"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 pb-32">
                 {/* Date Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-700 mb-3">When</h4>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="mb-8">
+                  <h4 className="font-bold font-oswald text-gray-900 mb-4 text-lg">WHEN</h4>
+                  <div className="grid grid-cols-2 gap-3">
                     {[
                       { value: 'all', label: 'All Upcoming', count: eventCounts.all },
                       { value: 'today', label: 'Today', count: eventCounts.today },
@@ -281,9 +283,9 @@ export const EventsDirectoryPage: React.FC = () => {
                 </div>
 
                 {/* Event Types Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-700 mb-3">Event Types</h4>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="mb-8">
+                  <h4 className="font-bold font-oswald text-gray-900 mb-4 text-lg">EVENT TYPES</h4>
+                  <div className="grid grid-cols-2 gap-3">
                     {EVENT_TYPES.map((type) => (
                       <button
                         key={type}
@@ -299,6 +301,16 @@ export const EventsDirectoryPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* Fixed Bottom Button */}
+              <div className="border-t border-gray-200 p-4 bg-white">
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="w-full btn-pink py-4 text-lg font-bold"
+                >
+                  View {filteredEvents.length} Event{filteredEvents.length !== 1 ? 's' : ''}
+                </button>
               </div>
             </div>
           </div>
@@ -339,11 +351,11 @@ export const EventsDirectoryPage: React.FC = () => {
           {/* Filters */}
           <div className="hidden lg:block mb-6">
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">Filters</h3>
-              
+              <h3 className="font-bold font-oswald text-gray-900 mb-6 text-xl">FILTERS</h3>
+
               {/* Date Filter */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">When</h4>
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-lg">WHEN</h4>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { value: 'all', label: 'All Upcoming', count: eventCounts.all },
@@ -371,7 +383,7 @@ export const EventsDirectoryPage: React.FC = () => {
 
               {/* Event Types Filter */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">Event Types</h4>
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-lg">EVENT TYPES</h4>
                 <div className="flex flex-wrap gap-2">
                   {EVENT_TYPES.map((type) => (
                     <button
