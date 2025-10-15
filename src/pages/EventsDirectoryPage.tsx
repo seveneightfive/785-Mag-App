@@ -418,7 +418,7 @@ export const EventsDirectoryPage: React.FC = () => {
           ) : (
             <>
               {/* Mobile Layout - Date Grouped */}
-              <div className="lg:hidden space-y-6">
+              <div className="lg:hidden space-y-6 pb-24">
                 {sortedDateKeys.map((dateKey) => {
                   const date = new Date(dateKey)
                   const dayNumber = date.getDate()
@@ -483,7 +483,7 @@ export const EventsDirectoryPage: React.FC = () => {
           )}
 
           {!loading && filteredEvents.length === 0 && (
-            <div className="text-center py-12">
+            <div className="text-center py-12 pb-24 lg:pb-12">
               <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
               <p className="text-gray-600">Try adjusting your search or filters</p>
