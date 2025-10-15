@@ -422,82 +422,155 @@ export const VenuesDirectoryPage: React.FC = () => {
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          {/* Desktop Header */}
-          <div className="hidden lg:block mb-8">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">Venues Directory</h1>
-                <p className="text-gray-600 mt-2">Discover amazing local venues</p>
+        {/* Desktop Header */}
+        <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold font-oswald text-gray-900">Venues Directory</h1>
+              <p className="text-gray-600 mt-2">Discover amazing local venues</p>
+            </div>
+
+            <div className="flex items-center space-x-4 ml-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search venues..."
+                  className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-              
-              <div className="flex items-center space-x-4 ml-8">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search venues..."
-                    className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg flex-shrink-0"
-                  onMouseDown={() => setFilterStep('main')}
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
                 >
-                  <Filter size={16} />
-                  <span className="text-sm">Filters</span>
-                  {activeFiltersCount > 0 && (
-                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                      {activeFiltersCount}
-                    </span>
-                  )}
-                  </button>
-                  {activeFiltersCount > 0 && (
+                  <X size={16} />
+                  <span>Clear Filters</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout - Sidebar + Content */}
+        <div className="hidden lg:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Left Sidebar - Filters */}
+          <div className="w-64 flex-shrink-0">
+            <div className="sticky top-6 bg-white rounded-xl p-6 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold font-oswald text-gray-900 text-xl">FILTERS</h3>
+                {activeFiltersCount > 0 && (
+                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </div>
+
+              {/* Venue Types Filter */}
+              <div className="mb-6">
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {VENUE_TYPES.map((type) => (
                     <button
-                    onClick={clearFilters}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-                  >
-                    <X size={16} />
-                    <span>Clear Filters</span>
-                  </button>
-                  )}
+                      key={type}
+                      onClick={() => toggleType(type)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        selectedTypes.includes(type)
+                          ? 'bg-black text-white'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span>{type}</span>
+                        <span className="text-xs opacity-75">({venueTypeCounts[type] || 0})</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Neighborhoods Filter */}
+              <div className="mb-6">
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {NEIGHBORHOODS.map((neighborhood) => (
+                    <button
+                      key={neighborhood}
+                      onClick={() => toggleNeighborhood(neighborhood)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        selectedNeighborhoods.includes(neighborhood)
+                          ? 'bg-black text-white'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span>{neighborhood}</span>
+                        <span className="text-xs opacity-75">({neighborhoodCounts[neighborhood] || 0})</span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Right Content Area */}
+          <div className="flex-1 ml-8">
+            {/* Results Count */}
+            <div className="mb-4">
+              <p className="text-gray-600">
+                {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
+              </p>
+            </div>
 
-          {/* Results */}
-          <div className="mb-4">
-            <p className="text-gray-600">
-              {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
-            </p>
+            {/* Venues Grid */}
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+              </div>
+            ) : (
+              <>
+                {filteredVenues.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredVenues.map((venue) => (
+                      <VenueCard key={venue.id} venue={venue} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
+                    <p className="text-gray-600">Try adjusting your search or filters</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
+        </div>
 
-          {/* Venues Grid */}
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredVenues.map((venue) => (
-                <VenueCard key={venue.id} venue={venue} />
-              ))}
-            </div>
-          )}
-
-          {!loading && filteredVenues.length === 0 && (
-            <div className="text-center py-12">
-              <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters</p>
-            </div>
-          )}
+        {/* Mobile Layout */}
+        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="pb-24">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+              </div>
+            ) : filteredVenues.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {filteredVenues.map((venue) => (
+                  <VenueCard key={venue.id} venue={venue} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

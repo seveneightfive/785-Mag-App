@@ -316,47 +316,55 @@ export const EventsDirectoryPage: React.FC = () => {
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          {/* Desktop Header */}
-          <div className="hidden lg:block mb-8">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">Events Directory</h1>
-                <p className="text-gray-600 mt-2">Discover amazing upcoming events</p>
+        {/* Desktop Header */}
+        <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold font-oswald text-gray-900">Events Directory</h1>
+              <p className="text-gray-600 mt-2">Discover amazing upcoming events</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search events..."
+                  className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C80650]"
+                />
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search events..."
-                    className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C80650]"
-                  />
-                </div>
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={clearFilters}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-                  >
-                    <X size={16} />
-                    <span>Clear Filters</span>
-                  </button>
-                )}
-              </div>
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                >
+                  <X size={16} />
+                  <span>Clear Filters</span>
+                </button>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Filters */}
-          <div className="hidden lg:block mb-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-bold font-oswald text-gray-900 mb-6 text-xl">FILTERS</h3>
+        {/* Desktop Layout - Sidebar + Content */}
+        <div className="hidden lg:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Left Sidebar - Filters */}
+          <div className="w-64 flex-shrink-0">
+            <div className="sticky top-6 bg-white rounded-xl p-6 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold font-oswald text-gray-900 text-xl">FILTERS</h3>
+                {activeFiltersCount > 0 && (
+                  <span className="text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#C80650' }}>
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </div>
 
               {/* Date Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-lg">WHEN</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">WHEN</h4>
+                <div className="space-y-2">
                   {[
                     { value: 'all', label: 'All Upcoming', count: eventCounts.all },
                     { value: 'today', label: 'Today', count: eventCounts.today },
@@ -366,15 +374,15 @@ export const EventsDirectoryPage: React.FC = () => {
                     <button
                       key={option.value}
                       onClick={() => setDateFilter(option.value as any)}
-                      className={`btn-filter transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                         dateFilter === option.value
-                          ? 'active'
-                          : ''
+                          ? 'bg-black text-white'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      <div>
+                      <div className="flex justify-between items-center">
                         <span>{option.label}</span>
-                        <span className="ml-2 text-xs opacity-75">({option.count})</span>
+                        <span className="text-xs opacity-75">({option.count})</span>
                       </div>
                     </button>
                   ))}
@@ -383,16 +391,16 @@ export const EventsDirectoryPage: React.FC = () => {
 
               {/* Event Types Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-lg">EVENT TYPES</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">EVENT TYPES</h4>
+                <div className="space-y-2">
                   {EVENT_TYPES.map((type) => (
                     <button
                       key={type}
                       onClick={() => toggleType(type)}
-                      className={`btn-filter transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                         selectedTypes.includes(type)
-                          ? 'active'
-                          : ''
+                          ? 'bg-black text-white'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       {type}
@@ -403,92 +411,106 @@ export const EventsDirectoryPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Results */}
-          <div className="mb-4">
-            <p className="text-gray-600">
-              {loading ? 'Loading...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
-            </p>
-          </div>
-
-          {/* Events Grid */}
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#C80650' }}></div>
+          {/* Right Content Area */}
+          <div className="flex-1 ml-8">
+            {/* Results Count */}
+            <div className="mb-4">
+              <p className="text-gray-600">
+                {loading ? 'Loading...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
+              </p>
             </div>
-          ) : (
-            <>
-              {/* Mobile Layout - Date Grouped */}
-              <div className="lg:hidden space-y-6 pb-24">
-                {sortedDateKeys.map((dateKey) => {
-                  const date = new Date(dateKey)
-                  const dayNumber = date.getDate()
-                  const monthName = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
-                  
-                  return (
-                    <div key={dateKey} className="space-y-3">
-                      {/* Date Header */}
-                      <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3">
-                        <div className="text-center">
-                          <div className="text-sm text-gray-700 font-medium">{monthName}</div>
-                          <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
-                        </div>
-                        <div className="flex-1 h-px bg-gray-200"></div>
-                        <div className="text-sm text-gray-500 font-medium">
-                          <span className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Events for this date */}
-                      <div className="space-y-3">
-                        {groupedEvents[dateKey].map((event) => (
-                          <MobileEventCard key={event.id} event={event} />
+
+            {/* Events Grid */}
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#C80650' }}></div>
+              </div>
+            ) : (
+              <>
+                {filteredEvents.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-8 h-[calc(100vh-300px)]">
+                    {/* Left Panel - Event List */}
+                    <div className="col-span-2 overflow-y-auto">
+                      <div className="grid grid-cols-2 gap-6 pr-6">
+                        {filteredEvents.map((event) => (
+                          <div
+                            key={event.id}
+                            className={`rounded-xl transition-all ${
+                              selectedEventSlug === event.slug
+                                ? 'ring-2 ring-blue-500 shadow-lg'
+                                : ''
+                            }`}
+                          >
+                            <EventCard
+                              event={event}
+                              onSelect={setSelectedEventSlug}
+                            />
+                          </div>
                         ))}
                       </div>
                     </div>
-                  )
-                })}
+
+                    {/* Right Panel - Event Details */}
+                    <div className="col-span-1 overflow-y-auto">
+                      <EventDetailPanel eventSlug={selectedEventSlug} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                    <p className="text-gray-600">Try adjusting your search or filters</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Layout - Date Grouped */}
+        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="space-y-6 pb-24">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#C80650' }}></div>
               </div>
-              
-              {/* Desktop Layout - Split Screen */}
-              <div className="hidden lg:block">
-                <div className="grid grid-cols-3 gap-8 h-[calc(100vh-300px)]">
-                  {/* Left Panel - Event List */}
-                  <div className="col-span-2 overflow-y-auto">
-                    <div className="grid grid-cols-2 gap-6 pr-6">
-                      {filteredEvents.map((event) => (
-                        <div
-                          key={event.id}
-                          className={`rounded-xl transition-all ${
-                            selectedEventSlug === event.slug
-                              ? 'ring-2 ring-blue-500 shadow-lg'
-                              : ''
-                          }`}
-                        >
-                          <EventCard 
-                            event={event} 
-                            onSelect={setSelectedEventSlug}
-                          />
-                        </div>
+            ) : filteredEvents.length > 0 ? (
+              sortedDateKeys.map((dateKey) => {
+                const date = new Date(dateKey)
+                const dayNumber = date.getDate()
+                const monthName = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+
+                return (
+                  <div key={dateKey} className="space-y-3">
+                    {/* Date Header */}
+                    <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3">
+                      <div className="text-center">
+                        <div className="text-sm text-gray-700 font-medium">{monthName}</div>
+                        <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
+                      </div>
+                      <div className="flex-1 h-px bg-gray-200"></div>
+                      <div className="text-sm text-gray-500 font-medium">
+                        <span className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                      </div>
+                    </div>
+
+                    {/* Events for this date */}
+                    <div className="space-y-3">
+                      {groupedEvents[dateKey].map((event) => (
+                        <MobileEventCard key={event.id} event={event} />
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Right Panel - Event Details */}
-                  <div className="col-span-1 overflow-y-auto">
-                    <EventDetailPanel eventSlug={selectedEventSlug} />
-                  </div>
-                </div>
+                )
+              })
+            ) : (
+              <div className="text-center py-12">
+                <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters</p>
               </div>
-            </>
-          )}
-
-          {!loading && filteredEvents.length === 0 && (
-            <div className="text-center py-12 pb-24 lg:pb-12">
-              <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </Layout>

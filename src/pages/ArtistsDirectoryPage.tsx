@@ -238,55 +238,63 @@ export const ArtistsDirectoryPage: React.FC = () => {
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          {/* Desktop Header */}
-          <div className="hidden lg:block mb-8">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">ARTIST DIRECTORY</h1>
-                <p className="text-gray-600 mt-2">Discover amazing local artists</p>
+        {/* Desktop Header */}
+        <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold font-oswald text-gray-900">ARTIST DIRECTORY</h1>
+              <p className="text-gray-600 mt-2">Discover amazing local artists</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search artists..."
+                  className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search artists..."
-                    className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={clearFilters}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-                  >
-                    <X size={16} />
-                    <span>Clear Filters</span>
-                  </button>
-                )}
-              </div>
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                >
+                  <X size={16} />
+                  <span>Clear Filters</span>
+                </button>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Filters */}
-          <div className="hidden lg:block mb-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">Filters</h3>
-              
+        {/* Desktop Layout - Sidebar + Content */}
+        <div className="hidden lg:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Left Sidebar - Filters */}
+          <div className="w-64 flex-shrink-0">
+            <div className="sticky top-6 bg-white rounded-xl p-6 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold font-oswald text-gray-900 text-xl">FILTERS</h3>
+                {activeFiltersCount > 0 && (
+                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </div>
+
               {/* Artist Types Filter */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">Artist Type</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">ARTIST TYPE</h4>
+                <div className="space-y-2">
                   {ARTIST_TYPES.map((type) => (
                     <button
                       key={type}
                       onClick={() => toggleType(type)}
-                      className={`btn-filter transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                         selectedTypes.includes(type)
-                          ? 'active'
-                          : ''
+                          ? 'bg-black text-white'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       {type}
@@ -298,16 +306,16 @@ export const ArtistsDirectoryPage: React.FC = () => {
               {/* Musical Genres Filter */}
               {selectedTypes.includes('Musician') && (
                 <div className="mb-6">
-                  <h4 className="font-medium text-gray-700 mb-3">Musical Genres</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">MUSICAL GENRES</h4>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
                     {MUSICAL_GENRES.map((genre) => (
                       <button
                         key={genre}
                         onClick={() => toggleGenre(genre)}
-                        className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                           selectedGenres.includes(genre)
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         {genre}
@@ -320,16 +328,16 @@ export const ArtistsDirectoryPage: React.FC = () => {
               {/* Visual Mediums Filter */}
               {selectedTypes.includes('Visual') && (
                 <div className="mb-6">
-                  <h4 className="font-medium text-gray-700 mb-3">Visual Mediums</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">VISUAL MEDIUMS</h4>
+                  <div className="space-y-2">
                     {VISUAL_MEDIUMS.map((medium) => (
                       <button
                         key={medium}
                         onClick={() => toggleMedium(medium)}
-                        className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                           selectedMediums.includes(medium)
-                            ? 'bg-green-600 text-white border-green-600'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         {medium}
@@ -341,43 +349,59 @@ export const ArtistsDirectoryPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Results */}
-          <div className="mb-4">
-            <p className="text-gray-600">
-              {loading ? 'Loading...' : `${filteredArtists.length} artist${filteredArtists.length !== 1 ? 's' : ''} found`}
-            </p>
+          {/* Right Content Area */}
+          <div className="flex-1 ml-8">
+            {/* Results Count */}
+            <div className="mb-4">
+              <p className="text-gray-600">
+                {loading ? 'Loading...' : `${filteredArtists.length} artist${filteredArtists.length !== 1 ? 's' : ''} found`}
+              </p>
+            </div>
+
+            {/* Artists Grid */}
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              </div>
+            ) : (
+              <>
+                {filteredArtists.length > 0 ? (
+                  <div className="grid grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredArtists.map((artist) => (
+                      <ArtistCard key={artist.id} artist={artist} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Music size={48} className="mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No artists found</h3>
+                    <p className="text-gray-600">Try adjusting your search or filters</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
+        </div>
 
-          {/* Artists Grid */}
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-          ) : (
-            <>
-              {/* Mobile Layout - List Cards */}
-              <div className="lg:hidden space-y-3">
-                {filteredArtists.map((artist) => (
-                  <MobileArtistCard key={artist.id} artist={artist} />
-                ))}
+        {/* Mobile Layout - List Cards */}
+        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="space-y-3 pb-24">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
               </div>
-              
-              {/* Desktop Layout - Grid */}
-              <div className="hidden lg:grid grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredArtists.map((artist) => (
-                  <ArtistCard key={artist.id} artist={artist} />
-                ))}
+            ) : filteredArtists.length > 0 ? (
+              filteredArtists.map((artist) => (
+                <MobileArtistCard key={artist.id} artist={artist} />
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Music size={48} className="mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No artists found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters</p>
               </div>
-            </>
-          )}
-
-          {!loading && filteredArtists.length === 0 && (
-            <div className="text-center py-12">
-              <Music size={48} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No artists found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </Layout>
