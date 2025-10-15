@@ -73,9 +73,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className="h-8 w-auto"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-                    <span className="text-[#FFCE03] font-bold text-lg">7</span>
-                  </div>
+                  <img
+                    src="/785 Logo Valentine.png"
+                    alt="seveneightfive"
+                    className="h-10 w-10 object-contain"
+                  />
                 )}
               </Link>
             </div>
@@ -158,14 +160,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                           </p>
                         </div>
                       </div>
-                      <div className="space-y-1">
-                        <Link
-                          to="/profile"
-                          className="block text-sm text-gray-600 hover:text-gray-900"
-                        >
-                          Edit Profile
-                        </Link>
-                      </div>
                       <Link
                         to="/dashboard"
                         className="btn-black w-full text-center inline-block"
@@ -205,28 +199,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               ) : (
                 <div className="flex flex-col items-center space-y-2">
                   {user ? (
-                    <>
-                      <Link
-                        to="/dashboard"
-                        className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors group relative"
-                        title="Dashboard"
-                      >
-                        <User className="w-5 h-5 text-white" />
-                        <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
-                          Dashboard
-                        </span>
-                      </Link>
-                      <Link
-                        to="/profile"
-                        className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors group relative"
-                        title="Edit Profile"
-                      >
-                        <User className="w-5 h-5 text-gray-600" />
-                        <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
-                          Edit Profile
-                        </span>
-                      </Link>
-                    </>
+                    <Link
+                      to="/dashboard"
+                      className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors group relative"
+                      title="Dashboard"
+                    >
+                      <User className="w-5 h-5 text-white" />
+                      <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                        Dashboard
+                      </span>
+                    </Link>
                   ) : (
                     <button
                       onClick={() => openAuthModal('signin')}
