@@ -425,8 +425,8 @@ export const VenuesDirectoryPage: React.FC = () => {
         {/* Desktop Layout - Sidebar + Content */}
         <div className="hidden lg:flex h-screen">
           {/* Left Sidebar - Filters */}
-          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 overflow-y-auto">
-            <div className="p-6">
+          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
+            <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
                 <h1 className="text-2xl font-bold font-oswald text-gray-900 mb-2">Venues Directory</h1>
@@ -468,7 +468,7 @@ export const VenuesDirectoryPage: React.FC = () => {
               {/* Venue Types Filter */}
               <div className="mb-6">
                 <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="space-y-2">
                   {VENUE_TYPES.map((type) => (
                     <button
                       key={type}
@@ -491,7 +491,7 @@ export const VenuesDirectoryPage: React.FC = () => {
               {/* Neighborhoods Filter */}
               <div className="mb-6">
                 <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="space-y-2">
                   {NEIGHBORHOODS.map((neighborhood) => (
                     <button
                       key={neighborhood}

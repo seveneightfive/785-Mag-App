@@ -317,10 +317,10 @@ export const EventsDirectoryPage: React.FC = () => {
         )}
 
         {/* Desktop Layout - Sidebar + Content */}
-        <div className="hidden lg:flex" style={{ height: '100vh' }}>
+        <div className="hidden lg:flex h-screen">
           {/* Left Sidebar - Filters */}
-          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 overflow-y-auto">
-            <div className="p-6">
+          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
+            <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
                 <h1 className="text-2xl font-bold font-oswald text-gray-900 mb-2">Events Directory</h1>
