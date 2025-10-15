@@ -20,7 +20,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate()
 
   const navigation = [
-    { name: 'Home', href: '/', icon: Home },
     { name: 'Feed', href: '/feed', icon: Heart },
     { name: 'Events', href: '/events', icon: Calendar },
     { name: 'Artists', href: '/artists', icon: Music },
