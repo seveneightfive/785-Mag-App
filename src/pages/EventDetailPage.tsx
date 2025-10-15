@@ -249,8 +249,28 @@ export const EventDetailPage: React.FC = () => {
       </Helmet>
       <div className="min-h-screen bg-gray-50">
 
+        {/* Mobile Back Button - Fixed Header */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+          <div className="flex items-center px-4 py-3">
+            <button
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1)
+                } else {
+                  navigate('/events')
+                }
+              }}
+              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 active:scale-95 transition-transform"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={24} />
+              <span className="font-medium">Back</span>
+            </button>
+          </div>
+        </div>
+
         {/* Mobile Hero Image - Full Width */}
-        <div className="lg:hidden w-full">
+        <div className="lg:hidden w-full pt-[52px]">
           {event.image_url ? (
             <img
               src={event.image_url}

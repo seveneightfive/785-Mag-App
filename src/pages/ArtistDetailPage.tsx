@@ -260,6 +260,26 @@ export const ArtistDetailPage: React.FC = () => {
     <Layout>
       <div className="min-h-screen bg-gray-50">
 
+        {/* Mobile Back Button - Fixed Header */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+          <div className="flex items-center px-4 py-3">
+            <button
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1)
+                } else {
+                  navigate('/artists')
+                }
+              }}
+              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 active:scale-95 transition-transform"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={24} />
+              <span className="font-medium">Back</span>
+            </button>
+          </div>
+        </div>
+
         {/* Desktop Full-Width Hero */}
         <div className="hidden lg:block relative h-[60vh] overflow-hidden">
           {artist.avatar_url || artist.image_url ? (
@@ -333,7 +353,7 @@ export const ArtistDetailPage: React.FC = () => {
         </div>
 
         {/* Mobile Hero */}
-        <div className="lg:hidden aspect-[16/9] relative overflow-hidden">
+        <div className="lg:hidden aspect-[16/9] relative overflow-hidden mt-[52px]">
           {artist.avatar_url || artist.image_url ? (
             <img
               src={artist.avatar_url || artist.image_url}
