@@ -62,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             {/* Navigation */}
             <nav className="mt-6 flex-1 px-3 space-y-1">
-              {navigation.map((item) => (
+              {navigation.filter(item => item.name !== 'Feed').map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
