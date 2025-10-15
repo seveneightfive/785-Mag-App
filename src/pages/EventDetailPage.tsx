@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  DollarSign, 
-  ExternalLink, 
+import { Helmet } from 'react-helmet-async'
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  DollarSign,
+  ExternalLink,
   ArrowLeft,
   Star,
   Heart,
@@ -236,6 +237,16 @@ export const EventDetailPage: React.FC = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <link rel="canonical" href={`https://785mag.com/events/${event.slug}/`} />
+        <title>{event.title} | seveneightfive magazine</title>
+        <meta name="description" content={event.description || `Join us for ${event.title} at ${event.venue?.name || 'our venue'}`} />
+        <meta property="og:url" content={`https://785mag.com/events/${event.slug}/`} />
+        <meta property="og:type" content="event" />
+        <meta property="og:title" content={event.title} />
+        <meta property="og:description" content={event.description || `Join us for ${event.title}`} />
+        {event.image_url && <meta property="og:image" content={event.image_url} />}
+      </Helmet>
       <div className="min-h-screen bg-gray-50">
 
         {/* Mobile Hero Image - Full Width */}
