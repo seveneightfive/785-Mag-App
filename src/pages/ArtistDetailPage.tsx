@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { Music, Globe, Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, Users, Palette, Eye, Instagram, Twitter, Facebook, Youtube, Mail } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
-import { EventCard } from '../components/EventCard'
+import { EventModal } from '../components/EventModal'
 import { AudioPlayer } from '../components/AudioPlayer'
 import { VideoPlayer } from '../components/VideoPlayer'
 import { WorksGallery } from '../components/WorksGallery'
@@ -13,6 +13,7 @@ import { supabase, type Artist, type Event, type Work, trackPageView } from '../
 export const ArtistDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
   const [artist, setArtist] = useState<Artist | null>(null)
   const [events, setEvents] = useState<Event[]>([])
@@ -26,6 +27,9 @@ export const ArtistDetailPage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [showAudioPlayer, setShowAudioPlayer] = useState(false)
+
+  const eventSlugFromUrl = searchParams.get('event')
+  const isEventModalOpen = !!eventSlugFromUrl
 
   useEffect(() => {
     if (slug) {
@@ -214,6 +218,14 @@ export const ArtistDetailPage: React.FC = () => {
       case 'email': return <Mail size={20} />
       default: return <Globe size={20} />
     }
+  }
+
+  const handleEventClick = (eventSlug: string) => {
+    setSearchParams({ event: eventSlug })
+  }
+
+  const handleCloseEventModal = () => {
+    setSearchParams({})
   }
 
   if (loading) {
@@ -455,24 +467,27 @@ export const ArtistDetailPage: React.FC = () => {
                       const eventDate = new Date(event.start_date)
                       const monthShort = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
                       const dayNumber = eventDate.getDate()
-                      
+
                       return (
-                        <Link
+                        <button
                           key={event.id}
-                          to={`/events/${event.slug}`}
-                          className="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors group"
+                          onClick={() => handleEventClick(event.slug || '')}
+                          className="w-full flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors group text-left"
                         >
                           {/* Date Box */}
                           <div className="bg-[#FFCE03] rounded-lg p-3 text-center flex-shrink-0 w-16">
                             <div className="text-xs font-medium text-black">{monthShort}</div>
                             <div className="text-xl font-bold text-black">{dayNumber}</div>
                           </div>
-                          
+
                           {/* Event Details */}
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-600 mb-1">
-                              {event.venue?.name}
-                            </div>
+                            {event.venue?.name && (
+                              <div className="flex items-center text-sm font-medium text-gray-600 mb-1">
+                                <MapPin size={14} className="mr-1 flex-shrink-0" />
+                                <span className="truncate">{event.venue.name}</span>
+                              </div>
+                            )}
                             <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
                               {event.title}
                             </div>
@@ -482,7 +497,7 @@ export const ArtistDetailPage: React.FC = () => {
                               </div>
                             )}
                           </div>
-                        </Link>
+                        </button>
                       )
                     })}
                   </div>
@@ -653,6 +668,13 @@ export const ArtistDetailPage: React.FC = () => {
             onClose={() => setShowAudioPlayer(false)}
           />
         )}
+
+        {/* Event Modal */}
+        <EventModal
+          eventSlug={eventSlugFromUrl}
+          isOpen={isEventModalOpen}
+          onClose={handleCloseEventModal}
+        />
       </div>
     </Layout>
   )

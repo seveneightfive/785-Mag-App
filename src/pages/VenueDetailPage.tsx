@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { MapPin, Phone, Globe, Heart, Share2, ArrowLeft, Users, Calendar } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
-import { EventCard } from '../components/EventCard'
+import { EventModal } from '../components/EventModal'
 import { MenuProcCard } from '../components/MenuProcCard'
 import { MenuProcModal } from '../components/MenuProcModal'
 import { MenuProcForm } from '../components/MenuProcForm'
@@ -13,6 +13,7 @@ import { supabase, type Venue, type Event, type MenuProc, trackPageView } from '
 export const VenueDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
   const [venue, setVenue] = useState<Venue | null>(null)
   const [events, setEvents] = useState<Event[]>([])
@@ -23,6 +24,9 @@ export const VenueDetailPage: React.FC = () => {
   const [selectedMenuProc, setSelectedMenuProc] = useState<MenuProc | null>(null)
   const [showMenuProcModal, setShowMenuProcModal] = useState(false)
   const [showMenuProcForm, setShowMenuProcForm] = useState(false)
+
+  const eventSlugFromUrl = searchParams.get('event')
+  const isEventModalOpen = !!eventSlugFromUrl
 
   useEffect(() => {
     if (slug) {
@@ -73,8 +77,8 @@ export const VenueDetailPage: React.FC = () => {
         )
       `)
       .eq('venue.slug', slug)
-      .gte('event_date', new Date().toISOString())
-      .order('event_date', { ascending: true })
+      .gte('start_date', new Date().toISOString())
+      .order('start_date', { ascending: true })
 
     if (data) {
       setEvents(data)
@@ -161,6 +165,14 @@ export const VenueDetailPage: React.FC = () => {
   const handleMenuProcClick = (menuProc: MenuProc) => {
     setSelectedMenuProc(menuProc)
     setShowMenuProcModal(true)
+  }
+
+  const handleEventClick = (eventSlug: string) => {
+    setSearchParams({ event: eventSlug })
+  }
+
+  const handleCloseEventModal = () => {
+    setSearchParams({})
   }
 
   const isRestaurantOrBar = venue?.venue_type === 'Restaurant' || venue?.venue_type === 'Bar/Tavern'
@@ -413,10 +425,53 @@ export const VenueDetailPage: React.FC = () => {
               {events.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Upcoming Events</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {events.map((event) => (
-                      <EventCard key={event.id} event={event} />
-                    ))}
+                  <div className="space-y-4">
+                    {events.map((event) => {
+                      const eventDate = new Date(event.start_date)
+                      const monthShort = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+                      const dayNumber = eventDate.getDate()
+
+                      return (
+                        <button
+                          key={event.id}
+                          onClick={() => handleEventClick(event.slug || '')}
+                          className="w-full flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors group text-left border border-gray-200"
+                        >
+                          <div className="bg-[#FFCE03] rounded-lg p-3 text-center flex-shrink-0 w-16">
+                            <div className="text-xs font-medium text-black">{monthShort}</div>
+                            <div className="text-xl font-bold text-black">{dayNumber}</div>
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                              {event.title}
+                            </div>
+                            {event.event_start_time && (
+                              <div className="text-sm text-gray-500">
+                                {event.event_start_time}
+                              </div>
+                            )}
+                            {event.event_artists && event.event_artists.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {event.event_artists.slice(0, 3).map((eventArtist) => (
+                                  <span
+                                    key={eventArtist.artist.id}
+                                    className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800"
+                                  >
+                                    {eventArtist.artist.name}
+                                  </span>
+                                ))}
+                                {event.event_artists.length > 3 && (
+                                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                                    +{event.event_artists.length - 3} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -484,6 +539,12 @@ export const VenueDetailPage: React.FC = () => {
             fetchMenuProcs()
           }}
           preselectedVenue={venue}
+        />
+
+        <EventModal
+          eventSlug={eventSlugFromUrl}
+          isOpen={isEventModalOpen}
+          onClose={handleCloseEventModal}
         />
     </Layout>
   )
