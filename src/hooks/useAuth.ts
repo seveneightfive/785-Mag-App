@@ -6,6 +6,8 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false)
+  const [authMethod, setAuthMethod] = useState<'email' | 'phone' | null>(null)
 
   useEffect(() => {
     // Get initial session
@@ -36,39 +38,102 @@ export const useAuth = () => {
 
   const getProfile = async (userId: string) => {
     try {
+      const { data: userData } = await supabase.auth.getUser()
+      const currentUser = userData.user
+
+      if (!currentUser) {
+        setLoading(false)
+        return
+      }
+
+      const userAuthMethod = currentUser.phone ? 'phone' : 'email'
+      setAuthMethod(userAuthMethod)
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
-      if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create one
-        const { data: userData } = await supabase.auth.getUser()
-        if (userData.user) {
-          const newProfile = {
-            id: userData.user.id,
-            username: userData.user.email?.split('@')[0] || '',
-            full_name: userData.user.user_metadata?.full_name || '',
-            avatar_url: userData.user.user_metadata?.avatar_url || ''
-          }
-          
-          const { data: createdProfile } = await supabase
-            .from('profiles')
-            .insert(newProfile)
-            .select()
-            .single()
-          
-          setProfile(createdProfile)
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error)
+        setLoading(false)
+        return
+      }
+
+      if (!data) {
+        const newProfile = {
+          id: currentUser.id,
+          username: currentUser.email?.split('@')[0] || currentUser.phone?.slice(-4) || 'user',
+          full_name: currentUser.user_metadata?.full_name || '',
+          avatar_url: currentUser.user_metadata?.avatar_url || '',
+          email: userAuthMethod === 'phone' ? '' : currentUser.email,
+          phone_number: userAuthMethod === 'email' ? '' : currentUser.phone
         }
-      } else if (!error) {
+
+        const { data: createdProfile } = await supabase
+          .from('profiles')
+          .insert(newProfile)
+          .select()
+          .maybeSingle()
+
+        if (createdProfile) {
+          setProfile(createdProfile)
+          checkProfileCompleteness(createdProfile, userAuthMethod)
+        }
+      } else {
         setProfile(data)
+        checkProfileCompleteness(data, userAuthMethod)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const checkProfileCompleteness = (profile: Profile, method: 'email' | 'phone') => {
+    const missingFullName = !profile.full_name || profile.full_name.trim() === ''
+    const missingPhone = method === 'email' && (!profile.phone_number || profile.phone_number.trim() === '')
+    const missingEmail = method === 'phone' && (!profile.email || profile.email.trim() === '')
+
+    const isIncomplete = missingFullName || missingPhone || missingEmail
+    setNeedsProfileCompletion(isIncomplete)
+  }
+
+  const completeProfile = async (data: { full_name: string; phone_number?: string; email?: string }) => {
+    if (!user) {
+      throw new Error('No user logged in')
+    }
+
+    const updateData: Partial<Profile> = {
+      full_name: data.full_name,
+      updated_at: new Date().toISOString()
+    }
+
+    if (data.phone_number) {
+      updateData.phone_number = data.phone_number
+    }
+
+    if (data.email) {
+      updateData.email = data.email
+    }
+
+    const { data: updatedProfile, error } = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', user.id)
+      .select()
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    setProfile(updatedProfile)
+    setNeedsProfileCompletion(false)
+
+    return updatedProfile
   }
 
   const signIn = async (email: string, password: string) => {
@@ -127,11 +192,14 @@ export const useAuth = () => {
     user,
     profile,
     loading,
+    needsProfileCompletion,
+    authMethod,
     signIn,
     signUp,
     signInWithMagicLink,
     signInWithPhone,
     verifyOtp,
     signOut,
+    completeProfile,
   }
 }

@@ -1,6 +1,8 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ScrollToTop } from './components/ScrollToTop'
+import { ProfileCompletionModal } from './components/ProfileCompletionModal'
+import { useAuth } from './hooks/useAuth'
 import { HomePage } from './pages/HomePage'
 import { EventsDirectoryPage } from './pages/EventsDirectoryPage'
 import { ArtistsDirectoryPage } from './pages/ArtistsDirectoryPage'
@@ -13,9 +15,22 @@ import { DashboardPage } from './pages/DashboardPage'
 import { FeedPage } from './pages/FeedPage'
 
 function App() {
+  const { user, needsProfileCompletion, authMethod, completeProfile } = useAuth()
+
+  const handleProfileComplete = async (data: { full_name: string; phone_number?: string; email?: string }) => {
+    await completeProfile(data)
+  }
+
   return (
     <Router>
       <ScrollToTop />
+      <ProfileCompletionModal
+        isOpen={needsProfileCompletion && !!user}
+        authMethod={authMethod || 'email'}
+        currentEmail={user?.email}
+        currentPhone={user?.phone}
+        onComplete={handleProfileComplete}
+      />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
