@@ -667,28 +667,7 @@ export const DashboardPage: React.FC = () => {
           {/* Quick Actions */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <Link
-                to="/events"
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <Calendar className="text-blue-600 mr-3" size={20} />
-                <span className="font-medium text-gray-900">Browse Events</span>
-              </Link>
-              <Link
-                to="/artists"
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <Music className="text-purple-600 mr-3" size={20} />
-                <span className="font-medium text-gray-900">Discover Artists</span>
-              </Link>
-              <Link
-                to="/venues"
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <MapPin className="text-teal-600 mr-3" size={20} />
-                <span className="font-medium text-gray-900">Find Venues</span>
-              </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => setShowAnnouncementForm(true)}
                 className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"

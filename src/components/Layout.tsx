@@ -21,7 +21,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Feed', href: '/feed', icon: Heart },
     { name: 'Events', href: '/events', icon: Calendar },
     { name: 'Artists', href: '/artists', icon: Music },
@@ -110,13 +109,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     >
                       Edit Profile
                     </Link>
-                    <Link
-                      to="/dashboard"
-                      className="block text-sm text-gray-600 hover:text-gray-900"
-                    >
-                      Dashboard
-                    </Link>
                   </div>
+                  <Link
+                    to="/dashboard"
+                    className="btn-black w-full text-center inline-block"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => setContactModalOpen(true)}
+                    className="btn-white w-full text-center inline-block"
+                  >
+                    Contact Us
+                  </button>
                   <button
                     onClick={signOut}
                     className="w-full text-left text-sm text-gray-500 hover:text-gray-700"
