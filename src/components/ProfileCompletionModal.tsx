@@ -138,14 +138,18 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 relative">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <User size={32} className="text-blue-600" />
+          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-4">
+            <img
+              src="/785 Logo Valentine.png"
+              alt="785 Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Complete Your Profile
           </h2>
           <p className="text-gray-600">
-            Please provide some additional information to get started
+            To effectively manage events, place ads and have a more customized experience, we need 2 pieces of additional information. That's all. Thanks!
           </p>
           {authMethod === 'email' && currentEmail && (
             <div className="mt-3 inline-flex items-center px-3 py-1.5 bg-blue-50 rounded-full text-sm text-blue-700">
