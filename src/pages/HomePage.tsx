@@ -10,11 +10,11 @@ import { MenuProcModal } from '../components/MenuProcModal'
 import { AnimatedStats } from '../components/AnimatedStats'
 import { AnnouncementBanner } from '../components/AnnouncementBanner'
 import { AdvertisementBanner } from '../components/AdvertisementBanner'
+import { EventsTabSection } from '../components/EventsTabSection'
 import { supabase, type Event, type Artist, type Venue, type MenuProc, trackPageView } from '../lib/supabase'
 
 export const HomePage: React.FC = () => {
   const [starredEvents, setStarredEvents] = useState<Event[]>([])
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([])
   const [featuredArtists, setFeaturedArtists] = useState<Artist[]>([])
   const [featuredVenues, setFeaturedVenues] = useState<Venue[]>([])
   const [latestMenuProcs, setLatestMenuProcs] = useState<MenuProc[]>([])
@@ -63,23 +63,6 @@ export const HomePage: React.FC = () => {
 
       if (starredData) {
         setStarredEvents(starredData)
-      }
-
-      // Fetch upcoming events (non-starred)
-      const { data: upcomingData } = await supabase
-        .from('events')
-        .select(`
-          *,
-          venue:venues(*),
-          event_artists(artist:artists(*))
-        `)
-        .neq('star', true)
-        .gte('start_date', today.toISOString())
-        .order('start_date', { ascending: true })
-        .limit(6)
-
-      if (upcomingData) {
-        setUpcomingEvents(upcomingData)
       }
 
       // Fetch featured artists (verified ones)
@@ -335,28 +318,8 @@ export const HomePage: React.FC = () => {
             </section>
           )}
 
-          {/* Upcoming Events Section */}
-          {upcomingEvents.length > 0 && (
-            <section className="mb-12">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-oswald text-gray-900">
-                  Upcoming Events
-                </h2>
-                <Link
-                  to="/events"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  View All Events →
-                </Link>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {upcomingEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            </section>
-          )}
+          {/* Events Tab Section */}
+          <EventsTabSection />
 
           {/* Featured Artists Section */}
           {featuredArtists.length > 0 && (
