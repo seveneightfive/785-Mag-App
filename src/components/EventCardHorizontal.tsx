@@ -10,6 +10,11 @@ interface EventCardHorizontalProps {
 export const EventCardHorizontal: React.FC<EventCardHorizontalProps> = ({ event }) => {
   const allArtists = event.event_artists || []
 
+  const formatTime = (time?: string): string => {
+    if (!time) return ''
+    return time.replace(/^0/, '')
+  }
+
   return (
     <Link
       to={`/events/${event.slug}`}
@@ -31,25 +36,19 @@ export const EventCardHorizontal: React.FC<EventCardHorizontalProps> = ({ event 
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+          <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors font-oswald">
             {event.title}
           </h3>
 
           {event.event_start_time && (
             <div className="text-sm text-gray-900 font-medium mb-1">
-              {event.event_start_time}
+              {formatTime(event.event_start_time)}
             </div>
           )}
 
           {event.venue && (
-            <div className="text-sm text-gray-600 mb-2">
+            <div className="text-sm text-gray-600">
               {event.venue.name}
-            </div>
-          )}
-
-          {event.venue?.address && (
-            <div className="text-xs text-gray-500">
-              {event.venue.address}
             </div>
           )}
         </div>
