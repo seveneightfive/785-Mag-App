@@ -317,7 +317,7 @@ export const EventsDirectoryPage: React.FC = () => {
         )}
 
         {/* Desktop Layout - Sidebar + Content */}
-        <div className="hidden lg:flex h-screen">
+        <div className="hidden lg:flex" style={{ height: '100vh' }}>
           {/* Left Sidebar - Filters */}
           <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 overflow-y-auto">
             <div className="p-6">
@@ -350,7 +350,6 @@ export const EventsDirectoryPage: React.FC = () => {
 
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold font-oswald text-gray-900 text-base">FILTERS</h3>
                   {activeFiltersCount > 0 && (
                     <span className="text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#C80650' }}>
                       {activeFiltersCount}
@@ -427,10 +426,10 @@ export const EventsDirectoryPage: React.FC = () => {
             ) : (
               <>
                 {filteredEvents.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-8 h-[calc(100vh-300px)]">
+                  <div className="grid grid-cols-3 gap-8" style={{ height: 'calc(100vh - 180px)' }}>
                     {/* Left Panel - Event List */}
                     <div className="col-span-2 overflow-y-auto">
-                      <div className="grid grid-cols-2 gap-6 pr-6">
+                      <div className="grid grid-cols-3 gap-6 pr-6">
                         {filteredEvents.map((event) => (
                           <div
                             key={event.id}

@@ -70,13 +70,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <img
                     src="/785 Logo Valentine.png"
                     alt="seveneightfive"
-                    className="h-8 w-auto"
+                    className="h-12 w-auto"
                   />
                 ) : (
                   <img
                     src="/785 Logo Valentine.png"
                     alt="seveneightfive"
-                    className="h-10 w-10 object-contain"
+                    className="h-14 w-14 object-contain"
                   />
                 )}
               </Link>
