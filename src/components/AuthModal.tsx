@@ -10,7 +10,7 @@ interface AuthModalProps {
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) => {
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('+1')
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
@@ -74,7 +74,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) =
 
   const handleClose = () => {
     setEmail('')
-    setPhone('')
+    setPhone('+1')
     setOtp('')
     setIsEmailSent(false)
     setIsOtpSent(false)
@@ -181,7 +181,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode }) =
 
             <div className="mt-6 text-center">
               <button
-                onClick={() => setAuthMethod(authMethod === 'email' ? 'phone' : 'email')}
+                onClick={() => {
+                  setAuthMethod(authMethod === 'email' ? 'phone' : 'email')
+                  if (authMethod === 'email') {
+                    setPhone('+1')
+                  }
+                }}
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm"
               >
                 {authMethod === 'email' ? 'Sign in with phone number' : 'Sign in with email'}
