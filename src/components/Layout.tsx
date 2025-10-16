@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { AuthModal } from './AuthModal'
 import { ContactModal } from './ContactModal'
+import { PWAInstallPrompt } from './PWAInstallPrompt'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -293,10 +294,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         mode={authMode}
       />
       
-      <ContactModal 
+      <ContactModal
         isOpen={contactModalOpen}
         onClose={() => setContactModalOpen(false)}
       />
+
+      <PWAInstallPrompt />
     </div>
   )
 }

@@ -1,11 +1,12 @@
 {
   "name": "seveneightfive magazine",
-  "short_name": "785 MAG",
+  "short_name": "785mag",
   "description": "Discover amazing events, artists, and venues in Topeka",
-  "start_url": "/",
+  "start_url": "https://785mag.com",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#3B82F6",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFCE03",
   "orientation": "portrait",
   "icons": [
     {
@@ -19,9 +20,17 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/785 Logo Valentine.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["entertainment", "lifestyle", "social"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "related_applications": [],
+  "prefer_related_applications": false
 }
