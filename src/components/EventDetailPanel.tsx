@@ -113,7 +113,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
       .eq('follower_id', user.id)
       .eq('entity_type', 'event')
       .eq('entity_id', event.id)
-      .single()
+      .maybeSingle()
 
     setIsFollowing(!!data)
   }

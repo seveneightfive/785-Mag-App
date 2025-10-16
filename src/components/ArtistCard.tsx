@@ -64,7 +64,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
       .eq('follower_id', user.id)
       .eq('entity_type', 'artist')
       .eq('entity_id', artist.id)
-      .single()
+      .maybeSingle()
 
     setIsFollowing(!!data)
   }

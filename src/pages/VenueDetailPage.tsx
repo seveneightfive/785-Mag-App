@@ -112,7 +112,7 @@ export const VenueDetailPage: React.FC = () => {
       .eq('follower_id', user.id)
       .eq('entity_type', 'venue')
       .eq('entity_id', venue.id)
-      .single()
+      .maybeSingle()
 
     setIsFollowing(!!data)
   }
