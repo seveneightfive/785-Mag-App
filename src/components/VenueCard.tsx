@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { MapPin, Calendar, Phone, Globe, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase, type Venue } from '../lib/supabase'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface VenueCardProps {
   venue: Venue
@@ -33,15 +34,14 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
       className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
     >
       <div className="relative">
-        {venue.image_url && (
-          <div className="aspect-video overflow-hidden">
-            <img
-              src={venue.image_url}
-              alt={venue.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-            />
-          </div>
-        )}
+        <div className="aspect-video overflow-hidden">
+          <ImageWithFallback
+            src={venue.image_url}
+            alt={venue.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+            fallbackType="venue"
+          />
+        </div>
         
         {/* Venue Type Tag - Bottom Left */}
         {venue.venue_type && (

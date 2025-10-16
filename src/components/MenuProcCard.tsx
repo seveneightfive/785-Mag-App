@@ -1,6 +1,7 @@
 import React from 'react'
 import { MapPin, User, Calendar } from 'lucide-react'
 import { MenuProc } from '../lib/supabase'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface MenuProcCardProps {
   menuProc: MenuProc
@@ -22,17 +23,13 @@ export const MenuProcCard: React.FC<MenuProcCardProps> = ({
     >
       {/* Image */}
       <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
-        {primaryImage ? (
-          <img
-            src={primaryImage}
-            alt={menuProc.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-            <span className="text-4xl">🍽️</span>
-          </div>
-        )}
+        <ImageWithFallback
+          src={primaryImage}
+          alt={menuProc.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          fallbackType="generic"
+          fallbackGradient="from-orange-100 to-red-100"
+        />
       </div>
 
       {/* Content */}

@@ -140,7 +140,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
         <div className="text-center mb-6">
           <div className="w-24 h-24 flex items-center justify-center mx-auto mb-4">
             <img
-              src="/785 Logo Valentine.png"
+              src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
               alt="785 Logo"
               className="w-full h-full object-contain"
             />

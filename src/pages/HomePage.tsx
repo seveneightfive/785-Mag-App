@@ -11,6 +11,7 @@ import { AnimatedStats } from '../components/AnimatedStats'
 import { AnnouncementBanner } from '../components/AnnouncementBanner'
 import { AdvertisementBanner } from '../components/AdvertisementBanner'
 import { EventsTabSection } from '../components/EventsTabSection'
+import { ImageWithFallback } from '../components/ImageWithFallback'
 import { supabase, type Event, type Artist, type Venue, type MenuProc, trackPageView } from '../lib/supabase'
 
 export const HomePage: React.FC = () => {
@@ -190,18 +191,13 @@ export const HomePage: React.FC = () => {
                     index === currentSlide ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  {event.image_url ? (
-                    <img
-                      src={event.image_url}
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Calendar size={120} className="text-white opacity-50" />
-                    </div>
-                  )}
-                  
+                  <ImageWithFallback
+                    src={event.image_url}
+                    alt={event.title}
+                    className="w-full h-full object-cover"
+                    fallbackType="event"
+                  />
+
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                   

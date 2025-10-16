@@ -52,7 +52,7 @@ export const PWAInstallPrompt: React.FC = () => {
       <div className="flex items-start space-x-4">
         <div className="flex-shrink-0 w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg">
           <img
-            src="/icon-192.png"
+            src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785logo_App-192.png"
             alt="785mag"
             className="w-12 h-12 rounded-lg"
           />

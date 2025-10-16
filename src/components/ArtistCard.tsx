@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Calendar, Music, Palette, Mic, BookOpen, Heart } from 'lucide-react'
 import { supabase, type Artist } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface ArtistCardProps {
   artist: Artist
@@ -104,17 +105,12 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
       {/* Artist Image */}
       <Link to={`/artists/${artist.slug}`} className="block">
         <div className="aspect-square bg-gray-200 overflow-hidden">
-          {artist.image_url ? (
-            <img
-              src={artist.image_url}
-              alt={artist.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-100">
-              {getArtistTypeIcon(artist.artist_type || 'Musician')}
-            </div>
-          )}
+          <ImageWithFallback
+            src={artist.image_url}
+            alt={artist.name}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+            fallbackType="artist"
+          />
         </div>
       </Link>
 

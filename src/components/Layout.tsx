@@ -69,13 +69,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/" className="flex items-center">
                 {sidebarExpanded ? (
                   <img
-                    src="/785 Logo Valentine.png"
+                    src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
                     alt="seveneightfive"
                     className="h-12 w-auto"
                   />
                 ) : (
                   <img
-                    src="/785 Logo Valentine.png"
+                    src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
                     alt="seveneightfive"
                     className="h-14 w-14 object-contain"
                   />
@@ -244,9 +244,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             to="/"
             className="flex items-center justify-center text-white hover:text-[#FFCE03] transition-colors"
           >
-            <img 
-              src="https://assets.softr-files.com/applications/06852328-a343-4027-96ff-d4aff30169c8/assets/3bd00154-80ee-4525-8f04-dd8c544af6e7.png" 
-              alt="EventHub" 
+            <img
+              src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-White-TopOnly.png"
+              alt="seveneightfive"
               className="h-6 w-auto"
             />
           </Link>

@@ -2,6 +2,7 @@ import React from 'react'
 import { Calendar, MapPin, Clock, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Event } from '../lib/supabase'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface EventCardProps {
   event: Event
@@ -26,20 +27,15 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
     >
       {/* Event Image - Taller aspect ratio */}
       <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
-        {event.image_url ? (
-          <img
-            src={event.image_url}
-            alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <Calendar className="w-12 h-12 text-white opacity-50" />
-          </div>
-        )}
-        
+        <ImageWithFallback
+          src={event.image_url}
+          alt={event.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          fallbackType="event"
+        />
+
         {/* Date Badge - Upper Left */}
-        <div className="absolute top-0 left-0 bg-yellow-400 rounded-br-lg px-4 py-3 shadow-sm">
+        <div className="absolute top-0 left-0 bg-yellow-400 rounded-br-lg px-4 py-3 shadow-sm z-10">
           <div className="text-xs font-medium text-gray-600 uppercase tracking-wide text-center">
             {new Date(event.start_date).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
           </div>
