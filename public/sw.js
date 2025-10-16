@@ -1,6 +1,6 @@
-const CACHE_NAME = '785mag-v1'
-const RUNTIME_CACHE = '785mag-runtime-v1'
-const IMAGE_CACHE = '785mag-images-v1'
+const CACHE_NAME = '785mag-v2'
+const RUNTIME_CACHE = '785mag-runtime-v2'
+const IMAGE_CACHE = '785mag-images-v2'
 
 const urlsToCache = [
   '/',
@@ -64,9 +64,36 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(IMAGE_CACHE).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
+          const isExternal = url.origin !== location.origin
+
+          if (isExternal) {
+            return fetch(request, {
+              mode: 'cors',
+              credentials: 'omit',
+              headers: {
+                'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+              }
+            }).then((response) => {
+              if (response.ok && response.status === 200) {
+                cache.put(request, response.clone())
+              }
+              return response
+            }).catch((error) => {
+              console.warn('External image fetch failed:', request.url, error)
+              if (cachedResponse) {
+                return cachedResponse
+              }
+              return new Response(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#FFCE03" width="200" height="200"/></svg>',
+                { headers: { 'Content-Type': 'image/svg+xml' } }
+              )
+            })
+          }
+
           if (cachedResponse) {
             return cachedResponse
           }
+
           return fetch(request).then((response) => {
             if (response.status === 200) {
               cache.put(request, response.clone())
@@ -84,10 +111,29 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  if (request.destination === 'font' || request.url.includes('fonts.googleapis.com') || request.url.includes('fonts.gstatic.com')) {
+    event.respondWith(
+      fetch(request, {
+        mode: 'cors',
+        credentials: 'omit'
+      }).then((response) => {
+        if (response.status === 200) {
+          const responseClone = response.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone)
+          })
+        }
+        return response
+      }).catch(() => {
+        return caches.match(request)
+      })
+    )
+    return
+  }
+
   if (url.origin === location.origin && (
     request.destination === 'script' ||
     request.destination === 'style' ||
-    request.destination === 'font' ||
     request.url.includes('/assets/')
   )) {
     event.respondWith(
