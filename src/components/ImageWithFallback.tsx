@@ -8,6 +8,7 @@ interface ImageWithFallbackProps {
   fallbackType?: 'event' | 'artist' | 'venue' | 'generic'
   fallbackGradient?: string
   onLoad?: () => void
+  cacheBust?: boolean
 }
 
 export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
@@ -17,9 +18,11 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   fallbackType = 'generic',
   fallbackGradient,
   onLoad,
+  cacheBust = false,
 }) => {
   const [imageError, setImageError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [retryCount, setRetryCount] = useState(0)
 
   const getFallbackIcon = () => {
     const iconSize = 48
@@ -52,6 +55,14 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.warn(`Image failed to load: ${src}`, e)
+
+    if (retryCount < 1 && src) {
+      console.log(`Retrying image load with cache bypass: ${src}`)
+      setRetryCount(retryCount + 1)
+      setIsLoading(true)
+      return
+    }
+
     setImageError(true)
     setIsLoading(false)
   }
@@ -75,6 +86,19 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     )
   }
 
+  const getImageUrl = () => {
+    if (!src) return ''
+
+    const isWhalesyncCDN = src.includes('whalesyncusercontent.com')
+
+    if ((cacheBust || retryCount > 0) && isWhalesyncCDN) {
+      const separator = src.includes('?') ? '&' : '?'
+      return `${src}${separator}_t=${Date.now()}`
+    }
+
+    return src
+  }
+
   return (
     <>
       {isLoading && (
@@ -83,7 +107,7 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
         />
       )}
       <img
-        src={src}
+        src={getImageUrl()}
         alt={alt}
         className={`${className} ${isLoading ? 'hidden' : ''}`}
         onError={handleImageError}
