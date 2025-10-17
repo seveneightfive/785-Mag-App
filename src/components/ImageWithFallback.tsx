@@ -50,7 +50,8 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     }
   }
 
-  const handleImageError = () => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.warn(`Image failed to load: ${src}`, e)
     setImageError(true)
     setIsLoading(false)
   }
@@ -85,8 +86,6 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
         src={src}
         alt={alt}
         className={`${className} ${isLoading ? 'hidden' : ''}`}
-        crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
         onError={handleImageError}
         onLoad={handleImageLoad}
         loading="lazy"

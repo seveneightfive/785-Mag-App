@@ -63,32 +63,34 @@ export const HomePage: React.FC = () => {
         .limit(5)
 
       if (starredData) {
+        console.log('Starred events:', starredData.length, starredData.map(e => ({ title: e.title, image_url: e.image_url })))
         setStarredEvents(starredData)
       }
 
-      // Fetch featured artists (verified ones)
+      // Fetch featured artists (with images)
       const { data: artistsData } = await supabase
         .from('artists')
         .select('*')
-        .not('avatar_url', 'is', null)
-        .not('image_url', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(6)
+        .limit(12)
 
       if (artistsData) {
-        setFeaturedArtists(artistsData)
+        const artistsWithImages = artistsData.filter(artist => artist.image_url || artist.avatar_url)
+        console.log('Featured artists with images:', artistsWithImages.length, artistsWithImages.map(a => ({ name: a.name, image_url: a.image_url, avatar_url: a.avatar_url })))
+        setFeaturedArtists(artistsWithImages.slice(0, 6))
       }
 
-      // Fetch featured venues (random selection)
+      // Fetch featured venues (with images)
       const { data: venuesData } = await supabase
         .from('venues')
         .select('*')
-        .not('image_url', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(6)
+        .limit(12)
 
       if (venuesData) {
-        setFeaturedVenues(venuesData)
+        const venuesWithImages = venuesData.filter(venue => venue.image_url)
+        console.log('Featured venues with images:', venuesWithImages.length, venuesWithImages.map(v => ({ name: v.name, image_url: v.image_url })))
+        setFeaturedVenues(venuesWithImages.slice(0, 6))
       }
 
       // Fetch latest menu procs

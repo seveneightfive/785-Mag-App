@@ -106,7 +106,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
       <Link to={`/artists/${artist.slug}`} className="block">
         <div className="aspect-square bg-gray-200 overflow-hidden">
           <ImageWithFallback
-            src={artist.image_url}
+            src={artist.image_url || artist.avatar_url}
             alt={artist.name}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
             fallbackType="artist"
