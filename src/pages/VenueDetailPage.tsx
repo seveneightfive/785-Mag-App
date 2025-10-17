@@ -344,12 +344,30 @@ export const VenueDetailPage: React.FC = () => {
                 {/* Venue Logo */}
                 {venue.logo && (
                   <div className="mb-6">
-                    <div className="w-[150px] h-[150px] rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                      <img
-                        src={venue.logo}
-                        alt={`${venue.name} logo`}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-50 rounded-2xl rotate-3 transition-transform group-hover:rotate-6"></div>
+
+                      <div className="relative w-full h-full rounded-2xl overflow-hidden bg-white shadow-lg ring-4 ring-white transition-all duration-300 group-hover:shadow-xl group-hover:ring-teal-100">
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/5"></div>
+
+                        <img
+                          src={venue.logo}
+                          alt={`${venue.name} logo`}
+                          className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const fallback = target.parentElement?.querySelector('.logo-fallback');
+                            if (fallback) {
+                              (fallback as HTMLElement).style.display = 'flex';
+                            }
+                          }}
+                        />
+
+                        <div className="logo-fallback hidden absolute inset-0 bg-gradient-to-br from-teal-500 to-blue-600 items-center justify-center">
+                          <MapPin size={48} className="text-white opacity-80" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
