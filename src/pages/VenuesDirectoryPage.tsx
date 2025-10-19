@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, MapPin, X, ArrowUpDown, ChevronLeft } from 'lucide-react'
+import { Search, Filter, MapPin, X, ArrowUpDown, ChevronLeft, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { VenueCard } from '../components/VenueCard'
 import { supabase, type Venue, trackPageView } from '../lib/supabase'
+import { ImageWithFallback } from '../components/ImageWithFallback'
 
 const VENUE_TYPES = ['Art Gallery', 'Live Music', 'Bar/Tavern', 'Retail', 'Restaurant', 'Event Space', 'Brewery/Winery', 'Outdoor Space', 'Theatre', 'Studio/Class', 'Community Space', 'First Friday ArtWalk', 'Coffee Shop', 'Church', 'Experiences', 'Trades + Services']
 const NEIGHBORHOODS = ['Downtown', 'NOTO', 'North Topeka', 'Oakland', 'Westboro Mart', 'College Hill', 'Lake Shawnee', 'Golden Mile', 'A Short Drive', 'South Topeka', 'Midtown', 'West Topeka']
@@ -549,19 +550,17 @@ export const VenuesDirectoryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Layout */}
+        {/* Mobile Layout - List View */}
         <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="pb-24">
+          <div className="space-y-3 pb-24">
             {loading ? (
               <div className="flex justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
               </div>
             ) : filteredVenues.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {filteredVenues.map((venue) => (
-                  <VenueCard key={venue.id} venue={venue} />
-                ))}
-              </div>
+              filteredVenues.map((venue) => (
+                <MobileVenueCard key={venue.id} venue={venue} />
+              ))
             ) : (
               <div className="text-center py-12">
                 <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
@@ -573,5 +572,87 @@ export const VenuesDirectoryPage: React.FC = () => {
         </div>
       </div>
     </Layout>
+  )
+}
+
+// Mobile Venue Card Component with horizontal list layout
+const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
+  const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+
+  useEffect(() => {
+    fetchUpcomingEventsCount()
+  }, [venue.id])
+
+  const fetchUpcomingEventsCount = async () => {
+    const { count } = await supabase
+      .from('events')
+      .select('*', { count: 'exact', head: true })
+      .eq('venue_id', venue.id)
+      .gte('start_date', new Date().toISOString())
+
+    setUpcomingEventsCount(count || 0)
+  }
+
+  const streetAddress = venue.address.split(',')[0].trim()
+
+  return (
+    <Link
+      to={`/venues/${venue.slug}`}
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2 relative"
+    >
+      {/* Event Count Badge - Top Right */}
+      {upcomingEventsCount > 0 && (
+        <div className="absolute top-2 right-2 z-10">
+          <div
+            className="w-6 h-6 rounded-full flex items-center justify-center text-black text-xs font-bold shadow-lg"
+            style={{ backgroundColor: '#FFCE03' }}
+          >
+            {upcomingEventsCount}
+          </div>
+        </div>
+      )}
+
+      <div className="flex">
+        {/* Venue Image */}
+        <div className="w-20 h-20 bg-gray-200 overflow-hidden flex-shrink-0">
+          <ImageWithFallback
+            src={venue.image_url}
+            alt={venue.name}
+            className="w-full h-full object-cover"
+            fallbackType="venue"
+          />
+        </div>
+
+        {/* Venue Details */}
+        <div className="flex-1 p-3 min-w-0">
+          {/* Venue Name */}
+          <h3 className="font-oswald text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
+            {venue.name.toUpperCase()}
+          </h3>
+
+          {/* Venue Type */}
+          {venue.venue_type && (
+            <div className="text-xs text-gray-600 mb-2">
+              {venue.venue_type}
+            </div>
+          )}
+
+          {/* Address */}
+          <div className="flex items-start space-x-1.5 text-gray-600">
+            <MapPin size={12} className="mt-0.5 flex-shrink-0" />
+            <span className="text-xs line-clamp-1">{streetAddress}</span>
+          </div>
+
+          {/* Neighborhood */}
+          {venue.neighborhood && (
+            <div className="mt-1">
+              <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                {venue.neighborhood}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
   )
 }
