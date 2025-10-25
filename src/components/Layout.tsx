@@ -34,6 +34,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigation = [
     { name: 'Feed', href: '/feed', icon: Heart },
     { name: 'Events', href: '/events', icon: Calendar },
+    { name: 'Agenda', href: '/agenda', icon: Calendar },
     { name: 'Artists', href: '/artists', icon: Music },
     { name: 'Venues', href: '/venues', icon: MapPin },
   ]

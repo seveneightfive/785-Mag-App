@@ -5,6 +5,7 @@ import { ProfileCompletionModal } from './components/ProfileCompletionModal'
 import { useAuth } from './hooks/useAuth'
 import { HomePage } from './pages/HomePage'
 import { EventsDirectoryPage } from './pages/EventsDirectoryPage'
+import { AgendaPage } from './pages/AgendaPage'
 import { ArtistsDirectoryPage } from './pages/ArtistsDirectoryPage'
 import { VenuesDirectoryPage } from './pages/VenuesDirectoryPage'
 import { EventDetailPage } from './pages/EventDetailPage'
@@ -37,6 +38,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/events" element={<EventsDirectoryPage />} />
+        <Route path="/agenda" element={<AgendaPage />} />
         <Route path="/artists" element={<ArtistsDirectoryPage />} />
         <Route path="/venues" element={<VenuesDirectoryPage />} />
         <Route path="/events/:slug" element={<EventDetailPage />} />
