@@ -3,7 +3,6 @@ import { Search, Filter, Calendar, X, Clock, MapPin } from 'lucide-react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
-import { EventDetailPanel } from '../components/EventDetailPanel'
 import { EventModal } from '../components/EventModal'
 import { supabase, type Event, trackPageView } from '../lib/supabase'
 
@@ -19,7 +18,6 @@ export const EventsDirectoryPage: React.FC = () => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all')
-  const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalEventSlug, setModalEventSlug] = useState<string | null>(null)
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({
@@ -465,33 +463,17 @@ export const EventsDirectoryPage: React.FC = () => {
             ) : (
               <>
                 {filteredEvents.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-8" style={{ height: 'calc(100vh - 180px)' }}>
-                    {/* Left Panel - Event List */}
-                    <div className="col-span-2 overflow-y-auto">
-                      <div className="grid grid-cols-3 gap-6 pr-6">
-                        {filteredEvents.map((event) => (
-                          <div
-                            key={event.id}
-                            className={`rounded-xl transition-all ${
-                              selectedEventSlug === event.slug
-                                ? 'ring-2 ring-blue-500 shadow-lg'
-                                : ''
-                            }`}
-                          >
-                            <EventCard
-                              event={event}
-                              onSelect={setSelectedEventSlug}
-                              onClick={() => handleEventClick(event.slug || '')}
-                              useModal={true}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Right Panel - Event Details */}
-                    <div className="col-span-1 overflow-y-auto">
-                      <EventDetailPanel eventSlug={selectedEventSlug} />
+                  <div className="overflow-y-auto" style={{ height: 'calc(100vh - 180px)' }}>
+                    <div className="grid grid-cols-4 gap-6 pr-6">
+                      {filteredEvents.map((event) => (
+                        <div key={event.id} className="rounded-xl transition-all">
+                          <EventCard
+                            event={event}
+                            onClick={() => handleEventClick(event.slug || '')}
+                            useModal={true}
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ) : (
