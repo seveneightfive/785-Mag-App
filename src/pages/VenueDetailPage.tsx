@@ -251,7 +251,7 @@ export const VenueDetailPage: React.FC = () => {
             <div className="max-w-7xl mx-auto">
               <div className="flex items-end justify-between">
                 <div>
-                  <h1 className="text-6xl font-bold text-white drop-shadow-lg font-oswald">
+                  <h1 className="text-6xl font-bold text-white drop-shadow-lg font-urbanist">
                     {venue.name.toUpperCase()}
                   </h1>
                   <div className="flex items-center space-x-4 mt-4">
@@ -311,7 +311,7 @@ export const VenueDetailPage: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
           
           <div className="absolute bottom-4 left-4 right-4">
-            <h1 className="text-2xl font-bold text-white font-oswald">
+            <h1 className="text-2xl font-bold text-white font-urbanist">
               {venue.name.toUpperCase()}
             </h1>
             <div className="flex items-center mt-2">

@@ -104,7 +104,7 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({
     <section ref={sectionRef} className="py-16 lg:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold font-oswald text-gray-900 mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold font-urbanist text-gray-900 mb-4">
             DISCOVER LOCAL CULTURE
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -131,14 +131,14 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({
                 
                 {/* Animated Number */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-lg sm:text-2xl md:text-4xl lg:text-6xl font-bold font-oswald text-white drop-shadow-lg">
+                  <span className="text-lg sm:text-2xl md:text-4xl lg:text-6xl font-bold font-urbanist text-white drop-shadow-lg">
                     {stat.count}
                   </span>
                 </div>
               </div>
 
               
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg font-bold font-oswald text-gray-900 group-hover:text-gray-700 transition-colors duration-300">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg font-bold font-urbanist text-gray-900 group-hover:text-gray-700 transition-colors duration-300">
                 {stat.label}
               </p>
             </Link>

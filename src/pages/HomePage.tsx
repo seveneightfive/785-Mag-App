@@ -212,7 +212,7 @@ export const HomePage: React.FC = () => {
                         <span className="text-yellow-400 font-medium">Featured Event</span>
                       </div>
                       
-                      <h1 className="text-3xl lg:text-6xl font-bold font-oswald text-white mb-4 drop-shadow-lg uppercase">
+                      <h1 className="text-3xl lg:text-6xl font-bold font-urbanist text-white mb-4 drop-shadow-lg uppercase">
                         {event.title.toUpperCase()}
                       </h1>
                       
@@ -277,7 +277,7 @@ export const HomePage: React.FC = () => {
           {latestMenuProcs.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-oswald text-gray-900">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900">
                   Latest Menu Procs
                 </h2>
                 <Link
@@ -324,7 +324,7 @@ export const HomePage: React.FC = () => {
           {featuredArtists.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-oswald text-gray-900">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900">
                   Featured Artists
                 </h2>
                 <Link
@@ -359,7 +359,7 @@ export const HomePage: React.FC = () => {
           {featuredVenues.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-oswald text-gray-900">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900">
                   Featured Venues
                 </h2>
                 <Link

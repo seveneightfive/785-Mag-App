@@ -300,10 +300,10 @@ export const AnnouncementBanner: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center px-4 lg:px-0">
             {/* Left: Title and Content */}
             <div className="lg:col-span-2">
-              <h3 className="text-3xl lg:text-4xl font-bold mb-4 font-outfit">
+              <h3 className="text-3xl lg:text-4xl font-bold mb-4 font-redhat">
                 {currentAnnouncement.title}
               </h3>
-              <p className="text-lg opacity-90 mb-6 font-outfit">
+              <p className="text-lg opacity-90 mb-6 font-redhat">
                 {currentAnnouncement.content}
               </p>
             </div>
@@ -315,7 +315,7 @@ export const AnnouncementBanner: React.FC = () => {
                   href={currentAnnouncement.learnmore_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#C80650] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#A0052E] transition-colors flex items-center justify-center space-x-2 font-outfit uppercase tracking-wide"
+                  className="bg-[#C80650] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#A0052E] transition-colors flex items-center justify-center space-x-2 font-redhat uppercase tracking-wide"
                 >
                   <span>Learn More</span>
                   <ExternalLink size={16} />
@@ -325,7 +325,7 @@ export const AnnouncementBanner: React.FC = () => {
               {getEntityLink(currentAnnouncement) && (
                 <Link
                   to={getEntityLink(currentAnnouncement)!}
-                  className="bg-[#FFCE03] text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors text-center font-outfit uppercase tracking-wide"
+                  className="bg-[#FFCE03] text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors text-center font-redhat uppercase tracking-wide"
                 >
                   {getEntityName(currentAnnouncement)} Link
                 </Link>
@@ -335,11 +335,11 @@ export const AnnouncementBanner: React.FC = () => {
           
           {/* Bottom: Relevance Question and Voting */}
           <div className="mt-8 pt-6 border-t border-white/20 px-4 lg:px-0">
-            <p className="text-lg text-white mb-4 font-outfit">Did you find this announcement relevant?</p>
+            <p className="text-lg text-white mb-4 font-redhat">Did you find this announcement relevant?</p>
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => handleReaction(currentAnnouncement.id, 'heart')}
-                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 font-outfit"
+                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 font-redhat"
               >
                 <span>No</span>
                 <span className="bg-white/20 px-2 py-1 rounded-full text-sm">({currentReactions.no})</span>
@@ -347,7 +347,7 @@ export const AnnouncementBanner: React.FC = () => {
               
               <button
                 onClick={() => handleReaction(currentAnnouncement.id, 'thumbs_up')}
-                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 font-outfit"
+                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 font-redhat"
               >
                 <span>Yes</span>
                 <span className="bg-white/20 px-2 py-1 rounded-full text-sm">({currentReactions.yes})</span>

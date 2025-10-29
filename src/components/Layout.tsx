@@ -144,7 +144,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <>
                   {/* Tagline */}
                   <div className="mb-4">
-                    <p className="text-sm font-oswald font-medium text-gray-700 text-center">
+                    <p className="text-sm font-urbanist font-medium text-gray-700 text-center">
                       Local. Vocal. Since 2006.
                     </p>
                   </div>

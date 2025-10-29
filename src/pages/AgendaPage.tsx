@@ -444,7 +444,7 @@ const AgendaEventCard: React.FC<{ event: Event }> = ({ event }) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-xl text-gray-900 mb-2 font-oswald">
+          <h3 className="font-bold text-xl text-gray-900 mb-2 font-urbanist">
             {event.title}
           </h3>
 

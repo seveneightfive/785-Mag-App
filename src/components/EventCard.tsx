@@ -56,7 +56,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, 
         )}
 
         {/* Event Title - Second line */}
-        <h3 className="font-medium text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-oswald uppercase tracking-wide">
+        <h3 className="font-medium text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-urbanist uppercase tracking-wide">
           {event.title.toUpperCase()}
         </h3>
 

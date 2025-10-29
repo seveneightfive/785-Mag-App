@@ -245,7 +245,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold font-oswald text-gray-900 mb-2">ARTIST DIRECTORY</h1>
+                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2">ARTIST DIRECTORY</h1>
                 <p className="text-sm text-gray-600 mb-4">Discover amazing local artists</p>
 
                 <div className="relative mb-3">
@@ -272,7 +272,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
 
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold font-oswald text-gray-900 text-base">FILTERS</h3>
+                  <h3 className="font-bold font-urbanist text-gray-900 text-base">FILTERS</h3>
                   {activeFiltersCount > 0 && (
                     <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                       {activeFiltersCount}
@@ -283,7 +283,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
 
               {/* Artist Types Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">ARTIST TYPE</h4>
+                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">ARTIST TYPE</h4>
                 <div className="space-y-2">
                   {ARTIST_TYPES.map((type) => (
                     <button
@@ -304,7 +304,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
               {/* Musical Genres Filter */}
               {selectedTypes.includes('Musician') && (
                 <div className="mb-6">
-                  <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">MUSICAL GENRES</h4>
+                  <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">MUSICAL GENRES</h4>
                   <div className="space-y-2">
                     {MUSICAL_GENRES.map((genre) => (
                       <button
@@ -326,7 +326,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
               {/* Visual Mediums Filter */}
               {selectedTypes.includes('Visual') && (
                 <div className="mb-6">
-                  <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">VISUAL MEDIUMS</h4>
+                  <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">VISUAL MEDIUMS</h4>
                   <div className="space-y-2">
                     {VISUAL_MEDIUMS.map((medium) => (
                       <button
@@ -535,7 +535,7 @@ const MobileArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
         {/* Artist Details */}
         <div className="flex-1 p-3 min-w-0">
           {/* Artist Name */}
-          <h3 className="font-oswald text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
+          <h3 className="font-urbanist text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
             {artist.name.toUpperCase()}
           </h3>
 

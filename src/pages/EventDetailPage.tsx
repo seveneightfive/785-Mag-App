@@ -325,7 +325,7 @@ export const EventDetailPage: React.FC = () => {
                   ))}
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-4 font-oswald">{event.title}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4 font-urbanist">{event.title}</h1>
 
                 {event.description && (
                   <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
@@ -404,7 +404,7 @@ export const EventDetailPage: React.FC = () => {
               {/* Featured Artists */}
               {event.event_artists && event.event_artists.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                  <h2 className="text-xl font-bold font-oswald text-gray-900 mb-4">FEATURING</h2>
+                  <h2 className="text-xl font-bold font-urbanist text-gray-900 mb-4">FEATURING</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {event.event_artists.map(({ artist }) => (
                       <ArtistCard key={artist.id} artist={artist} />

@@ -66,7 +66,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
       </div>
       
       <div className="p-6 relative">
-        <h3 className="font-oswald text-xl font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
+        <h3 className="font-urbanist text-xl font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
           {venue.name.toUpperCase()}
         </h3>
         

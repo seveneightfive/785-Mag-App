@@ -36,7 +36,7 @@ export const EventCardHorizontal: React.FC<EventCardHorizontalProps> = ({ event 
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors font-oswald">
+          <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors font-urbanist">
             {event.title}
           </h3>
 

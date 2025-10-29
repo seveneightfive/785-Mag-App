@@ -430,7 +430,7 @@ export const VenuesDirectoryPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold font-oswald text-gray-900 mb-2">Venues Directory</h1>
+                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2">Venues Directory</h1>
                 <p className="text-sm text-gray-600 mb-4">Discover amazing local venues</p>
 
                 <div className="relative mb-3">
@@ -457,7 +457,7 @@ export const VenuesDirectoryPage: React.FC = () => {
 
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold font-oswald text-gray-900 text-base">FILTERS</h3>
+                  <h3 className="font-bold font-urbanist text-gray-900 text-base">FILTERS</h3>
                   {activeFiltersCount > 0 && (
                     <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                       {activeFiltersCount}
@@ -468,7 +468,7 @@ export const VenuesDirectoryPage: React.FC = () => {
 
               {/* Venue Types Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
+                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
                 <div className="space-y-2">
                   {VENUE_TYPES.map((type) => (
                     <button
@@ -491,7 +491,7 @@ export const VenuesDirectoryPage: React.FC = () => {
 
               {/* Neighborhoods Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
+                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
                 <div className="space-y-2">
                   {NEIGHBORHOODS.map((neighborhood) => (
                     <button
@@ -626,7 +626,7 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
         {/* Venue Details */}
         <div className="flex-1 p-3 min-w-0">
           {/* Venue Name */}
-          <h3 className="font-oswald text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
+          <h3 className="font-urbanist text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
             {venue.name.toUpperCase()}
           </h3>
 

@@ -87,16 +87,16 @@ export const AdvertisementBanner: React.FC = () => {
       <div className={`grid ${isVertical ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 lg:grid-cols-2'} min-h-[300px]`}>
         {/* Content Section */}
         <div className={`p-8 lg:p-12 flex flex-col justify-center ${isVertical ? 'order-2 lg:order-1' : 'order-1'}`}>
-          <h2 className={`text-3xl lg:text-4xl font-bold font-oswald mb-4 ${textColor} uppercase tracking-wide`}>
+          <h2 className={`text-3xl lg:text-4xl font-bold font-urbanist mb-4 ${textColor} uppercase tracking-wide`}>
             {advertisement.title}
           </h2>
-          <p className={`text-lg mb-8 ${textColor} ${isVertical ? 'opacity-80' : 'opacity-90'} font-outfit leading-relaxed`}>
+          <p className={`text-lg mb-8 ${textColor} ${isVertical ? 'opacity-80' : 'opacity-90'} font-redhat leading-relaxed`}>
             {advertisement.content}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={handleClick}
-              className={`${buttonClass} px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center space-x-2 font-outfit uppercase tracking-wide`}
+              className={`${buttonClass} px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center space-x-2 font-redhat uppercase tracking-wide`}
             >
               <span>{advertisement.button_text}</span>
               <ExternalLink size={16} />
@@ -123,7 +123,7 @@ export const AdvertisementBanner: React.FC = () => {
 
       {/* Sponsored indicator */}
       <div className="absolute top-4 right-4 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-        <span className={`text-xs font-medium ${isVertical ? 'text-black/70' : 'text-white/75'} font-outfit`}>Sponsored</span>
+        <span className={`text-xs font-medium ${isVertical ? 'text-black/70' : 'text-white/75'} font-redhat`}>Sponsored</span>
       </div>
     </section>
   )

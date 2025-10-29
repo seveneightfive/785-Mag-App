@@ -117,7 +117,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
       {/* Artist Info */}
       <div className="p-4">
         <Link to={`/artists/${artist.slug}`} className="block">
-          <h3 className="font-oswald text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors mb-2 uppercase tracking-wide">
+          <h3 className="font-urbanist text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors mb-2 uppercase tracking-wide">
             {artist.name.toUpperCase()}
           </h3>
         </Link>

@@ -262,7 +262,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
                     ))}
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-oswald">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-urbanist">
                     {event.title}
                   </h1>
 
@@ -400,7 +400,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
 
                   {event.event_artists && event.event_artists.length > 0 && (
                     <div className="border-t border-gray-200 pt-6">
-                      <h2 className="text-xl font-bold font-oswald text-gray-900 mb-4">FEATURING</h2>
+                      <h2 className="text-xl font-bold font-urbanist text-gray-900 mb-4">FEATURING</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {event.event_artists.map(({ artist }) => (
                           <Link

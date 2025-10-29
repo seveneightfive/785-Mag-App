@@ -283,7 +283,7 @@ export const EventsDirectoryPage: React.FC = () => {
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-                <h3 className="text-2xl font-bold font-oswald text-gray-900">FILTERS</h3>
+                <h3 className="text-2xl font-bold font-urbanist text-gray-900">FILTERS</h3>
                 <button
                   onClick={() => setShowFilters(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -297,7 +297,7 @@ export const EventsDirectoryPage: React.FC = () => {
               <div className="flex-1 overflow-y-auto p-6 pb-32">
                 {/* Date Filter */}
                 <div className="mb-8">
-                  <h4 className="font-bold font-oswald text-gray-900 mb-4 text-lg">WHEN</h4>
+                  <h4 className="font-bold font-urbanist text-gray-900 mb-4 text-lg">WHEN</h4>
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { value: 'all', label: 'All Upcoming', count: eventCounts.all },
@@ -323,7 +323,7 @@ export const EventsDirectoryPage: React.FC = () => {
 
                 {/* Event Types Filter */}
                 <div className="mb-8">
-                  <h4 className="font-bold font-oswald text-gray-900 mb-4 text-lg">EVENT TYPES</h4>
+                  <h4 className="font-bold font-urbanist text-gray-900 mb-4 text-lg">EVENT TYPES</h4>
                   <div className="grid grid-cols-2 gap-3">
                     {EVENT_TYPES.map((type) => (
                       <button
@@ -362,7 +362,7 @@ export const EventsDirectoryPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold font-oswald text-gray-900 mb-2">Events Directory</h1>
+                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2">Events Directory</h1>
                 <p className="text-sm text-gray-600 mb-4">Discover amazing upcoming events</p>
 
                 <div className="relative mb-3">
@@ -399,7 +399,7 @@ export const EventsDirectoryPage: React.FC = () => {
 
               {/* Date Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">WHEN</h4>
+                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">WHEN</h4>
                 <div className="space-y-2">
                   {[
                     { value: 'all', label: 'All Upcoming', count: eventCounts.all },
@@ -427,7 +427,7 @@ export const EventsDirectoryPage: React.FC = () => {
 
               {/* Event Types Filter */}
               <div className="mb-6">
-                <h4 className="font-bold font-oswald text-gray-900 mb-3 text-sm">EVENT TYPES</h4>
+                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">EVENT TYPES</h4>
                 <div className="space-y-2">
                   {EVENT_TYPES.map((type) => (
                     <button
@@ -639,7 +639,7 @@ const MobileEventCard: React.FC<{ event: Event; onClick?: () => void }> = ({ eve
         {/* Event Details */}
         <div className="flex-1 p-2 min-w-0">
           {/* Event Title */}
-          <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1 font-oswald">
+          <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1 font-urbanist">
             {event.title}
           </h3>
 

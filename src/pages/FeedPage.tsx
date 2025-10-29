@@ -120,7 +120,7 @@ export const FeedPage: React.FC = () => {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">FEED</h1>
+                <h1 className="text-3xl font-bold font-urbanist text-gray-900">FEED</h1>
                 <p className="text-gray-600 mt-2 max-w-2xl">
                   seveneightfive magazine is your guide to experiencing and appreciating the local flavor of Topeka. 
                   We showcase diverse culinary offerings and the businesses that make up Topeka's vibrant food scene.

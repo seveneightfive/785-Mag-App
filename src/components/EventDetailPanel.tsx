@@ -293,7 +293,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
             ))}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-4 font-oswald">{event.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 font-urbanist">{event.title}</h1>
 
           {event.description && (
             <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
@@ -485,7 +485,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
           {/* Featured Artists */}
           {event.event_artists && event.event_artists.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold font-oswald text-gray-900 mb-4">FEATURING</h2>
+              <h2 className="text-xl font-bold font-urbanist text-gray-900 mb-4">FEATURING</h2>
               <div className="space-y-4">
                 {event.event_artists.map(({ artist }) => (
                   <div key={artist.id} className="border border-gray-200 rounded-lg p-4">
