@@ -198,6 +198,7 @@ export const HomePage: React.FC = () => {
                     alt={event.title}
                     className="w-full h-full object-cover"
                     fallbackType="event"
+                    loading="eager"
                   />
 
                   {/* Overlay */}

@@ -9,6 +9,7 @@ interface ImageWithFallbackProps {
   fallbackGradient?: string
   onLoad?: () => void
   cacheBust?: boolean
+  loading?: 'lazy' | 'eager'
 }
 
 export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
@@ -19,6 +20,7 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   fallbackGradient,
   onLoad,
   cacheBust = false,
+  loading = 'lazy',
 }) => {
   const [imageError, setImageError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -112,7 +114,7 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
         className={`${className} ${isLoading ? 'hidden' : ''}`}
         onError={handleImageError}
         onLoad={handleImageLoad}
-        loading="lazy"
+        loading={loading}
       />
     </>
   )
