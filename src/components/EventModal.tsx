@@ -29,6 +29,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
   const [rsvpStatus, setRsvpStatus] = useState<string | null>(null)
   const [rsvpCounts, setRsvpCounts] = useState({ going: 0, interested: 0 })
   const [pageViews, setPageViews] = useState(0)
+  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null)
 
   useEffect(() => {
     if (isOpen && eventSlug) {
@@ -246,7 +247,14 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
                       src={event.image_url}
                       alt={event.title}
                       className="w-full h-auto object-contain"
-                      style={{ aspectRatio: '1200/1080' }}
+                      onLoad={(e) => {
+                        const img = e.target as HTMLImageElement
+                        const ratio = img.naturalWidth / img.naturalHeight
+                        setImageAspectRatio(ratio)
+                      }}
+                      style={{
+                        maxHeight: imageAspectRatio && imageAspectRatio < 1 ? '70vh' : 'none'
+                      }}
                     />
                   </div>
                 )}
