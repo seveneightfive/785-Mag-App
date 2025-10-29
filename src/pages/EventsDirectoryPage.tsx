@@ -61,13 +61,6 @@ export const EventsDirectoryPage: React.FC = () => {
     calculateEventCounts()
   }, [events, searchQuery, selectedTypes, dateFilter])
 
-  useEffect(() => {
-    // Auto-select first event on desktop when events are loaded
-    if (filteredEvents.length > 0 && !selectedEventSlug) {
-      setSelectedEventSlug(filteredEvents[0].slug || null)
-    }
-  }, [filteredEvents])
-
   const fetchEvents = async () => {
     // Get current date in local timezone, start of today
     const now = new Date()
