@@ -430,7 +430,7 @@ export const VenuesDirectoryPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2">Venues Directory</h1>
+                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">Venues Directory</h1>
                 <p className="text-sm text-gray-600 mb-4">Discover amazing local venues</p>
 
                 <div className="relative mb-3">

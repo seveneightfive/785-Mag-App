@@ -245,7 +245,7 @@ export const ArtistsDirectoryPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               {/* Header with Search and Clear */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2">ARTIST DIRECTORY</h1>
+                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">ARTIST DIRECTORY</h1>
                 <p className="text-sm text-gray-600 mb-4">Discover amazing local artists</p>
 
                 <div className="relative mb-3">

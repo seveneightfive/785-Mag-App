@@ -277,7 +277,7 @@ export const HomePage: React.FC = () => {
           {latestMenuProcs.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900 uppercase">
                   Latest Menu Procs
                 </h2>
                 <Link
@@ -324,7 +324,7 @@ export const HomePage: React.FC = () => {
           {featuredArtists.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900 uppercase">
                   Featured Artists
                 </h2>
                 <Link
@@ -359,7 +359,7 @@ export const HomePage: React.FC = () => {
           {featuredVenues.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900 uppercase">
                   Featured Venues
                 </h2>
                 <Link
