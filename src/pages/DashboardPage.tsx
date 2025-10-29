@@ -217,13 +217,6 @@ export const DashboardPage: React.FC = () => {
                     <Calendar size={18} />
                     <span>Analytics</span>
                   </button>
-                  <button
-                    onClick={() => navigate('/feed')}
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                  >
-                    <Clock size={18} />
-                    <span>Task List</span>
-                  </button>
                   <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors">
                     <TrendingUp size={18} />
                     <span>Tracking</span>
@@ -298,31 +291,6 @@ export const DashboardPage: React.FC = () => {
                 />
               </div>
 
-              {/* Tasks for Today */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Tasks for today</h2>
-                <div className="space-y-3">
-                  {rsvpEvents.slice(0, 3).map((event, idx) => {
-                    const colors: ('purple' | 'teal' | 'coral')[] = ['coral', 'purple', 'teal']
-                    return (
-                      <TaskItem
-                        key={event.id}
-                        title={event.title}
-                        subtitle={event.venue?.name || 'View event details'}
-                        color={colors[idx % colors.length]}
-                        onClick={() => navigate(`/events/${event.slug}`)}
-                      />
-                    )
-                  })}
-                  {rsvpEvents.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Calendar size={48} className="mx-auto mb-3 text-gray-300" />
-                      <p>No upcoming events on your calendar</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {/* Statistics */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Statistics</h2>
@@ -344,18 +312,28 @@ export const DashboardPage: React.FC = () => {
                   />
                 </div>
 
-                {/* Pro Plan Card */}
-                <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">$9.99 <span className="text-base font-normal text-gray-600">/m</span></h3>
-                    <p className="text-sm font-semibold text-gray-900 mb-1">Pro Plan</p>
-                    <p className="text-xs text-gray-600">More productivity with premium!</p>
-                  </div>
-                  <div className="w-32 h-32 bg-gradient-to-br from-orange-200 to-purple-200 rounded-xl flex items-center justify-center">
-                    <div className="text-center">
-                      <TrendingUp className="w-12 h-12 text-purple-600 mx-auto" />
-                    </div>
-                  </div>
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4">
+                  <a
+                    href="https://seveneightfive.fillout.com/add-venue"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
+                  >
+                    <MapPin size={18} />
+                    <span>Add New Venue</span>
+                    <ExternalLink size={16} />
+                  </a>
+                  <a
+                    href="https://seveneightfive.fillout.com/new-artist"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
+                  >
+                    <Music size={18} />
+                    <span>Add New Artist</span>
+                    <ExternalLink size={16} />
+                  </a>
                 </div>
               </div>
             </main>
