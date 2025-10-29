@@ -7,24 +7,25 @@ import { ImageWithFallback } from './ImageWithFallback'
 interface EventCardProps {
   event: Event
   onSelect?: (slug: string) => void
+  onClick?: () => void
+  useModal?: boolean
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, useModal = false }) => {
   const allArtists = event.event_artists || []
 
   const handleClick = (e: React.MouseEvent) => {
-    if (onSelect) {
+    if (useModal && onClick) {
+      e.preventDefault()
+      onClick()
+    } else if (onSelect) {
       e.preventDefault()
       onSelect(event.slug || '')
     }
   }
 
-  return (
-    <Link 
-      to={`/events/${event.slug}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
-      onClick={handleClick}
-    >
+  const cardContent = (
+    <>
       {/* Event Image - Taller aspect ratio */}
       <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
         <ImageWithFallback
@@ -99,6 +100,27 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
           </div>
         )}
       </div>
+    </>
+  )
+
+  if (useModal) {
+    return (
+      <div
+        className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group cursor-pointer"
+        onClick={handleClick}
+      >
+        {cardContent}
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      to={`/events/${event.slug}`}
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+      onClick={handleClick}
+    >
+      {cardContent}
     </Link>
   )
 }

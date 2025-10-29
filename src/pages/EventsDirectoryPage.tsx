@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { Search, Filter, Calendar, X, Clock, MapPin } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
 import { EventDetailPanel } from '../components/EventDetailPanel'
+import { EventModal } from '../components/EventModal'
 import { supabase, type Event, trackPageView } from '../lib/supabase'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
 
 export const EventsDirectoryPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [events, setEvents] = useState<Event[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
@@ -17,6 +20,8 @@ export const EventsDirectoryPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all')
   const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalEventSlug, setModalEventSlug] = useState<string | null>(null)
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({
     all: 0,
     today: 0,
@@ -28,6 +33,30 @@ export const EventsDirectoryPage: React.FC = () => {
     trackPageView('events-directory')
     fetchEvents()
   }, [])
+
+  useEffect(() => {
+    const eventParam = searchParams.get('event')
+    if (eventParam) {
+      setModalEventSlug(eventParam)
+      setIsModalOpen(true)
+    } else {
+      setIsModalOpen(false)
+      setModalEventSlug(null)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const eventParam = searchParams.get('event')
+      if (!eventParam) {
+        setIsModalOpen(false)
+        setModalEventSlug(null)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [searchParams])
 
   useEffect(() => {
     filterEvents()
@@ -175,6 +204,16 @@ export const EventsDirectoryPage: React.FC = () => {
   }
 
   const activeFiltersCount = selectedTypes.length + (dateFilter !== 'all' ? 1 : 0)
+
+  const handleEventClick = (slug: string) => {
+    setSearchParams({ event: slug })
+  }
+
+  const handleCloseModal = () => {
+    setSearchParams({})
+    setIsModalOpen(false)
+    setModalEventSlug(null)
+  }
 
   // Group events by date for mobile view
   const groupEventsByDate = (events: Event[]) => {
@@ -442,6 +481,8 @@ export const EventsDirectoryPage: React.FC = () => {
                             <EventCard
                               event={event}
                               onSelect={setSelectedEventSlug}
+                              onClick={() => handleEventClick(event.slug || '')}
+                              useModal={true}
                             />
                           </div>
                         ))}
@@ -496,7 +537,11 @@ export const EventsDirectoryPage: React.FC = () => {
                     {/* Events for this date */}
                     <div className="space-y-3">
                       {groupedEvents[dateKey].map((event) => (
-                        <MobileEventCard key={event.id} event={event} />
+                        <MobileEventCard
+                          key={event.id}
+                          event={event}
+                          onClick={() => handleEventClick(event.slug || '')}
+                        />
                       ))}
                     </div>
                   </div>
@@ -511,13 +556,20 @@ export const EventsDirectoryPage: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Event Modal */}
+        <EventModal
+          eventSlug={modalEventSlug}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
       </div>
     </Layout>
   )
 }
 
 // Mobile Event Card Component with horizontal layout
-const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
+const MobileEventCard: React.FC<{ event: Event; onClick?: () => void }> = ({ event, onClick }) => {
   const formatTime = () => {
     if (event.event_start_time) {
       try {
@@ -559,9 +611,14 @@ const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
   const allArtists = event.event_artists || []
 
   return (
-    <Link 
-      to={`/events/${event.slug}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2"
+    <div
+      onClick={(e) => {
+        if (onClick) {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2 cursor-pointer"
     >
       <div className="flex">
         {/* Event Image - 16:9 aspect ratio */}
@@ -625,6 +682,6 @@ const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
           )}
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

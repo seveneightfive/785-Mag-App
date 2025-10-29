@@ -212,9 +212,9 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
         onClick={onClose}
       />
 
-      <div className="absolute inset-0 flex items-center justify-center p-0 lg:p-4">
+      <div className="absolute inset-0 flex items-center justify-center p-0 md:p-4">
         <div
-          className="relative bg-white w-full h-full lg:h-auto lg:max-h-[90vh] lg:max-w-4xl lg:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+          className="relative bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-4xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -241,7 +241,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
             ) : (
               <>
                 {event.image_url && (
-                  <div className="w-full h-64 lg:h-80 overflow-hidden">
+                  <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden">
                     <img
                       src={event.image_url}
                       alt={event.title}
@@ -250,7 +250,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
                   </div>
                 )}
 
-                <div className="p-6 lg:p-8">
+                <div className="p-4 sm:p-6 md:p-8">
                   <div className="flex flex-wrap gap-2 mb-4">
                     {event.event_types?.map((type) => (
                       <span
@@ -262,7 +262,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
                     ))}
                   </div>
 
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 font-oswald">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-oswald">
                     {event.title}
                   </h1>
 
@@ -270,7 +270,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
                     <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
                   )}
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
                     <div className="space-y-4">
                       <div className="flex items-start space-x-3">
                         <Calendar className="text-[#FFCE03] mt-1" size={20} />
