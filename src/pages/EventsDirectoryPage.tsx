@@ -240,7 +240,7 @@ export const EventsDirectoryPage: React.FC = () => {
 
         {/* Mobile Filter Modal - Full Screen */}
         {showFilters && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-white">
+          <div className="lg:hidden fixed inset-0 z-[60] bg-white">
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
