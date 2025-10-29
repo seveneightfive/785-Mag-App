@@ -241,11 +241,12 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
             ) : (
               <>
                 {event.image_url && (
-                  <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden">
+                  <div className="w-full overflow-hidden bg-gray-100">
                     <img
                       src={event.image_url}
                       alt={event.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto object-contain"
+                      style={{ aspectRatio: '1200/1080' }}
                     />
                   </div>
                 )}

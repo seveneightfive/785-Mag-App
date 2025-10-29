@@ -271,11 +271,12 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
       <div className="p-6">
         {/* Event Image */}
         {event.image_url && (
-          <div className="mb-6">
+          <div className="mb-6 overflow-hidden rounded-xl bg-gray-100">
             <img
               src={event.image_url}
               alt={event.title}
-              className="w-full h-48 object-cover rounded-xl"
+              className="w-full h-auto object-contain"
+              style={{ aspectRatio: '1200/1080' }}
             />
           </div>
         )}
