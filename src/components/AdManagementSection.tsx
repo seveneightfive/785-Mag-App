@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Eye, TrendingUp, DollarSign, Calendar, ExternalLink } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Advertisement } from '../lib/supabase'
+import { supabase, type Advertisement, type AdAnalytics } from '../lib/supabase'
 import { AdvertisementForm } from './AdvertisementForm'
 
 interface AdStats {
-  impressions: number
-  clicks: number
-  ctr: number
+  total_impressions: number
+  total_clicks: number
+  ctr_percentage: number
 }
 
 export const AdManagementSection: React.FC = () => {
@@ -38,14 +38,7 @@ export const AdManagementSection: React.FC = () => {
       setAds(adsData || [])
 
       if (adsData && adsData.length > 0) {
-        const statsPromises = adsData.map(ad => fetchAdStats(ad.id))
-        const statsResults = await Promise.all(statsPromises)
-
-        const statsMap: Record<string, AdStats> = {}
-        adsData.forEach((ad, index) => {
-          statsMap[ad.id] = statsResults[index]
-        })
-        setAdStats(statsMap)
+        await fetchAllAdStats(adsData.map(ad => ad.id))
       }
     } catch (error) {
       console.error('Error fetching ads:', error)
@@ -54,22 +47,33 @@ export const AdManagementSection: React.FC = () => {
     }
   }
 
-  const fetchAdStats = async (adId: string): Promise<AdStats> => {
-    const { data: impressionsData } = await supabase
-      .from('ad_impressions')
-      .select('id', { count: 'exact', head: true })
-      .eq('ad_id', adId)
+  const fetchAllAdStats = async (adIds: string[]) => {
+    try {
+      const { data: analyticsData, error } = await supabase
+        .from('ad_analytics')
+        .select('*')
+        .in('ad_id', adIds)
 
-    const { data: clicksData } = await supabase
-      .from('ad_clicks')
-      .select('id', { count: 'exact', head: true })
-      .eq('ad_id', adId)
+      if (error) {
+        console.error('Error fetching analytics:', error)
+        return
+      }
 
-    const impressions = impressionsData?.length || 0
-    const clicks = clicksData?.length || 0
-    const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0
+      const statsMap: Record<string, AdStats> = {}
 
-    return { impressions, clicks, ctr }
+      adIds.forEach(adId => {
+        const analytics = analyticsData?.find(a => a.ad_id === adId)
+        statsMap[adId] = {
+          total_impressions: analytics?.total_impressions || 0,
+          total_clicks: analytics?.total_clicks || 0,
+          ctr_percentage: analytics?.ctr_percentage || 0
+        }
+      })
+
+      setAdStats(statsMap)
+    } catch (error) {
+      console.error('Error processing analytics:', error)
+    }
   }
 
   const getStatusBadge = (ad: Advertisement) => {
@@ -139,7 +143,7 @@ export const AdManagementSection: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {ads.map((ad) => {
-            const stats = adStats[ad.id] || { impressions: 0, clicks: 0, ctr: 0 }
+            const stats = adStats[ad.id] || { total_impressions: 0, total_clicks: 0, ctr_percentage: 0 }
             const remainingDays = getRemainingDays(ad)
 
             return (
@@ -172,18 +176,18 @@ export const AdManagementSection: React.FC = () => {
                       <Eye size={14} />
                       <span className="text-xs">Impressions</span>
                     </div>
-                    <div className="text-xl font-bold text-gray-900">{stats.impressions}</div>
+                    <div className="text-xl font-bold text-gray-900">{stats.total_impressions}</div>
                   </div>
                   <div>
                     <div className="flex items-center space-x-1 text-gray-600 mb-1">
                       <TrendingUp size={14} />
                       <span className="text-xs">Clicks</span>
                     </div>
-                    <div className="text-xl font-bold text-gray-900">{stats.clicks}</div>
+                    <div className="text-xl font-bold text-gray-900">{stats.total_clicks}</div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-600 mb-1">CTR</div>
-                    <div className="text-xl font-bold text-gray-900">{stats.ctr.toFixed(2)}%</div>
+                    <div className="text-xl font-bold text-gray-900">{stats.ctr_percentage.toFixed(2)}%</div>
                   </div>
                 </div>
 

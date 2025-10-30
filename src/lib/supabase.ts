@@ -210,6 +210,19 @@ export interface AdClick {
   created_at?: string
 }
 
+export interface AdAnalytics {
+  ad_id: string
+  title: string
+  headline?: string
+  user_id?: string
+  start_date: string
+  end_date: string
+  status?: string
+  total_impressions: number
+  total_clicks: number
+  ctr_percentage: number
+}
+
 export interface MenuProc {
   id: string
   title: string
