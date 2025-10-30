@@ -265,7 +265,7 @@ export const DashboardPage: React.FC = () => {
                   </p>
                 </div>
 
-                <nav className="space-y-1">
+                <nav className="space-y-1 mb-6">
                   <button
                     onClick={() => navigate('/dashboard')}
                     className="w-full flex items-center space-x-3 px-4 py-3 bg-black text-yellow-400 rounded-lg font-medium"
@@ -292,6 +292,29 @@ export const DashboardPage: React.FC = () => {
                     <span>Setting</span>
                   </button>
                 </nav>
+
+                <div className="space-y-3">
+                  <a
+                    href="https://seveneightfive.fillout.com/add-venue"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-4 py-3 rounded-lg font-semibold transition-colors shadow-sm"
+                  >
+                    <MapPin size={18} />
+                    <span>Add New Venue</span>
+                    <ExternalLink size={14} />
+                  </a>
+                  <a
+                    href="https://seveneightfive.fillout.com/new-artist"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-4 py-3 rounded-lg font-semibold transition-colors shadow-sm"
+                  >
+                    <Music size={18} />
+                    <span>Add New Artist</span>
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
               </div>
             </aside>
 
@@ -353,51 +376,6 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Statistics */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Statistics</h2>
-                <div className="grid grid-cols-3 gap-6 mb-6">
-                  <StatCard
-                    icon={Music}
-                    value={followedArtists.length}
-                    label="Followed Artists"
-                  />
-                  <StatCard
-                    icon={Calendar}
-                    value={allUpcomingEvents.length}
-                    label="Upcoming Events"
-                  />
-                  <StatCard
-                    icon={TrendingUp}
-                    value={rsvpEvents.length}
-                    label="Total RSVPs"
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-4">
-                  <a
-                    href="https://seveneightfive.fillout.com/add-venue"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
-                  >
-                    <MapPin size={18} />
-                    <span>Add New Venue</span>
-                    <ExternalLink size={16} />
-                  </a>
-                  <a
-                    href="https://seveneightfive.fillout.com/new-artist"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
-                  >
-                    <Music size={18} />
-                    <span>Add New Artist</span>
-                    <ExternalLink size={16} />
-                  </a>
-                </div>
-              </div>
             </main>
 
             {/* Right Sidebar - Project Cards */}
