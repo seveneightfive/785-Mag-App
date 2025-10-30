@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Search, Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3 } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Search, Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { ProjectCard } from '../components/ProjectCard'
@@ -19,6 +19,8 @@ export const DashboardPage: React.FC = () => {
   const [allUpcomingEvents, setAllUpcomingEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     trackPageView('dashboard')
@@ -151,6 +153,43 @@ export const DashboardPage: React.FC = () => {
     return groups
   }
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !user) return
+
+    try {
+      setUploadingAvatar(true)
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `avatars/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath)
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id)
+
+      if (updateError) throw updateError
+
+      window.location.reload()
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      alert('Failed to upload avatar. Please try again.')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   if (!user) {
     return (
       <Layout>
@@ -187,8 +226,28 @@ export const DashboardPage: React.FC = () => {
             <aside className="lg:col-span-3">
               <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
                 <div className="flex flex-col items-center mb-6">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-3 shadow-lg">
-                    <User className="w-12 h-12 text-white" />
+                  <div className="relative mb-3">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg overflow-hidden">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-12 h-12 text-white" />
+                      )}
+                    </div>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-[#FFCE03] hover:bg-[#E5B902] rounded-full flex items-center justify-center shadow-md transition-colors disabled:opacity-50"
+                    >
+                      <Edit2 size={14} className="text-black" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 text-center">
                     {profile?.full_name || profile?.username || 'User'}
@@ -196,10 +255,14 @@ export const DashboardPage: React.FC = () => {
                   <p className="text-sm text-gray-500 text-center break-all">
                     {profile?.email || user.email}
                   </p>
-                  <div className="mt-3 flex items-center space-x-1">
-                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                    <span className="text-2xl font-bold text-gray-900">250</span>
-                  </div>
+                  {profile?.phone && (
+                    <p className="text-sm text-gray-500 text-center">
+                      {profile.phone}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-400 text-center mt-2">
+                    Member since {new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  </p>
                 </div>
 
                 <nav className="space-y-1">
