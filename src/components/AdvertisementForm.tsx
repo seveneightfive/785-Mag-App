@@ -145,7 +145,7 @@ export const AdvertisementForm: React.FC<AdvertisementFormProps> = ({ isOpen, on
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <Type size={16} className="inline mr-2" />
-              Headline *
+              Business / Event or Tagline *
             </label>
             <input
               type="text"
@@ -153,7 +153,7 @@ export const AdvertisementForm: React.FC<AdvertisementFormProps> = ({ isOpen, on
               onChange={(e) => setFormData(prev => ({ ...prev, headline: e.target.value }))}
               maxLength={50}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFCE03] focus:border-transparent"
-              placeholder="Enter catchy headline (max 50 characters)"
+              placeholder="Enter business name, event, or tagline (max 50 characters)"
               required
             />
             <p className="text-xs text-gray-500 mt-1">{formData.headline.length}/50 characters</p>
@@ -162,18 +162,46 @@ export const AdvertisementForm: React.FC<AdvertisementFormProps> = ({ isOpen, on
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <FileText size={16} className="inline mr-2" />
-              Ad Copy *
+              Headline *
             </label>
             <textarea
               value={formData.ad_copy}
-              onChange={(e) => setFormData(prev => ({ ...prev, ad_copy: e.target.value }))}
-              maxLength={100}
+              onChange={(e) => {
+                const words = e.target.value.trim().split(/\s+/).filter(w => w.length > 0)
+                if (words.length <= 20 || e.target.value.length < formData.ad_copy.length) {
+                  setFormData(prev => ({ ...prev, ad_copy: e.target.value }))
+                }
+              }}
               rows={3}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFCE03] focus:border-transparent"
-              placeholder="Enter main copy (max 100 characters for optimal display)"
+              placeholder="Enter headline (max 20 words)"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">{formData.ad_copy.length}/100 characters</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.ad_copy.trim().split(/\s+/).filter(w => w.length > 0).length}/20 words
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <FileText size={16} className="inline mr-2" />
+              Additional Content (Optional)
+            </label>
+            <textarea
+              value={formData.content}
+              onChange={(e) => {
+                const words = e.target.value.trim().split(/\s+/).filter(w => w.length > 0)
+                if (words.length <= 43 || e.target.value.length < formData.content.length) {
+                  setFormData(prev => ({ ...prev, content: e.target.value }))
+                }
+              }}
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFCE03] focus:border-transparent"
+              placeholder="Additional description text (max 43 words)"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.content.trim().split(/\s+/).filter(w => w.length > 0).length}/43 words
+            </p>
           </div>
 
           <div>
@@ -217,20 +245,6 @@ export const AdvertisementForm: React.FC<AdvertisementFormProps> = ({ isOpen, on
                 </div>
               )}
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <FileText size={16} className="inline mr-2" />
-              Additional Content (Optional)
-            </label>
-            <textarea
-              value={formData.content}
-              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              rows={2}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFCE03] focus:border-transparent"
-              placeholder="Additional description text"
-            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
