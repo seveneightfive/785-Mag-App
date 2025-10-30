@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Calendar, Clock, DollarSign, Users, Edit2, Save, X, ExternalLink } from 'lucide-react'
+import { Calendar, Clock, DollarSign, Users, Edit2, Save, X, ExternalLink, Image as ImageIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { ImageWithFallback } from './ImageWithFallback'
 import { supabase, type Event } from '../lib/supabase'
 
 interface EditableEventRowProps {
@@ -20,7 +21,8 @@ export const EditableEventRow: React.FC<EditableEventRowProps> = ({ event, canEd
     event_end_time: event.event_end_time || '',
     ticket_price: event.ticket_price?.toString() || '',
     ticket_url: event.ticket_url || '',
-    capacity: event.capacity?.toString() || ''
+    capacity: event.capacity?.toString() || '',
+    image_url: event.image_url || ''
   })
 
   const handleEdit = () => {
@@ -36,7 +38,8 @@ export const EditableEventRow: React.FC<EditableEventRowProps> = ({ event, canEd
       event_end_time: event.event_end_time || '',
       ticket_price: event.ticket_price?.toString() || '',
       ticket_url: event.ticket_url || '',
-      capacity: event.capacity?.toString() || ''
+      capacity: event.capacity?.toString() || '',
+      image_url: event.image_url || ''
     })
     setIsEditing(false)
   }
@@ -60,6 +63,7 @@ export const EditableEventRow: React.FC<EditableEventRowProps> = ({ event, canEd
           ticket_price: formData.ticket_price ? parseFloat(formData.ticket_price) : null,
           ticket_url: formData.ticket_url || null,
           capacity: formData.capacity ? parseInt(formData.capacity) : null,
+          image_url: formData.image_url || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', event.id)
@@ -85,6 +89,29 @@ export const EditableEventRow: React.FC<EditableEventRowProps> = ({ event, canEd
   if (isEditing) {
     return (
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+        <div className="flex items-start space-x-4 pb-3 border-b border-blue-200">
+          <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-white border-2 border-blue-300">
+            <ImageWithFallback
+              src={formData.image_url}
+              alt={formData.title}
+              className="w-full h-full object-cover"
+              fallbackType="event"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Event Image URL
+            </label>
+            <input
+              type="url"
+              value={formData.image_url}
+              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="https://example.com/image.jpg"
+            />
+            <p className="text-xs text-gray-500 mt-1">Enter a URL to an image for this event</p>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -227,7 +254,16 @@ export const EditableEventRow: React.FC<EditableEventRowProps> = ({ event, canEd
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
       <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
+        <div className="flex items-start space-x-3 flex-1 min-w-0">
+          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+            <ImageWithFallback
+              src={event.image_url}
+              alt={event.title}
+              className="w-full h-full object-cover"
+              fallbackType="event"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2 mb-2">
             <Link
               to={`/events/${event.slug}`}
@@ -276,9 +312,10 @@ export const EditableEventRow: React.FC<EditableEventRowProps> = ({ event, canEd
             )}
           </div>
 
-          {event.description && (
-            <p className="text-sm text-gray-600 mt-2 line-clamp-2">{event.description}</p>
-          )}
+            {event.description && (
+              <p className="text-sm text-gray-600 mt-2 line-clamp-2">{event.description}</p>
+            )}
+          </div>
         </div>
 
         {canEdit && (
