@@ -8,6 +8,7 @@ import { StatCard } from '../components/StatCard'
 import { CalendarEvent } from '../components/CalendarEvent'
 import { AdManagementSection } from '../components/AdManagementSection'
 import { ManagementSection } from '../components/ManagementSection'
+import { SettingsSection } from '../components/SettingsSection'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, type Event, type Artist, type Venue, trackPageView } from '../lib/supabase'
 
@@ -22,7 +23,7 @@ export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'management' | 'ads'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'management' | 'ads' | 'settings'>('dashboard')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -310,11 +311,15 @@ export const DashboardPage: React.FC = () => {
                     <span>Analytics</span>
                   </button>
                   <button
-                    onClick={() => navigate('/profile')}
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                    onClick={() => setActiveTab('settings')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'settings'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <User size={18} />
-                    <span>Setting</span>
+                    <span>Settings</span>
                   </button>
                 </nav>
               </div>
@@ -382,8 +387,10 @@ export const DashboardPage: React.FC = () => {
                 </>
               ) : activeTab === 'management' ? (
                 <ManagementSection />
-              ) : (
+              ) : activeTab === 'ads' ? (
                 <AdManagementSection />
+              ) : (
+                <SettingsSection />
               )}
             </main>
 
