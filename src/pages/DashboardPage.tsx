@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2 } from 'lucide-react'
+import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2, DollarSign } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { ProjectCard } from '../components/ProjectCard'
 import { TaskItem } from '../components/TaskItem'
 import { StatCard } from '../components/StatCard'
 import { CalendarEvent } from '../components/CalendarEvent'
+import { AdManagementSection } from '../components/AdManagementSection'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, type Event, type Artist, type Venue, trackPageView } from '../lib/supabase'
 
@@ -20,6 +21,7 @@ export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'ads'>('dashboard')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -267,11 +269,26 @@ export const DashboardPage: React.FC = () => {
 
                 <nav className="space-y-1 mb-6">
                   <button
-                    onClick={() => navigate('/dashboard')}
-                    className="w-full flex items-center space-x-3 px-4 py-3 bg-black text-yellow-400 rounded-lg font-medium"
+                    onClick={() => setActiveTab('dashboard')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'dashboard'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <BarChart3 size={18} />
                     <span>Dashboard</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('ads')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'ads'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <DollarSign size={18} />
+                    <span>Advertisements</span>
                   </button>
                   <button
                     onClick={() => navigate('/events')}
@@ -279,10 +296,6 @@ export const DashboardPage: React.FC = () => {
                   >
                     <Calendar size={18} />
                     <span>Analytics</span>
-                  </button>
-                  <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors">
-                    <TrendingUp size={18} />
-                    <span>Tracking</span>
                   </button>
                   <button
                     onClick={() => navigate('/profile')}
@@ -320,62 +333,67 @@ export const DashboardPage: React.FC = () => {
 
             {/* Main Content */}
             <main className="lg:col-span-6">
-              {/* Header */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                      Hello, {profile?.full_name?.split(' ')[0] || profile?.username || 'there'}
-                    </h1>
-                    <p className="text-gray-600">Today is {day}, {date}</p>
-                  </div>
-                  <a
-                    href="https://seveneightfive.fillout.com/t/fVFVYBpMXKus"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm flex items-center space-x-2"
-                  >
-                    <span>Add New Event</span>
-                    <ExternalLink size={16} />
-                  </a>
-                </div>
-              </div>
-
-              {/* Calendar */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-gray-900">Calendar</h2>
-                  <button className="p-1 hover:bg-gray-100 rounded transition-colors">
-                    <Calendar className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-
-                <div className="space-y-6 max-h-[600px] overflow-y-auto">
-                  {Object.entries(eventGroups).map(([dateKey, events]) => (
-                    <div key={dateKey}>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-3">{dateKey}</h3>
-                      <div className="space-y-2">
-                        {events.map(event => (
-                          <CalendarEvent
-                            key={event.id}
-                            time={formatEventTime(event)}
-                            title={event.title}
-                            subtitle={event.venue?.name || 'Event'}
-                            onClick={() => navigate(`/events/${event.slug}`)}
-                          />
-                        ))}
+              {activeTab === 'dashboard' ? (
+                <>
+                  {/* Header */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                          Hello, {profile?.full_name?.split(' ')[0] || profile?.username || 'there'}
+                        </h1>
+                        <p className="text-gray-600">Today is {day}, {date}</p>
                       </div>
+                      <a
+                        href="https://seveneightfive.fillout.com/t/fVFVYBpMXKus"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm flex items-center space-x-2"
+                      >
+                        <span>Add New Event</span>
+                        <ExternalLink size={16} />
+                      </a>
                     </div>
-                  ))}
-                  {allUpcomingEvents.length === 0 && (
-                    <div className="text-center py-12 text-gray-400">
-                      <Calendar size={48} className="mx-auto mb-3" />
-                      <p className="text-sm">No upcoming events</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+                  </div>
 
+                  {/* Calendar */}
+                  <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold text-gray-900">Calendar</h2>
+                      <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+                        <Calendar className="w-5 h-5 text-gray-600" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                      {Object.entries(eventGroups).map(([dateKey, events]) => (
+                        <div key={dateKey}>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3">{dateKey}</h3>
+                          <div className="space-y-2">
+                            {events.map(event => (
+                              <CalendarEvent
+                                key={event.id}
+                                time={formatEventTime(event)}
+                                title={event.title}
+                                subtitle={event.venue?.name || 'Event'}
+                                onClick={() => navigate(`/events/${event.slug}`)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      {allUpcomingEvents.length === 0 && (
+                        <div className="text-center py-12 text-gray-400">
+                          <Calendar size={48} className="mx-auto mb-3" />
+                          <p className="text-sm">No upcoming events</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <AdManagementSection />
+              )}
             </main>
 
             {/* Right Sidebar - Project Cards */}

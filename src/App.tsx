@@ -1,8 +1,9 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { ScrollToTop } from './components/ScrollToTop'
 import { ProfileCompletionModal } from './components/ProfileCompletionModal'
 import { useAuth } from './hooks/useAuth'
+import { initGA, trackPageView, setUserId } from './lib/analytics'
 import { HomePage } from './pages/HomePage'
 import { EventsDirectoryPage } from './pages/EventsDirectoryPage'
 import { AgendaPage } from './pages/AgendaPage'
@@ -15,8 +16,28 @@ import { ProfilePage } from './pages/ProfilePage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FeedPage } from './pages/FeedPage'
 
+function AnalyticsTracker() {
+  const location = useLocation()
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search)
+  }, [location])
+
+  return null
+}
+
 function App() {
   const { user, needsProfileCompletion, authMethod, completeProfile } = useAuth()
+
+  useEffect(() => {
+    initGA()
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      setUserId(user.id)
+    }
+  }, [user])
 
   const handleProfileComplete = async (data: { full_name: string; phone_number?: string; email?: string }) => {
     await completeProfile(data)
@@ -25,6 +46,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <AnalyticsTracker />
       <ProfileCompletionModal
         isOpen={needsProfileCompletion && !!user}
         authMethod={authMethod || 'email'}

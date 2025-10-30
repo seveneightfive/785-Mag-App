@@ -4,7 +4,9 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
 import { EventModal } from '../components/EventModal'
-import { supabase, type Event, trackPageView } from '../lib/supabase'
+import { supabase, type Event, type Advertisement, trackPageView } from '../lib/supabase'
+import { injectAds } from '../utils/adInjector'
+import { SponsoredEventCard } from '../components/SponsoredEventCard'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
 
@@ -13,6 +15,7 @@ export const EventsDirectoryPage: React.FC = () => {
   const navigate = useNavigate()
   const [events, setEvents] = useState<Event[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
+  const [activeAds, setActiveAds] = useState<Advertisement[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
@@ -30,6 +33,7 @@ export const EventsDirectoryPage: React.FC = () => {
   useEffect(() => {
     trackPageView('events-directory')
     fetchEvents()
+    fetchActiveAds()
   }, [])
 
   useEffect(() => {
@@ -65,7 +69,7 @@ export const EventsDirectoryPage: React.FC = () => {
     // Get current date in local timezone, start of today
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -82,6 +86,22 @@ export const EventsDirectoryPage: React.FC = () => {
       setEvents(data || [])
     }
     setLoading(false)
+  }
+
+  const fetchActiveAds = async () => {
+    const today = new Date().toISOString().split('T')[0]
+
+    const { data, error } = await supabase
+      .from('advertisements')
+      .select('*')
+      .lte('start_date', today)
+      .gte('end_date', today)
+      .eq('payment_status', 'completed')
+      .order('created_at', { ascending: false })
+
+    if (!error && data) {
+      setActiveAds(data)
+    }
   }
 
   const calculateEventCounts = () => {
@@ -458,15 +478,30 @@ export const EventsDirectoryPage: React.FC = () => {
                 {filteredEvents.length > 0 ? (
                   <div className="overflow-y-auto" style={{ height: 'calc(100vh - 180px)' }}>
                     <div className="grid grid-cols-4 gap-6 pr-6">
-                      {filteredEvents.map((event) => (
-                        <div key={event.id} className="rounded-xl transition-all">
-                          <EventCard
-                            event={event}
-                            onClick={() => handleEventClick(event.slug || '')}
-                            useModal={true}
-                          />
-                        </div>
-                      ))}
+                      {injectAds(filteredEvents, activeAds, 'events-directory').map((item, index) => {
+                        if (item.type === 'ad') {
+                          return (
+                            <div key={`ad-${item.data.id}-${index}`} className="rounded-xl transition-all">
+                              <SponsoredEventCard
+                                ad={item.data as Advertisement}
+                                position={item.position}
+                                pageType="events-directory"
+                              />
+                            </div>
+                          )
+                        } else {
+                          const event = item.data as Event
+                          return (
+                            <div key={`event-${event.id}-${index}`} className="rounded-xl transition-all">
+                              <EventCard
+                                event={event}
+                                onClick={() => handleEventClick(event.slug || '')}
+                                useModal={true}
+                              />
+                            </div>
+                          )
+                        }
+                      })}
                     </div>
                   </div>
                 ) : (
@@ -490,38 +525,95 @@ export const EventsDirectoryPage: React.FC = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#C80650' }}></div>
               </div>
             ) : filteredEvents.length > 0 ? (
-              sortedDateKeys.map((dateKey) => {
-                const date = new Date(dateKey)
-                const dayNumber = date.getDate()
-                const monthName = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+              (() => {
+                const injectedItems = injectAds(filteredEvents, activeAds, 'events-directory-mobile')
+                const groupedByDate: { [key: string]: typeof injectedItems } = {}
 
-                return (
-                  <div key={dateKey} className="space-y-3">
-                    {/* Date Header */}
-                    <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3">
-                      <div className="text-center">
-                        <div className="text-sm text-gray-700 font-medium">{monthName}</div>
-                        <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
+                injectedItems.forEach((item) => {
+                  let dateKey: string
+                  if (item.type === 'event') {
+                    const event = item.data as Event
+                    dateKey = new Date(event.start_date).toDateString()
+                  } else {
+                    dateKey = 'Sponsored'
+                  }
+
+                  if (!groupedByDate[dateKey]) {
+                    groupedByDate[dateKey] = []
+                  }
+                  groupedByDate[dateKey].push(item)
+                })
+
+                return Object.keys(groupedByDate).sort((a, b) => {
+                  if (a === 'Sponsored') return 1
+                  if (b === 'Sponsored') return -1
+                  return new Date(a).getTime() - new Date(b).getTime()
+                }).map((dateKey) => {
+                  if (dateKey === 'Sponsored') {
+                    return (
+                      <div key={dateKey} className="space-y-3">
+                        {groupedByDate[dateKey].map((item, index) => {
+                          const ad = item.data as Advertisement
+                          return (
+                            <div key={`mobile-ad-${ad.id}-${index}`} className="mx-2">
+                              <SponsoredEventCard
+                                ad={ad}
+                                position={item.position}
+                                pageType="events-directory-mobile"
+                              />
+                            </div>
+                          )
+                        })}
                       </div>
-                      <div className="flex-1 h-px bg-gray-200"></div>
-                      <div className="text-sm text-gray-500 font-medium">
-                        <span className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                    )
+                  }
+
+                  const date = new Date(dateKey)
+                  const dayNumber = date.getDate()
+                  const monthName = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+
+                  return (
+                    <div key={dateKey} className="space-y-3">
+                      <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3">
+                        <div className="text-center">
+                          <div className="text-sm text-gray-700 font-medium">{monthName}</div>
+                          <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
+                        </div>
+                        <div className="flex-1 h-px bg-gray-200"></div>
+                        <div className="text-sm text-gray-500 font-medium">
+                          <span className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {groupedByDate[dateKey].map((item, index) => {
+                          if (item.type === 'ad') {
+                            const ad = item.data as Advertisement
+                            return (
+                              <div key={`mobile-ad-${ad.id}-${index}`} className="mx-2">
+                                <SponsoredEventCard
+                                  ad={ad}
+                                  position={item.position}
+                                  pageType="events-directory-mobile"
+                                />
+                              </div>
+                            )
+                          } else {
+                            const event = item.data as Event
+                            return (
+                              <MobileEventCard
+                                key={`mobile-event-${event.id}-${index}`}
+                                event={event}
+                                onClick={() => handleEventClick(event.slug || '')}
+                              />
+                            )
+                          }
+                        })}
                       </div>
                     </div>
-
-                    {/* Events for this date */}
-                    <div className="space-y-3">
-                      {groupedEvents[dateKey].map((event) => (
-                        <MobileEventCard
-                          key={event.id}
-                          event={event}
-                          onClick={() => handleEventClick(event.slug || '')}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )
-              })
+                  )
+                })
+              })()
             ) : (
               <div className="text-center py-12">
                 <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
