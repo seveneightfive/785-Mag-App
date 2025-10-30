@@ -14,12 +14,15 @@ import {
   Share2,
   Music,
   Palette,
-  Eye
+  Eye,
+  CalendarPlus,
+  ChevronDown
 } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ArtistCard } from '../components/ArtistCard'
 import { supabase, type Event, type EventRSVP, trackPageView } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { downloadICS, generateGoogleCalendarUrl } from '../utils/calendarUtils'
 
 export const EventDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -32,12 +35,25 @@ export const EventDetailPage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [pageViews, setPageViews] = useState(0)
+  const [calendarMenuOpen, setCalendarMenuOpen] = useState(false)
 
   useEffect(() => {
     if (slug) {
       fetchEvent()
     }
   }, [slug])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (calendarMenuOpen && !target.closest('.calendar-dropdown-container')) {
+        setCalendarMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [calendarMenuOpen])
 
   useEffect(() => {
     if (event && user) {
@@ -205,6 +221,19 @@ export const EventDetailPage: React.FC = () => {
       'Shop Local': 'bg-yellow-600 text-white'
     }
     return colors[type] || 'bg-gray-600 text-white'
+  }
+
+  const handleAddToGoogleCalendar = () => {
+    if (!event) return
+    const url = generateGoogleCalendarUrl(event)
+    window.open(url, '_blank', 'noopener,noreferrer')
+    setCalendarMenuOpen(false)
+  }
+
+  const handleDownloadICS = () => {
+    if (!event) return
+    downloadICS(event)
+    setCalendarMenuOpen(false)
   }
 
   if (loading) {
@@ -503,6 +532,43 @@ export const EventDetailPage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* Add to Calendar Section */}
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <h3 className="font-bold text-gray-900 mb-4">Add to Calendar</h3>
+                <div className="relative calendar-dropdown-container">
+                  <button
+                    onClick={() => setCalendarMenuOpen(!calendarMenuOpen)}
+                    className="btn-yellow w-full flex items-center justify-center space-x-2"
+                  >
+                    <CalendarPlus size={16} />
+                    <span>Add to Calendar</span>
+                    <ChevronDown size={14} className={`transition-transform ${calendarMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {calendarMenuOpen && (
+                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                      <button
+                        onClick={handleAddToGoogleCalendar}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                      >
+                        <Calendar size={18} className="text-blue-600" />
+                        <span className="text-gray-900">Google Calendar</span>
+                      </button>
+                      <button
+                        onClick={handleDownloadICS}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 border-t border-gray-100"
+                      >
+                        <CalendarPlus size={18} className="text-gray-600" />
+                        <div>
+                          <div className="text-gray-900">Download ICS</div>
+                          <div className="text-xs text-gray-500">Apple Calendar, Outlook, etc.</div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* Share Section */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
