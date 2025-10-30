@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2, DollarSign } from 'lucide-react'
+import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2, DollarSign, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { ProjectCard } from '../components/ProjectCard'
@@ -7,6 +7,7 @@ import { TaskItem } from '../components/TaskItem'
 import { StatCard } from '../components/StatCard'
 import { CalendarEvent } from '../components/CalendarEvent'
 import { AdManagementSection } from '../components/AdManagementSection'
+import { ManagementSection } from '../components/ManagementSection'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, type Event, type Artist, type Venue, trackPageView } from '../lib/supabase'
 
@@ -21,7 +22,7 @@ export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'ads'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'management' | 'ads'>('dashboard')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -280,6 +281,17 @@ export const DashboardPage: React.FC = () => {
                     <span>Dashboard</span>
                   </button>
                   <button
+                    onClick={() => setActiveTab('management')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'management'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Settings size={18} />
+                    <span>Management</span>
+                  </button>
+                  <button
                     onClick={() => setActiveTab('ads')}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
                       activeTab === 'ads'
@@ -391,6 +403,8 @@ export const DashboardPage: React.FC = () => {
                     </div>
                   </div>
                 </>
+              ) : activeTab === 'management' ? (
+                <ManagementSection />
               ) : (
                 <AdManagementSection />
               )}

@@ -80,6 +80,7 @@ export interface Artist {
   artist_spotify?: string
   artist_youtube?: string
   artist_email?: string
+  edit_link?: string
 }
 
 export interface Venue {
@@ -102,6 +103,8 @@ export interface Venue {
   updated_at?: string
   slug?: string
   neighborhood?: string
+  edit_link?: string
+  logo?: string
 }
 
 export interface Review {
