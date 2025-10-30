@@ -260,35 +260,39 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Project Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                <ProjectCard
-                  title="Artists"
-                  subtitle="Following"
-                  taskCount={followedArtists.length}
-                  percentage={calculatePercentage(followedArtists.length, 20)}
-                  color="purple"
-                  images={getArtistImages()}
-                  onClick={() => navigate('/artists')}
-                />
-                <ProjectCard
-                  title="Venues"
-                  subtitle="Following"
-                  taskCount={followedVenues.length}
-                  percentage={calculatePercentage(followedVenues.length, 15)}
-                  color="teal"
-                  images={getVenueImages()}
-                  onClick={() => navigate('/venues')}
-                />
-                <ProjectCard
-                  title="Events"
-                  subtitle="Attending"
-                  taskCount={rsvpEvents.length}
-                  percentage={calculatePercentage(rsvpEvents.length, 10)}
-                  color="coral"
-                  images={getEventImages()}
-                  onClick={() => navigate('/events')}
-                />
+              {/* Calendar */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-900">Calendar</h2>
+                  <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+                    <Calendar className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+
+                <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                  {Object.entries(eventGroups).map(([dateKey, events]) => (
+                    <div key={dateKey}>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">{dateKey}</h3>
+                      <div className="space-y-2">
+                        {events.map(event => (
+                          <CalendarEvent
+                            key={event.id}
+                            time={formatEventTime(event)}
+                            title={event.title}
+                            subtitle={event.venue?.name || 'Event'}
+                            onClick={() => navigate(`/events/${event.slug}`)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {allUpcomingEvents.length === 0 && (
+                    <div className="text-center py-12 text-gray-400">
+                      <Calendar size={48} className="mx-auto mb-3" />
+                      <p className="text-sm">No upcoming events</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Statistics */}
@@ -338,41 +342,35 @@ export const DashboardPage: React.FC = () => {
               </div>
             </main>
 
-            {/* Right Sidebar - Calendar */}
-            <aside className="lg:col-span-3">
-              <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-gray-900">Calendar</h2>
-                  <button className="p-1 hover:bg-gray-100 rounded transition-colors">
-                    <Calendar className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-
-                <div className="space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto">
-                  {Object.entries(eventGroups).map(([dateKey, events]) => (
-                    <div key={dateKey}>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-3">{dateKey}</h3>
-                      <div className="space-y-2">
-                        {events.map(event => (
-                          <CalendarEvent
-                            key={event.id}
-                            time={formatEventTime(event)}
-                            title={event.title}
-                            subtitle={event.venue?.name || 'Event'}
-                            onClick={() => navigate(`/events/${event.slug}`)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  {allUpcomingEvents.length === 0 && (
-                    <div className="text-center py-12 text-gray-400">
-                      <Calendar size={48} className="mx-auto mb-3" />
-                      <p className="text-sm">No upcoming events</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+            {/* Right Sidebar - Project Cards */}
+            <aside className="lg:col-span-3 space-y-4">
+              <ProjectCard
+                title="Artists"
+                subtitle="Following"
+                taskCount={followedArtists.length}
+                percentage={calculatePercentage(followedArtists.length, 20)}
+                color="purple"
+                images={getArtistImages()}
+                onClick={() => navigate('/artists')}
+              />
+              <ProjectCard
+                title="Venues"
+                subtitle="Following"
+                taskCount={followedVenues.length}
+                percentage={calculatePercentage(followedVenues.length, 15)}
+                color="teal"
+                images={getVenueImages()}
+                onClick={() => navigate('/venues')}
+              />
+              <ProjectCard
+                title="Events"
+                subtitle="Attending"
+                taskCount={rsvpEvents.length}
+                percentage={calculatePercentage(rsvpEvents.length, 10)}
+                color="coral"
+                images={getEventImages()}
+                onClick={() => navigate('/events')}
+              />
             </aside>
           </div>
         </div>
