@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2 } from 'lucide-react'
+import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { ProjectCard } from '../components/ProjectCard'
@@ -306,20 +306,15 @@ export const DashboardPage: React.FC = () => {
                     </h1>
                     <p className="text-gray-600">Today is {day}, {date}</p>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <button className="p-2 hover:bg-white rounded-lg transition-colors">
-                      <Search className="w-5 h-5 text-gray-600" />
-                    </button>
-                    <a
-                      href="https://seveneightfive.fillout.com/t/fVFVYBpMXKus"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm flex items-center space-x-2"
-                    >
-                      <span>Add New Event</span>
-                      <ExternalLink size={16} />
-                    </a>
-                  </div>
+                  <a
+                    href="https://seveneightfive.fillout.com/t/fVFVYBpMXKus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm flex items-center space-x-2"
+                  >
+                    <span>Add New Event</span>
+                    <ExternalLink size={16} />
+                  </a>
                 </div>
               </div>
 
