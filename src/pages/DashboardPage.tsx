@@ -317,29 +317,6 @@ export const DashboardPage: React.FC = () => {
                     <span>Setting</span>
                   </button>
                 </nav>
-
-                <div className="space-y-3">
-                  <a
-                    href="https://seveneightfive.fillout.com/add-venue"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-4 py-3 rounded-lg font-semibold transition-colors shadow-sm"
-                  >
-                    <MapPin size={18} />
-                    <span>Add New Venue</span>
-                    <ExternalLink size={14} />
-                  </a>
-                  <a
-                    href="https://seveneightfive.fillout.com/new-artist"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-4 py-3 rounded-lg font-semibold transition-colors shadow-sm"
-                  >
-                    <Music size={18} />
-                    <span>Add New Artist</span>
-                    <ExternalLink size={14} />
-                  </a>
-                </div>
               </div>
             </aside>
 

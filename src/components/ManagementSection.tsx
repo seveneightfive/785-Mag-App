@@ -214,6 +214,29 @@ export const ManagementSection: React.FC = () => {
           Manage your venues, artists, and their associated events. You can edit events directly or update venue and artist information through the edit links.
         </p>
 
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <a
+            href="https://seveneightfive.fillout.com/add-venue"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            <MapPin size={18} />
+            <span>Add New Venue</span>
+            <ExternalLink size={14} />
+          </a>
+          <a
+            href="https://seveneightfive.fillout.com/new-artist"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            <Music size={18} />
+            <span>Add New Artist</span>
+            <ExternalLink size={14} />
+          </a>
+        </div>
+
         <div className="flex space-x-2 border-b border-gray-200">
           <button
             onClick={() => setActiveSection('venues')}
