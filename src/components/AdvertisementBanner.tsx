@@ -29,13 +29,13 @@ export const AdvertisementBanner: React.FC = () => {
           .update({ views: data[0].views + 1 })
           .eq('id', data[0].id)
 
-        // Determine image orientation if background image exists
-        if (data[0].background_image) {
+        // Determine image orientation if ad image exists
+        if (data[0].ad_image_url) {
           const img = new Image()
           img.onload = () => {
             setImageOrientation(img.width > img.height ? 'horizontal' : 'vertical')
           }
-          img.src = data[0].background_image
+          img.src = data[0].ad_image_url
         }
       }
     } catch (error) {
@@ -88,7 +88,7 @@ export const AdvertisementBanner: React.FC = () => {
         {/* Content Section */}
         <div className={`p-8 lg:p-12 flex flex-col justify-center ${isVertical ? 'order-2 lg:order-1' : 'order-1'}`}>
           <h2 className={`text-3xl lg:text-4xl font-bold font-urbanist mb-4 ${textColor} uppercase tracking-wide`}>
-            {advertisement.title}
+            {advertisement.headline}
           </h2>
           <p className={`text-lg mb-8 ${textColor} ${isVertical ? 'opacity-80' : 'opacity-90'} font-redhat leading-relaxed`}>
             {advertisement.content}
@@ -105,10 +105,10 @@ export const AdvertisementBanner: React.FC = () => {
         </div>
 
         {/* Image Section */}
-        {advertisement.background_image && (
+        {advertisement.ad_image_url && (
           <div className={`relative ${isVertical ? 'order-1 lg:order-2' : 'order-2'} min-h-[200px] lg:min-h-[300px]`}>
             <img
-              src={advertisement.background_image}
+              src={advertisement.ad_image_url}
               alt="Advertisement background"
               className="absolute inset-0 w-full h-full object-cover"
               onLoad={trackView}
