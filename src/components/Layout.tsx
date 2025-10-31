@@ -252,7 +252,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             />
           </Link>
           
-          {navigation.filter(item => item.name !== 'Home' && item.name !== 'Dashboard' && item.name !== 'Feed' && item.name !== 'Agenda').map((item) => {
+          {navigation.filter(item => item.name !== 'Home' && item.name !== 'Dashboard' && item.name !== 'Feed' && item.name !== 'Agenda' && item.name !== 'Organizers').map((item) => {
             const isActive = isActiveRoute(item.href)
             return (
             <Link
