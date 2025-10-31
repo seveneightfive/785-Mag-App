@@ -717,7 +717,7 @@ const DesktopVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
 
       <div className="flex items-center p-6">
         {/* Venue Image */}
-        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0`}>
+        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200`}>
           <ImageWithFallback
             src={venue.logo || venue.image_url}
             alt={venue.name}
@@ -813,7 +813,7 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
 
       <div className="flex">
         {/* Venue Image */}
-        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-white rounded-lg overflow-hidden flex-shrink-0`}>
+        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200`}>
           <ImageWithFallback
             src={venue.logo || venue.image_url}
             alt={venue.name}

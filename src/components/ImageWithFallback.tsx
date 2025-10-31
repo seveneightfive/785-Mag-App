@@ -76,7 +76,9 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     }
   }
 
-  if (!src || imageError) {
+  const shouldShowFallback = !src || src.trim() === '' || imageError
+
+  if (shouldShowFallback) {
     return (
       <div
         className={`${className} bg-gradient-to-br ${
