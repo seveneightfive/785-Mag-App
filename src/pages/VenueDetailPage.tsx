@@ -175,7 +175,7 @@ export const VenueDetailPage: React.FC = () => {
     setSearchParams({})
   }
 
-  const isRestaurantOrBar = venue?.venue_type === 'Restaurant' || venue?.venue_type === 'Bar/Tavern'
+  const isRestaurantOrBar = venue?.venue_type === 'Local Flavor' || venue?.venue_type === 'Bar/Tavern' || venue?.venue_type === 'Coffee Shop' || venue?.venue_type === 'Brewery/Winery'
 
   if (loading) {
     return (

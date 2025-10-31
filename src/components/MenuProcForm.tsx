@@ -52,7 +52,7 @@ export const MenuProcForm: React.FC<MenuProcFormProps> = ({
     const { data } = await supabase
       .from('venues')
       .select('*')
-      .in('venue_type', ['Restaurant', 'Bar/Tavern'])
+      .in('venue_type', ['Local Flavor', 'Bar/Tavern', 'Coffee Shop', 'Brewery/Winery'])
       .order('name')
 
     if (data) {
@@ -96,7 +96,7 @@ export const MenuProcForm: React.FC<MenuProcFormProps> = ({
         address: 'TBD',
         city: 'Topeka',
         state: 'Kansas',
-        venue_type: 'Restaurant',
+        venue_type: 'Local Flavor',
         created_by: user?.id
       })
       .select()

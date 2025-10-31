@@ -6,7 +6,7 @@ import { VenueCard } from '../components/VenueCard'
 import { supabase, type Venue, trackPageView } from '../lib/supabase'
 import { ImageWithFallback } from '../components/ImageWithFallback'
 
-const VENUE_TYPES = ['Art Gallery', 'Live Music', 'Bar/Tavern', 'Retail', 'Restaurant', 'Event Space', 'Brewery/Winery', 'Outdoor Space', 'Theatre', 'Studio/Class', 'Community Space', 'First Friday ArtWalk', 'Coffee Shop', 'Church', 'Experiences', 'Trades + Services']
+const VENUE_TYPES = ['Gallery / Museum', 'Live Music', 'Bar/Tavern', 'Shop Local', 'Local Flavor', 'Event Space', 'Brewery/Winery', 'Outdoor Space', 'Theatre', 'Studio / Classes', 'Community Space', 'First Friday ArtWalk', 'Coffee Shop', 'Church', 'Experiences', 'Trades + Services']
 const NEIGHBORHOODS = ['Downtown', 'NOTO', 'North Topeka', 'Oakland', 'Westboro Mart', 'College Hill', 'Lake Shawnee', 'Golden Mile', 'A Short Drive', 'South Topeka', 'Midtown', 'West Topeka']
 
 type SortOption = 'alphabetical-asc' | 'alphabetical-desc' | 'events-desc'
