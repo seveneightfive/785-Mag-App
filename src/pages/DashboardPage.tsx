@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2, DollarSign, Settings } from 'lucide-react'
+import { Calendar, Music, MapPin, User, Clock, TrendingUp, ExternalLink, BarChart3, Edit2, Settings, FileText } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { ProjectCard } from '../components/ProjectCard'
@@ -289,8 +289,8 @@ export const DashboardPage: React.FC = () => {
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    <Settings size={18} />
-                    <span>Management</span>
+                    <FileText size={18} />
+                    <span>My Pages</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('ads')}
@@ -300,15 +300,8 @@ export const DashboardPage: React.FC = () => {
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    <DollarSign size={18} />
-                    <span>Advertisements</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/events')}
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                  >
-                    <Calendar size={18} />
-                    <span>Analytics</span>
+                    <Settings size={18} />
+                    <span>My Ads</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('settings')}

@@ -127,12 +127,7 @@ export const AdvertisementForm: React.FC<AdvertisementFormProps> = ({ isOpen, on
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#FFCE03] to-orange-500 rounded-xl flex items-center justify-center">
-              <DollarSign size={20} className="text-black" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900">Create Advertisement</h2>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Create Advertisement</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"

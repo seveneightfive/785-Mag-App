@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Calendar, ChevronDown, ChevronUp, ExternalLink, Music } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronUp, ExternalLink, Music, Eye, Pencil } from 'lucide-react'
 import { ImageWithFallback } from './ImageWithFallback'
 import { EditableEventRow } from './EditableEventRow'
 import { type Artist, type Event } from '../lib/supabase'
@@ -89,6 +89,13 @@ export const ArtistManagementCard: React.FC<ArtistManagementCardProps> = ({
             )}
 
             <div className="flex items-center space-x-3">
+              <a
+                href={`/artists/${artist.slug}`}
+                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+              >
+                <Eye size={14} />
+                <span>View</span>
+              </a>
               {artist.edit_link && (
                 <a
                   href={artist.edit_link}
@@ -96,8 +103,8 @@ export const ArtistManagementCard: React.FC<ArtistManagementCardProps> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#FFCE03] hover:bg-[#E5B902] text-black text-sm font-medium rounded-lg transition-colors"
                 >
-                  <ExternalLink size={14} />
-                  <span>Edit Artist</span>
+                  <Pencil size={14} />
+                  <span>Edit</span>
                 </a>
               )}
 

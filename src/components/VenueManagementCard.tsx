@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MapPin, Calendar, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
+import { MapPin, Calendar, ChevronDown, ChevronUp, ExternalLink, Eye, Pencil } from 'lucide-react'
 import { ImageWithFallback } from './ImageWithFallback'
 import { EditableEventRow } from './EditableEventRow'
 import { type Venue, type Event } from '../lib/supabase'
@@ -35,9 +35,9 @@ export const VenueManagementCard: React.FC<VenueManagementCardProps> = ({
         <div className="flex items-start space-x-4">
           <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
             <ImageWithFallback
-              src={venue.image_url}
+              src={venue.logo || venue.image_url}
               alt={venue.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-2"
               fallbackType="venue"
             />
           </div>
@@ -53,6 +53,13 @@ export const VenueManagementCard: React.FC<VenueManagementCardProps> = ({
             </div>
 
             <div className="flex items-center space-x-3">
+              <a
+                href={`/venues/${venue.slug}`}
+                className="inline-flex items-center space-x-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+              >
+                <Eye size={14} />
+                <span>View</span>
+              </a>
               {venue.edit_link && (
                 <a
                   href={venue.edit_link}
@@ -60,8 +67,8 @@ export const VenueManagementCard: React.FC<VenueManagementCardProps> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#FFCE03] hover:bg-[#E5B902] text-black text-sm font-medium rounded-lg transition-colors"
                 >
-                  <ExternalLink size={14} />
-                  <span>Edit Venue</span>
+                  <Pencil size={14} />
+                  <span>Edit</span>
                 </a>
               )}
 
