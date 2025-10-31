@@ -264,6 +264,46 @@ export const EventDetailPage: React.FC = () => {
     )
   }
 
+  const eventJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description || `Join us for ${event.title}`,
+    startDate: event.start_time,
+    endDate: event.end_time,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: event.venue ? {
+      '@type': 'Place',
+      name: event.venue.name,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: event.venue.address,
+        addressLocality: event.venue.city || 'Topeka',
+        addressRegion: event.venue.state || 'KS',
+        postalCode: event.venue.zip_code,
+        addressCountry: 'US'
+      }
+    } : undefined,
+    image: event.image_url ? [event.image_url] : undefined,
+    organizer: {
+      '@type': 'Organization',
+      name: '785 Magazine',
+      url: 'https://785mag.com'
+    },
+    offers: event.ticket_price ? {
+      '@type': 'Offer',
+      price: event.ticket_price,
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      url: event.ticket_url || `https://785mag.com/events/${event.slug}/`
+    } : undefined,
+    performer: event.event_artists?.map((ea: any) => ({
+      '@type': 'PerformingGroup',
+      name: ea.artist?.name
+    }))
+  };
+
   return (
     <Layout>
       <Helmet>
@@ -275,6 +315,9 @@ export const EventDetailPage: React.FC = () => {
         <meta property="og:title" content={event.title} />
         <meta property="og:description" content={event.description || `Join us for ${event.title}`} />
         {event.image_url && <meta property="og:image" content={event.image_url} />}
+        <script type="application/ld+json">
+          {JSON.stringify(eventJsonLd)}
+        </script>
       </Helmet>
       <div className="min-h-screen bg-gray-50">
 

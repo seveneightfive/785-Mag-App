@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { Music, Globe, Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, Users, Palette, Eye, Instagram, Twitter, Facebook, Youtube, Mail } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
@@ -256,8 +257,38 @@ export const ArtistDetailPage: React.FC = () => {
     )
   }
 
+  const artistJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicGroup',
+    name: artist.name,
+    description: artist.bio || `Discover ${artist.name}, a talented artist from the 785 area`,
+    image: artist.avatar_url || artist.image_url,
+    url: `https://785mag.com/artists/${artist.slug}`,
+    genre: artist.genre,
+    sameAs: [
+      artist.website_url,
+      artist.instagram_url,
+      artist.twitter_url,
+      artist.facebook_url,
+      artist.youtube_url,
+    ].filter(Boolean),
+  };
+
   return (
     <Layout>
+      <Helmet>
+        <link rel="canonical" href={`https://785mag.com/artists/${artist.slug}/`} />
+        <title>{artist.name} | seveneightfive magazine</title>
+        <meta name="description" content={artist.bio || `Discover ${artist.name}, a talented artist from the 785 area`} />
+        <meta property="og:url" content={`https://785mag.com/artists/${artist.slug}/`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content={artist.name} />
+        <meta property="og:description" content={artist.bio || `Discover ${artist.name}`} />
+        {artist.avatar_url && <meta property="og:image" content={artist.avatar_url} />}
+        <script type="application/ld+json">
+          {JSON.stringify(artistJsonLd)}
+        </script>
+      </Helmet>
       <div className="min-h-screen bg-gray-50">
 
         {/* Mobile Back Button - Fixed Header */}

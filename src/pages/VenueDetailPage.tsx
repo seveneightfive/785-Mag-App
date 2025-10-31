@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { MapPin, Phone, Globe, Heart, Share2, ArrowLeft, Users, Calendar } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
@@ -205,8 +206,40 @@ export const VenueDetailPage: React.FC = () => {
     )
   }
 
+  const venueJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': venue.venue_type === 'Restaurant' ? 'Restaurant' : 'EventVenue',
+    name: venue.name,
+    description: venue.description || `Discover ${venue.name}, a premier venue in the 785 area`,
+    image: venue.image_url,
+    url: `https://785mag.com/venues/${venue.slug}`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: venue.address,
+      addressLocality: venue.city || 'Topeka',
+      addressRegion: venue.state || 'KS',
+      postalCode: venue.zip_code,
+      addressCountry: 'US'
+    },
+    telephone: venue.phone_number,
+    priceRange: venue.price_range,
+  };
+
   return (
     <Layout>
+      <Helmet>
+        <link rel="canonical" href={`https://785mag.com/venues/${venue.slug}/`} />
+        <title>{venue.name} | seveneightfive magazine</title>
+        <meta name="description" content={venue.description || `Discover ${venue.name}, a premier venue in the 785 area`} />
+        <meta property="og:url" content={`https://785mag.com/venues/${venue.slug}/`} />
+        <meta property="og:type" content="business.business" />
+        <meta property="og:title" content={venue.name} />
+        <meta property="og:description" content={venue.description || `Discover ${venue.name}`} />
+        {venue.image_url && <meta property="og:image" content={venue.image_url} />}
+        <script type="application/ld+json">
+          {JSON.stringify(venueJsonLd)}
+        </script>
+      </Helmet>
       <div className="min-h-screen bg-gray-50">
 
         {/* Mobile Back Button - Fixed Header */}
