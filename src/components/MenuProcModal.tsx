@@ -9,29 +9,31 @@ interface MenuProcModalProps {
   onClose: () => void
 }
 
-export const MenuProcModal: React.FC<MenuProcModalProps> = ({ 
-  menuProc, 
-  isOpen, 
-  onClose 
+export const MenuProcModal: React.FC<MenuProcModalProps> = ({
+  menuProc,
+  isOpen,
+  onClose
 }) => {
   if (!isOpen || !menuProc) return null
+
+  const hasImages = menuProc.images && menuProc.images.length > 0
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="relative">
           {/* Header with close button */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className={`${hasImages ? 'absolute' : 'relative'} top-4 right-4 z-10`}>
             <button
               onClick={onClose}
-              className="bg-black/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-black/30 transition-colors"
+              className={`${hasImages ? 'bg-black/20 backdrop-blur-sm text-white hover:bg-black/30' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} p-2 rounded-full transition-colors`}
             >
               <X size={20} />
             </button>
           </div>
 
-          {/* Images */}
-          {menuProc.images && menuProc.images.length > 0 && (
+          {/* Images - Only show if images exist */}
+          {hasImages && (
             <div className="aspect-video bg-gray-200 overflow-hidden rounded-t-2xl">
               {menuProc.images.length === 1 ? (
                 <img
@@ -91,9 +93,17 @@ export const MenuProcModal: React.FC<MenuProcModalProps> = ({
 
             {/* Meta info */}
             <div className="flex items-center justify-between text-sm text-gray-500 border-t pt-4">
-              <div className="flex items-center">
-                <User size={14} className="mr-1" />
-                <span>by {menuProc.profiles?.username || 'Anonymous'}</span>
+              <div className="flex items-center gap-2">
+                {menuProc.profiles?.avatar_url ? (
+                  <img
+                    src={menuProc.profiles.avatar_url}
+                    alt={menuProc.profiles.full_name || menuProc.profiles.username}
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                ) : (
+                  <User size={14} />
+                )}
+                <span>by {menuProc.profiles?.full_name || menuProc.profiles?.username || 'Anonymous'}</span>
               </div>
               <div className="flex items-center">
                 <Calendar size={14} className="mr-1" />

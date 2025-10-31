@@ -99,7 +99,7 @@ export const HomePage: React.FC = () => {
         .select(`
           *,
           venue:venues(*),
-          user:profiles(username, full_name)
+          profiles:profiles(username, full_name, avatar_url)
         `)
         .order('created_at', { ascending: false })
         .limit(5)

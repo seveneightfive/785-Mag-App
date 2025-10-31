@@ -94,7 +94,7 @@ export const VenueDetailPage: React.FC = () => {
       .select(`
         *,
         venue:venues(*),
-        user:profiles(username, full_name)
+        profiles:profiles(username, full_name, avatar_url)
       `)
       .eq('venue_id', venue.id)
       .order('created_at', { ascending: false })

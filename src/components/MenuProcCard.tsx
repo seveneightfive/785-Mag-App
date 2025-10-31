@@ -9,28 +9,31 @@ interface MenuProcCardProps {
   showVenue?: boolean
 }
 
-export const MenuProcCard: React.FC<MenuProcCardProps> = ({ 
-  menuProc, 
-  onClick, 
-  showVenue = true 
+export const MenuProcCard: React.FC<MenuProcCardProps> = ({
+  menuProc,
+  onClick,
+  showVenue = true
 }) => {
   const primaryImage = menuProc.images?.[0]
+  const hasImages = menuProc.images && menuProc.images.length > 0
 
   return (
-    <div 
+    <div
       className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer group"
       onClick={onClick}
     >
-      {/* Image */}
-      <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
-        <ImageWithFallback
-          src={primaryImage}
-          alt={menuProc.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          fallbackType="generic"
-          fallbackGradient="from-orange-100 to-red-100"
-        />
-      </div>
+      {/* Image - Only show if images exist */}
+      {hasImages && (
+        <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
+          <ImageWithFallback
+            src={primaryImage}
+            alt={menuProc.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fallbackType="generic"
+            fallbackGradient="from-orange-100 to-red-100"
+          />
+        </div>
+      )}
 
       {/* Content */}
       <div className="p-4">
@@ -50,9 +53,17 @@ export const MenuProcCard: React.FC<MenuProcCardProps> = ({
         </p>
 
         <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center">
-            <User size={12} className="mr-1" />
-            <span>{menuProc.profiles?.username || 'Anonymous'}</span>
+          <div className="flex items-center gap-2">
+            {menuProc.profiles?.avatar_url ? (
+              <img
+                src={menuProc.profiles.avatar_url}
+                alt={menuProc.profiles.full_name || menuProc.profiles.username}
+                className="w-5 h-5 rounded-full object-cover"
+              />
+            ) : (
+              <User size={12} />
+            )}
+            <span>{menuProc.profiles?.full_name || menuProc.profiles?.username || 'Anonymous'}</span>
           </div>
           <div className="flex items-center">
             <Calendar size={12} className="mr-1" />
