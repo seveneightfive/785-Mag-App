@@ -26,7 +26,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
   }
 
   // Extract just the street address (first part before comma)
-  const streetAddress = venue.address.split(',')[0].trim()
+  const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
 
   return (
     <Link 

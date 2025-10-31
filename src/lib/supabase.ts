@@ -87,7 +87,7 @@ export interface Venue {
   id: string
   name: string
   description?: string
-  address: string
+  address: string | null
   city: string
   state?: string
   country?: string

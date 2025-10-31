@@ -91,7 +91,7 @@ export const VenuesDirectoryPage: React.FC = () => {
       baseVenues = baseVenues.filter(venue =>
         venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         venue.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        venue.address.toLowerCase().includes(searchQuery.toLowerCase())
+        venue.address?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -119,7 +119,7 @@ export const VenuesDirectoryPage: React.FC = () => {
       baseVenues = baseVenues.filter(venue =>
         venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         venue.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        venue.address.toLowerCase().includes(searchQuery.toLowerCase())
+        venue.address?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -145,7 +145,7 @@ export const VenuesDirectoryPage: React.FC = () => {
       filtered = filtered.filter(venue =>
         venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         venue.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        venue.address.toLowerCase().includes(searchQuery.toLowerCase())
+        venue.address?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -632,7 +632,7 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
     setUpcomingEventsCount(count || 0)
   }
 
-  const streetAddress = venue.address.split(',')[0].trim()
+  const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
 
   return (
     <Link
