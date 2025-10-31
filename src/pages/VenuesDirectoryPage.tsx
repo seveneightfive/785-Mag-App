@@ -410,20 +410,118 @@ export const VenuesDirectoryPage: React.FC = () => {
       {showFilters && (
         <div className="hidden lg:block fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex-1">
-                  {renderFilterContent()}
+          <div className="absolute top-24 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl max-w-5xl w-full max-h-[75vh] overflow-y-auto shadow-2xl">
+            <div className="p-8">
+              <div className="flex items-start justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold font-urbanist text-gray-900 uppercase mb-2">Filter Venues</h2>
+                  <p className="text-sm text-gray-600">Select venue types and neighborhoods to refine your search</p>
                 </div>
                 <button
                   onClick={() => {
                     setShowFilters(false)
                     setFilterStep('main')
                   }}
-                  className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                 >
-                  <X size={20} />
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-8">
+                {/* Venue Types Section */}
+                <div>
+                  <h3 className="font-bold font-urbanist text-gray-900 mb-4 text-lg">VENUE TYPES</h3>
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    <button
+                      onClick={() => setSelectedTypes([])}
+                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
+                        selectedTypes.length === 0
+                          ? 'bg-black text-white border-black'
+                          : 'bg-white text-gray-900 border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">All Venue Types</span>
+                        <span className="text-sm opacity-75">
+                          {Object.values(venueTypeCounts).reduce((sum, count) => sum + count, 0)}
+                        </span>
+                      </div>
+                    </button>
+                    {VENUE_TYPES.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => toggleType(type)}
+                        className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
+                          selectedTypes.includes(type)
+                            ? 'bg-black text-white border-black'
+                            : 'bg-white text-gray-900 border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{type}</span>
+                          <span className="text-sm opacity-75">{venueTypeCounts[type] || 0}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Neighborhoods Section */}
+                <div>
+                  <h3 className="font-bold font-urbanist text-gray-900 mb-4 text-lg">NEIGHBORHOODS</h3>
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    <button
+                      onClick={() => setSelectedNeighborhoods([])}
+                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
+                        selectedNeighborhoods.length === 0
+                          ? 'bg-black text-white border-black'
+                          : 'bg-white text-gray-900 border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">All Neighborhoods</span>
+                        <span className="text-sm opacity-75">
+                          {Object.values(neighborhoodCounts).reduce((sum, count) => sum + count, 0)}
+                        </span>
+                      </div>
+                    </button>
+                    {NEIGHBORHOODS.map((neighborhood) => (
+                      <button
+                        key={neighborhood}
+                        onClick={() => toggleNeighborhood(neighborhood)}
+                        className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
+                          selectedNeighborhoods.includes(neighborhood)
+                            ? 'bg-black text-white border-black'
+                            : 'bg-white text-gray-900 border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{neighborhood}</span>
+                          <span className="text-sm opacity-75">{neighborhoodCounts[neighborhood] || 0}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center">
+                <button
+                  onClick={clearFilters}
+                  className="text-gray-600 hover:text-gray-900 flex items-center space-x-2"
+                >
+                  <X size={16} />
+                  <span>Clear all filters</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowFilters(false)
+                    setFilterStep('main')
+                  }}
+                  className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Apply Filters
                 </button>
               </div>
             </div>
@@ -431,146 +529,100 @@ export const VenuesDirectoryPage: React.FC = () => {
         </div>
       )}
 
-      {/* Desktop Layout - Sidebar + Content */}
-      <div className="hidden lg:flex min-h-screen bg-gray-50">
-        {/* Left Sidebar - Filters */}
-        <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-6">
-            {/* Header with Search and Clear */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">Venues Directory</h1>
-              <p className="text-sm text-gray-600 mb-4">Discover amazing local venues</p>
+      {/* Desktop Layout - Top Bar + Content */}
+      <div className="hidden lg:block min-h-screen bg-gray-50">
+        {/* Top Bar - Header and Search */}
+        <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-8 py-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold font-urbanist text-gray-900 uppercase">Venues Directory</h1>
+                <p className="text-sm text-gray-600 mt-1">Discover amazing local venues</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">
+                  {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
+                </p>
+              </div>
+            </div>
 
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
+            <div className="flex items-center space-x-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search venues..."
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1"
-                >
-                  <X size={12} />
-                  <span>Clear all filters</span>
-                </button>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold font-urbanist text-gray-900 text-base">FILTERS</h3>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2 bg-gray-100 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors flex-shrink-0"
+              >
+                <Filter size={18} />
+                <span>Filters</span>
                 {activeFiltersCount > 0 && (
                   <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                     {activeFiltersCount}
                   </span>
                 )}
-              </div>
-            </div>
+              </button>
 
-            {/* Venue Types Filter */}
-            <div className="mb-6">
-              <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
-              <div className="space-y-2">
-                {VENUE_TYPES.map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => toggleType(type)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                      selectedTypes.includes(type)
-                        ? 'bg-black text-white'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span>{type}</span>
-                      <span className="text-xs opacity-75">({venueTypeCounts[type] || 0})</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Neighborhoods Filter */}
-            <div className="mb-6">
-              <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
-              <div className="space-y-2">
-                {NEIGHBORHOODS.map((neighborhood) => (
-                  <button
-                    key={neighborhood}
-                    onClick={() => toggleNeighborhood(neighborhood)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                      selectedNeighborhoods.includes(neighborhood)
-                        ? 'bg-black text-white'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span>{neighborhood}</span>
-                      <span className="text-xs opacity-75">({neighborhoodCounts[neighborhood] || 0})</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-gray-600 hover:text-gray-900 flex items-center space-x-1 px-4 py-3"
+                >
+                  <X size={16} />
+                  <span>Clear all</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right Content Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
-          <div className="p-6">
-            {/* Results Count */}
-            <div className="mb-4">
-              <p className="text-gray-600">
-                {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
-              </p>
+        {/* Content Area */}
+        <div className="max-w-7xl mx-auto px-8 py-8">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
             </div>
-
-            {/* Venues Grid */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                <h3 className="text-lg font-medium text-red-900 mb-2">Error Loading Venues</h3>
+                <p className="text-red-700 mb-4">{error}</p>
+                <button
+                  onClick={() => {
+                    setLoading(true)
+                    fetchVenues()
+                  }}
+                  className="btn-black"
+                >
+                  Try Again
+                </button>
               </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-                  <h3 className="text-lg font-medium text-red-900 mb-2">Error Loading Venues</h3>
-                  <p className="text-red-700 mb-4">{error}</p>
-                  <button
-                    onClick={() => {
-                      setLoading(true)
-                      fetchVenues()
-                    }}
-                    className="btn-black"
-                  >
-                    Try Again
-                  </button>
+            </div>
+          ) : (
+            <>
+              {filteredVenues.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredVenues.map((venue) => (
+                    <DesktopVenueCard key={venue.id} venue={venue} />
+                  ))}
                 </div>
-              </div>
-            ) : (
-              <>
-                {filteredVenues.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredVenues.map((venue) => (
-                      <VenueCard key={venue.id} venue={venue} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
-                    <p className="text-gray-600">Try adjusting your search or filters</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+              ) : (
+                <div className="text-center py-12">
+                  <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
+                  <p className="text-gray-600">Try adjusting your search or filters</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -611,6 +663,102 @@ export const VenuesDirectoryPage: React.FC = () => {
         </div>
       </div>
     </Layout>
+  )
+}
+
+// Desktop Venue Card Component with horizontal layout
+const DesktopVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
+  const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+  const [logoAspectRatio, setLogoAspectRatio] = useState<number>(1)
+
+  useEffect(() => {
+    fetchUpcomingEventsCount()
+  }, [venue.id])
+
+  const fetchUpcomingEventsCount = async () => {
+    const { count } = await supabase
+      .from('events')
+      .select('*', { count: 'exact', head: true })
+      .eq('venue_id', venue.id)
+      .gte('start_date', new Date().toISOString())
+
+    setUpcomingEventsCount(count || 0)
+  }
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    setLogoAspectRatio(img.naturalWidth / img.naturalHeight)
+  }
+
+  const getLogoContainerClass = (aspectRatio: number) => {
+    if (aspectRatio > 1.5) return "w-48 h-32"
+    if (aspectRatio < 0.7) return "w-32 h-48"
+    return "w-40 h-40"
+  }
+
+  const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
+
+  return (
+    <Link
+      to={`/venues/${venue.slug}`}
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden relative group"
+    >
+      {/* Event Count Badge */}
+      {upcomingEventsCount > 0 && (
+        <div className="absolute top-4 right-4 z-10">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center text-black text-base font-bold shadow-lg"
+            style={{ backgroundColor: '#FFCE03' }}
+          >
+            {upcomingEventsCount}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center p-6">
+        {/* Venue Image */}
+        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200`}>
+          <ImageWithFallback
+            src={venue.logo || venue.image_url}
+            alt={venue.name}
+            className="max-w-full max-h-full object-contain p-4"
+            fallbackType="venue"
+            onLoad={handleImageLoad}
+          />
+        </div>
+
+        {/* Venue Details */}
+        <div className="flex-1 px-6 min-w-0">
+          {/* Venue Name */}
+          <h3 className="font-urbanist text-2xl font-bold text-gray-900 mb-2 uppercase tracking-wide group-hover:text-blue-600 transition-colors">
+            {venue.name.toUpperCase()}
+          </h3>
+
+          {/* Venue Type */}
+          {venue.venue_type && (
+            <div className="inline-block mb-3">
+              <span className="px-3 py-1 bg-black text-white text-sm rounded-full">
+                {venue.venue_type}
+              </span>
+            </div>
+          )}
+
+          {/* Address and Neighborhood */}
+          <div className="flex items-center space-x-4 text-gray-600">
+            <div className="flex items-center space-x-2">
+              <MapPin size={18} className="flex-shrink-0" />
+              <span className="text-base">{streetAddress}</span>
+            </div>
+
+            {venue.neighborhood && (
+              <span className="text-sm px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                {venue.neighborhood}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
   )
 }
 
