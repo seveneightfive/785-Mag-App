@@ -2,18 +2,22 @@ import React, { useState, useEffect } from 'react'
 import { Calendar } from 'lucide-react'
 import { TabNavigation, TabType } from './TabNavigation'
 import { EventCardHorizontal } from './EventCardHorizontal'
-import { supabase, Event } from '../lib/supabase'
+import { SponsoredEventCard } from './SponsoredEventCard'
+import { supabase, Event, Advertisement } from '../lib/supabase'
 import { getToday, getTomorrow, getDayAfterTomorrow, getSevenDaysFromNow } from '../utils/dateUtils'
+import { injectAds } from '../utils/adInjector'
 
 export const EventsTabSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('today')
   const [todayEvents, setTodayEvents] = useState<Event[]>([])
   const [tomorrowEvents, setTomorrowEvents] = useState<Event[]>([])
   const [thisWeekEvents, setThisWeekEvents] = useState<Event[]>([])
+  const [activeAds, setActiveAds] = useState<Advertisement[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchEvents()
+    fetchActiveAds()
   }, [])
 
   const fetchEvents = async () => {
@@ -66,6 +70,22 @@ export const EventsTabSection: React.FC = () => {
       console.error('Error fetching events:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchActiveAds = async () => {
+    const today = new Date().toISOString().split('T')[0]
+
+    const { data, error } = await supabase
+      .from('advertisements')
+      .select('*')
+      .lte('start_date', today)
+      .gte('end_date', today)
+      .eq('payment_status', 'completed')
+      .order('created_at', { ascending: false })
+
+    if (!error && data) {
+      setActiveAds(data)
     }
   }
 
@@ -122,13 +142,53 @@ export const EventsTabSection: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {activeEvents.map((event) => (
-                <EventCardHorizontal key={event.id} event={event} />
-              ))}
+          <>
+            {/* Desktop Grid */}
+            <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {injectAds(activeEvents, activeAds, `home-${activeTab}`).map((item, index) => {
+                  if (item.type === 'ad') {
+                    return (
+                      <div key={`ad-${item.data.id}-${index}`} className="p-4">
+                        <SponsoredEventCard
+                          ad={item.data as Advertisement}
+                          position={item.position}
+                          pageType={`home-${activeTab}`}
+                        />
+                      </div>
+                    )
+                  } else {
+                    return (
+                      <EventCardHorizontal key={`event-${item.data.id}-${index}`} event={item.data as Event} />
+                    )
+                  }
+                })}
+              </div>
             </div>
-          </div>
+
+            {/* Mobile Layout */}
+            <div className="lg:hidden space-y-4">
+              {injectAds(activeEvents, activeAds, `home-${activeTab}-mobile`).map((item, index) => {
+                if (item.type === 'ad') {
+                  return (
+                    <div key={`mobile-ad-${item.data.id}-${index}`} className="px-2">
+                      <SponsoredEventCard
+                        ad={item.data as Advertisement}
+                        position={item.position}
+                        pageType={`home-${activeTab}-mobile`}
+                      />
+                    </div>
+                  )
+                } else {
+                  return (
+                    <div key={`mobile-event-${item.data.id}-${index}`} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                      <EventCardHorizontal event={item.data as Event} />
+                    </div>
+                  )
+                }
+              })}
+            </div>
+          </>
         )}
       </div>
     </section>

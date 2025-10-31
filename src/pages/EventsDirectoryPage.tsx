@@ -527,88 +527,52 @@ export const EventsDirectoryPage: React.FC = () => {
             ) : filteredEvents.length > 0 ? (
               (() => {
                 const injectedItems = injectAds(filteredEvents, activeAds, 'events-directory-mobile')
-                const groupedByDate: { [key: string]: typeof injectedItems } = {}
 
-                injectedItems.forEach((item) => {
-                  let dateKey: string
-                  if (item.type === 'event') {
-                    const event = item.data as Event
-                    dateKey = new Date(event.start_date).toDateString()
-                  } else {
-                    dateKey = 'Sponsored'
-                  }
-
-                  if (!groupedByDate[dateKey]) {
-                    groupedByDate[dateKey] = []
-                  }
-                  groupedByDate[dateKey].push(item)
-                })
-
-                return Object.keys(groupedByDate).sort((a, b) => {
-                  if (a === 'Sponsored') return 1
-                  if (b === 'Sponsored') return -1
-                  return new Date(a).getTime() - new Date(b).getTime()
-                }).map((dateKey) => {
-                  if (dateKey === 'Sponsored') {
+                return injectedItems.map((item, index) => {
+                  if (item.type === 'ad') {
+                    const ad = item.data as Advertisement
                     return (
-                      <div key={dateKey} className="space-y-3">
-                        {groupedByDate[dateKey].map((item, index) => {
-                          const ad = item.data as Advertisement
-                          return (
-                            <div key={`mobile-ad-${ad.id}-${index}`} className="mx-2">
-                              <SponsoredEventCard
-                                ad={ad}
-                                position={item.position}
-                                pageType="events-directory-mobile"
-                              />
-                            </div>
-                          )
-                        })}
+                      <div key={`mobile-ad-${ad.id}-${index}`} className="px-2 mb-6">
+                        <SponsoredEventCard
+                          ad={ad}
+                          position={item.position}
+                          pageType="events-directory-mobile"
+                        />
                       </div>
                     )
                   }
 
-                  const date = new Date(dateKey)
-                  const dayNumber = date.getDate()
-                  const monthName = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+                  const event = item.data as Event
+                  const eventDate = new Date(event.start_date)
+                  const dateKey = eventDate.toDateString()
+
+                  const prevItem = index > 0 ? injectedItems[index - 1] : null
+                  const showDateHeader = !prevItem ||
+                    (prevItem.type === 'ad') ||
+                    (prevItem.type === 'event' && new Date((prevItem.data as Event).start_date).toDateString() !== dateKey)
+
+                  const dayNumber = eventDate.getDate()
+                  const monthName = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
 
                   return (
-                    <div key={dateKey} className="space-y-3">
-                      <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3">
-                        <div className="text-center">
-                          <div className="text-sm text-gray-700 font-medium">{monthName}</div>
-                          <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
+                    <div key={`mobile-event-${event.id}-${index}`}>
+                      {showDateHeader && (
+                        <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3 mb-3">
+                          <div className="text-center">
+                            <div className="text-sm text-gray-700 font-medium">{monthName}</div>
+                            <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
+                          </div>
+                          <div className="flex-1 h-px bg-gray-200"></div>
+                          <div className="text-sm text-gray-500 font-medium">
+                            <span className="font-bold">{eventDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                          </div>
                         </div>
-                        <div className="flex-1 h-px bg-gray-200"></div>
-                        <div className="text-sm text-gray-500 font-medium">
-                          <span className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        {groupedByDate[dateKey].map((item, index) => {
-                          if (item.type === 'ad') {
-                            const ad = item.data as Advertisement
-                            return (
-                              <div key={`mobile-ad-${ad.id}-${index}`} className="mx-2">
-                                <SponsoredEventCard
-                                  ad={ad}
-                                  position={item.position}
-                                  pageType="events-directory-mobile"
-                                />
-                              </div>
-                            )
-                          } else {
-                            const event = item.data as Event
-                            return (
-                              <MobileEventCard
-                                key={`mobile-event-${event.id}-${index}`}
-                                event={event}
-                                onClick={() => handleEventClick(event.slug || '')}
-                              />
-                            )
-                          }
-                        })}
+                      )}
+                      <div className="mb-3">
+                        <MobileEventCard
+                          event={event}
+                          onClick={() => handleEventClick(event.slug || '')}
+                        />
                       </div>
                     </div>
                   )
