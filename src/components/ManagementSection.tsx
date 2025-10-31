@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { MapPin, Music, Calendar, ExternalLink, Loader } from 'lucide-react'
+import { MapPin, Music, Calendar, Loader } from 'lucide-react'
 import { VenueManagementCard } from './VenueManagementCard'
 import { ArtistManagementCard } from './ArtistManagementCard'
 import { useAuth } from '../hooks/useAuth'
@@ -187,8 +187,7 @@ export const ManagementSection: React.FC = () => {
               className="inline-flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
             >
               <MapPin size={18} />
-              <span>Add New Venue</span>
-              <ExternalLink size={14} />
+              <span>Add Venue</span>
             </a>
             <a
               href="https://seveneightfive.fillout.com/new-artist"
@@ -197,8 +196,7 @@ export const ManagementSection: React.FC = () => {
               className="inline-flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
             >
               <Music size={18} />
-              <span>Add New Artist</span>
-              <ExternalLink size={14} />
+              <span>Add Artist</span>
             </a>
           </div>
         </div>
@@ -222,8 +220,7 @@ export const ManagementSection: React.FC = () => {
             className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
           >
             <MapPin size={18} />
-            <span>Add New Venue</span>
-            <ExternalLink size={14} />
+            <span>Add Venue</span>
           </a>
           <a
             href="https://seveneightfive.fillout.com/new-artist"
@@ -232,8 +229,7 @@ export const ManagementSection: React.FC = () => {
             className="flex items-center justify-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
           >
             <Music size={18} />
-            <span>Add New Artist</span>
-            <ExternalLink size={14} />
+            <span>Add Artist</span>
           </a>
         </div>
 
@@ -295,8 +291,7 @@ export const ManagementSection: React.FC = () => {
                 className="inline-flex items-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
               >
                 <MapPin size={18} />
-                <span>Add New Venue</span>
-                <ExternalLink size={14} />
+                <span>Add Venue</span>
               </a>
             </div>
           )}
@@ -331,8 +326,7 @@ export const ManagementSection: React.FC = () => {
                 className="inline-flex items-center space-x-2 bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-3 rounded-lg font-semibold transition-colors shadow-sm"
               >
                 <Music size={18} />
-                <span>Add New Artist</span>
-                <ExternalLink size={14} />
+                <span>Add Artist</span>
               </a>
             </div>
           )}
