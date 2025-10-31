@@ -17,6 +17,7 @@ export const VenuesDirectoryPage: React.FC = () => {
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([])
   const [venuesWithEventCounts, setVenuesWithEventCounts] = useState<(Venue & { eventCount: number })[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([])
@@ -41,19 +42,27 @@ export const VenuesDirectoryPage: React.FC = () => {
   }, [venues, searchQuery, selectedTypes])
 
   const fetchVenues = async () => {
-    const { data, error } = await supabase
-      .from('venues')
-      .select('*')
-      .order('name', { ascending: true })
+    try {
+      setError(null)
+      const { data, error: fetchError } = await supabase
+        .from('venues')
+        .select('*')
+        .order('name', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching venues:', error)
-    } else {
-      const venuesData = data || []
-      setVenues(venuesData)
-      await fetchEventCounts(venuesData)
+      if (fetchError) {
+        console.error('Error fetching venues:', fetchError)
+        setError('Failed to load venues. Please try refreshing the page.')
+      } else {
+        const venuesData = data || []
+        setVenues(venuesData)
+        await fetchEventCounts(venuesData)
+      }
+    } catch (err) {
+      console.error('Unexpected error fetching venues:', err)
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const fetchEventCounts = async (venuesData: Venue[]) => {
@@ -341,234 +350,264 @@ export const VenuesDirectoryPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Mobile Header */}
-        <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-40">
-          <div className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-40">
+        <div className="p-4">
+          <div className="flex items-center space-x-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search venues..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg flex-shrink-0"
+              onMouseDown={() => setFilterStep('main')}
+            >
+              <Filter size={16} />
+              <span className="text-sm">Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Filter Drawer */}
+      {showFilters && (
+        <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}></div>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
+            <div className="p-6 pb-24">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex-1">
+                  {renderFilterContent()}
+                </div>
+                <button
+                  onClick={() => {
+                    setShowFilters(false)
+                    setFilterStep('main')
+                  }}
+                  className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Filter Drawer */}
+      {showFilters && (
+        <div className="hidden lg:block fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex-1">
+                  {renderFilterContent()}
+                </div>
+                <button
+                  onClick={() => {
+                    setShowFilters(false)
+                    setFilterStep('main')
+                  }}
+                  className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Layout - Sidebar + Content */}
+      <div className="hidden lg:flex min-h-screen bg-gray-50">
+        {/* Left Sidebar - Filters */}
+        <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-6">
+            {/* Header with Search and Clear */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">Venues Directory</h1>
+              <p className="text-sm text-gray-600 mb-4">Discover amazing local venues</p>
+
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search venues..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg flex-shrink-0"
-                onMouseDown={() => setFilterStep('main')}
-              >
-                <Filter size={16} />
-                <span className="text-sm">Filters</span>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1"
+                >
+                  <X size={12} />
+                  <span>Clear all filters</span>
+                </button>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold font-urbanist text-gray-900 text-base">FILTERS</h3>
                 {activeFiltersCount > 0 && (
                   <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                     {activeFiltersCount}
                   </span>
                 )}
-              </button>
+              </div>
+            </div>
+
+            {/* Venue Types Filter */}
+            <div className="mb-6">
+              <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
+              <div className="space-y-2">
+                {VENUE_TYPES.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => toggleType(type)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      selectedTypes.includes(type)
+                        ? 'bg-black text-white'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>{type}</span>
+                      <span className="text-xs opacity-75">({venueTypeCounts[type] || 0})</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Neighborhoods Filter */}
+            <div className="mb-6">
+              <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
+              <div className="space-y-2">
+                {NEIGHBORHOODS.map((neighborhood) => (
+                  <button
+                    key={neighborhood}
+                    onClick={() => toggleNeighborhood(neighborhood)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      selectedNeighborhoods.includes(neighborhood)
+                        ? 'bg-black text-white'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>{neighborhood}</span>
+                      <span className="text-xs opacity-75">({neighborhoodCounts[neighborhood] || 0})</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Filter Drawer */}
-        {showFilters && (
-          <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
-            <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}></div>
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
-              <div className="p-6 pb-24">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex-1">
-                    {renderFilterContent()}
-                  </div>
-                  <button
-                    onClick={() => {
-                      setShowFilters(false)
-                      setFilterStep('main')
-                    }}
-                    className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-              </div>
+        {/* Right Content Area */}
+        <div className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="p-6">
+            {/* Results Count */}
+            <div className="mb-4">
+              <p className="text-gray-600">
+                {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
+              </p>
             </div>
-          </div>
-        )}
 
-        {/* Desktop Filter Drawer */}
-        {showFilters && (
-          <div className="hidden lg:block fixed inset-0 z-50 overflow-hidden">
-            <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex-1">
-                    {renderFilterContent()}
-                  </div>
-                  <button
-                    onClick={() => {
-                      setShowFilters(false)
-                      setFilterStep('main')
-                    }}
-                    className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Desktop Layout - Sidebar + Content */}
-        <div className="hidden lg:flex h-screen">
-          {/* Left Sidebar - Filters */}
-          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6">
-              {/* Header with Search and Clear */}
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">Venues Directory</h1>
-                <p className="text-sm text-gray-600 mb-4">Discover amazing local venues</p>
-
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search venues..."
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={clearFilters}
-                    className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1"
-                  >
-                    <X size={12} />
-                    <span>Clear all filters</span>
-                  </button>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold font-urbanist text-gray-900 text-base">FILTERS</h3>
-                  {activeFiltersCount > 0 && (
-                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                      {activeFiltersCount}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Venue Types Filter */}
-              <div className="mb-6">
-                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">VENUE TYPES</h4>
-                <div className="space-y-2">
-                  {VENUE_TYPES.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => toggleType(type)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                        selectedTypes.includes(type)
-                          ? 'bg-black text-white'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{type}</span>
-                        <span className="text-xs opacity-75">({venueTypeCounts[type] || 0})</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Neighborhoods Filter */}
-              <div className="mb-6">
-                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">NEIGHBORHOODS</h4>
-                <div className="space-y-2">
-                  {NEIGHBORHOODS.map((neighborhood) => (
-                    <button
-                      key={neighborhood}
-                      onClick={() => toggleNeighborhood(neighborhood)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                        selectedNeighborhoods.includes(neighborhood)
-                          ? 'bg-black text-white'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{neighborhood}</span>
-                        <span className="text-xs opacity-75">({neighborhoodCounts[neighborhood] || 0})</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Content Area */}
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="p-6">
-              {/* Results Count */}
-              <div className="mb-4">
-                <p className="text-gray-600">
-                  {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
-                </p>
-              </div>
-
-              {/* Venues Grid */}
-              {loading ? (
-                <div className="flex justify-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
-                </div>
-              ) : (
-                <>
-                  {filteredVenues.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {filteredVenues.map((venue) => (
-                        <VenueCard key={venue.id} venue={venue} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
-                      <p className="text-gray-600">Try adjusting your search or filters</p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Layout - List View */}
-        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="space-y-3 pb-24">
+            {/* Venues Grid */}
             {loading ? (
               <div className="flex justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
               </div>
-            ) : filteredVenues.length > 0 ? (
-              filteredVenues.map((venue) => (
-                <MobileVenueCard key={venue.id} venue={venue} />
-              ))
-            ) : (
+            ) : error ? (
               <div className="text-center py-12">
-                <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters</p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                  <h3 className="text-lg font-medium text-red-900 mb-2">Error Loading Venues</h3>
+                  <p className="text-red-700 mb-4">{error}</p>
+                  <button
+                    onClick={() => {
+                      setLoading(true)
+                      fetchVenues()
+                    }}
+                    className="btn-black"
+                  >
+                    Try Again
+                  </button>
+                </div>
               </div>
+            ) : (
+              <>
+                {filteredVenues.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredVenues.map((venue) => (
+                      <VenueCard key={venue.id} venue={venue} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
+                    <p className="text-gray-600">Try adjusting your search or filters</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Layout - List View */}
+      <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="space-y-3 pb-24">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                <h3 className="text-lg font-medium text-red-900 mb-2">Error Loading Venues</h3>
+                <p className="text-red-700 mb-4">{error}</p>
+                <button
+                  onClick={() => {
+                    setLoading(true)
+                    fetchVenues()
+                  }}
+                  className="btn-black"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          ) : filteredVenues.length > 0 ? (
+            filteredVenues.map((venue) => (
+              <MobileVenueCard key={venue.id} venue={venue} />
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
+              <p className="text-gray-600">Try adjusting your search or filters</p>
+            </div>
+          )}
         </div>
       </div>
     </Layout>
