@@ -46,17 +46,24 @@ export const AdvertisementBanner: React.FC = () => {
     }
   }
 
-  const handleClick = async () => {
+  const handleClick = async (e: React.MouseEvent) => {
     if (!advertisement) return
 
-    // Track click
-    await supabase
-      .from('advertisements')
-      .update({ clicks: advertisement.clicks + 1 })
-      .eq('id', advertisement.id)
+    e.preventDefault()
 
-    // Open link
-    window.open(advertisement.button_link, '_blank')
+    try {
+      // Track click
+      await supabase
+        .from('advertisements')
+        .update({ clicks: advertisement.clicks + 1 })
+        .eq('id', advertisement.id)
+
+      // Open link
+      window.open(advertisement.button_link, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Error tracking click:', error)
+      window.open(advertisement.button_link, '_blank', 'noopener,noreferrer')
+    }
   }
 
   const trackView = async () => {
@@ -74,16 +81,19 @@ export const AdvertisementBanner: React.FC = () => {
 
   // Determine layout and colors based on image orientation
   const isVertical = imageOrientation === 'vertical'
-  const backgroundClass = isVertical 
-    ? 'bg-[#FFCE03]' 
+  const backgroundClass = isVertical
+    ? 'bg-[#FFCE03]'
     : 'bg-gradient-to-r from-blue-600 to-cyan-400'
   const textColor = isVertical ? 'text-black' : 'text-white'
-  const buttonClass = isVertical 
-    ? 'bg-black text-white hover:bg-gray-800' 
+  const buttonClass = isVertical
+    ? 'bg-black text-white hover:bg-gray-800'
     : 'bg-white text-black hover:bg-gray-100'
 
   return (
-    <section className={`${backgroundClass} rounded-2xl overflow-hidden relative`}>
+    <section
+      onClick={handleClick}
+      className={`${backgroundClass} rounded-2xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.02] duration-200 group`}
+    >
       <div className={`grid ${isVertical ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 lg:grid-cols-2'} min-h-[300px]`}>
         {/* Content Section */}
         <div className={`p-8 lg:p-12 flex flex-col justify-center ${isVertical ? 'order-2 lg:order-1' : 'order-1'}`}>
@@ -94,13 +104,12 @@ export const AdvertisementBanner: React.FC = () => {
             {advertisement.content}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={handleClick}
-              className={`${buttonClass} px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center space-x-2 font-redhat uppercase tracking-wide`}
+            <div
+              className={`${buttonClass} px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center space-x-2 font-redhat uppercase tracking-wide w-fit`}
             >
               <span>{advertisement.button_text}</span>
               <ExternalLink size={16} />
-            </button>
+            </div>
           </div>
         </div>
 
