@@ -655,7 +655,7 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
         {/* Venue Image */}
         <div className="w-20 h-20 bg-gray-200 overflow-hidden flex-shrink-0">
           <ImageWithFallback
-            src={venue.image_url}
+            src={venue.logo || venue.image_url}
             alt={venue.name}
             className="w-full h-full object-cover"
             fallbackType="venue"

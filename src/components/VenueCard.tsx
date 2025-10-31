@@ -36,7 +36,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
       <div className="relative">
         <div className="aspect-video overflow-hidden">
           <ImageWithFallback
-            src={venue.image_url}
+            src={venue.logo || venue.image_url}
             alt={venue.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
             fallbackType="venue"
