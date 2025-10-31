@@ -10,6 +10,7 @@ interface VenueCardProps {
 
 export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
   const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+  const [logoAspectRatio, setLogoAspectRatio] = useState<number>(1)
 
   useEffect(() => {
     fetchUpcomingEventsCount()
@@ -25,6 +26,17 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
     setUpcomingEventsCount(count || 0)
   }
 
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    setLogoAspectRatio(img.naturalWidth / img.naturalHeight)
+  }
+
+  const getLogoContainerClass = (aspectRatio: number) => {
+    if (aspectRatio > 1.5) return "w-24 h-16"
+    if (aspectRatio < 0.7) return "w-16 h-24"
+    return "w-20 h-20"
+  }
+
   // Extract just the street address (first part before comma)
   const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
 
@@ -34,13 +46,16 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
       className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
     >
       <div className="relative">
-        <div className="aspect-video overflow-hidden">
-          <ImageWithFallback
-            src={venue.logo || venue.image_url}
-            alt={venue.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-            fallbackType="venue"
-          />
+        <div className="aspect-video overflow-hidden bg-gray-50 flex items-center justify-center">
+          <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-white rounded-lg overflow-hidden border border-gray-200`}>
+            <ImageWithFallback
+              src={venue.logo || venue.image_url}
+              alt={venue.name}
+              className="max-w-full max-h-full object-contain p-3"
+              fallbackType="venue"
+              onLoad={handleImageLoad}
+            />
+          </div>
         </div>
         
         {/* Venue Type Tag - Bottom Left */}

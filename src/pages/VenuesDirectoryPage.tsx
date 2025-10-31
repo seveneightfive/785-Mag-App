@@ -617,6 +617,7 @@ export const VenuesDirectoryPage: React.FC = () => {
 // Mobile Venue Card Component with horizontal list layout
 const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
   const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+  const [logoAspectRatio, setLogoAspectRatio] = useState<number>(1)
 
   useEffect(() => {
     fetchUpcomingEventsCount()
@@ -630,6 +631,17 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
       .gte('start_date', new Date().toISOString())
 
     setUpcomingEventsCount(count || 0)
+  }
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    setLogoAspectRatio(img.naturalWidth / img.naturalHeight)
+  }
+
+  const getLogoContainerClass = (aspectRatio: number) => {
+    if (aspectRatio > 1.5) return "w-24 h-16"
+    if (aspectRatio < 0.7) return "w-16 h-24"
+    return "w-20 h-20"
   }
 
   const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
@@ -653,12 +665,13 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
 
       <div className="flex">
         {/* Venue Image */}
-        <div className="w-20 h-20 bg-gray-200 overflow-hidden flex-shrink-0">
+        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-200`}>
           <ImageWithFallback
             src={venue.logo || venue.image_url}
             alt={venue.name}
-            className="w-full h-full object-cover"
+            className="max-w-full max-h-full object-contain p-2"
             fallbackType="venue"
+            onLoad={handleImageLoad}
           />
         </div>
 

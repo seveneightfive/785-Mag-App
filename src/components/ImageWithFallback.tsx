@@ -7,7 +7,7 @@ interface ImageWithFallbackProps {
   className?: string
   fallbackType?: 'event' | 'artist' | 'venue' | 'generic'
   fallbackGradient?: string
-  onLoad?: () => void
+  onLoad?: (e: React.SyntheticEvent<HTMLImageElement>) => void
   cacheBust?: boolean
   loading?: 'lazy' | 'eager'
 }
@@ -69,10 +69,10 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     setIsLoading(false)
   }
 
-  const handleImageLoad = () => {
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     setIsLoading(false)
     if (onLoad) {
-      onLoad()
+      onLoad(e)
     }
   }
 
