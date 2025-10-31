@@ -117,7 +117,7 @@ export const SponsoredEventCard: React.FC<SponsoredEventCardProps> = ({ ad, posi
       onClick={handleClick}
       className="block bg-black rounded-xl shadow-lg hover:shadow-xl active:shadow-2xl transition-all duration-200 overflow-hidden group cursor-pointer touch-manipulation"
     >
-      <div className="relative aspect-[4/3] lg:aspect-[4/3] bg-gray-200 overflow-hidden">
+      <div className="relative aspect-[4/3] lg:aspect-[16/9] bg-gray-200 overflow-hidden">
         <ImageWithFallback
           src={ad.ad_image_url || ad.background_image}
           alt={ad.headline || ad.title}

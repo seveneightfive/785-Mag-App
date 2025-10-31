@@ -27,7 +27,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, 
   const cardContent = (
     <>
       {/* Event Image - Taller aspect ratio */}
-      <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
+      <div className="relative aspect-[4/3] lg:aspect-[16/9] bg-gray-200 overflow-hidden">
         <ImageWithFallback
           src={event.image_url}
           alt={event.title}
