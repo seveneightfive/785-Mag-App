@@ -115,7 +115,7 @@ export const SponsoredEventCard: React.FC<SponsoredEventCardProps> = ({ ad, posi
     <div
       ref={cardRef}
       onClick={handleClick}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group cursor-pointer"
+      className="block bg-black rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer"
     >
       <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
         <ImageWithFallback
@@ -137,24 +137,24 @@ export const SponsoredEventCard: React.FC<SponsoredEventCardProps> = ({ ad, posi
 
       <div className="p-4">
         {ad.headline && (
-          <div className="text-sm font-medium mb-1 uppercase tracking-wide" style={{ color: '#C80650' }}>
+          <div className="text-sm font-medium mb-1 uppercase tracking-wide text-yellow-400">
             {ad.headline}
           </div>
         )}
 
-        <h3 className="font-medium text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-urbanist uppercase tracking-wide">
+        <h3 className="font-medium text-lg text-white mb-2 line-clamp-2 group-hover:text-yellow-400 transition-colors font-urbanist uppercase tracking-wide">
           {ad.ad_copy || ad.title}
         </h3>
 
         {ad.content && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+          <p className="text-sm text-gray-300 mb-3 line-clamp-2">
             {ad.content}
           </p>
         )}
 
         {ad.button_text && (
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-blue-600">
+            <span className="text-sm font-semibold text-yellow-400">
               {ad.button_text} →
             </span>
           </div>
