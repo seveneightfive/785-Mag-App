@@ -12,6 +12,8 @@ import { VenuesDirectoryPage } from './pages/VenuesDirectoryPage'
 import { EventDetailPage } from './pages/EventDetailPage'
 import { ArtistDetailPage } from './pages/ArtistDetailPage'
 import { VenueDetailPage } from './pages/VenueDetailPage'
+import { OrganizersDirectoryPage } from './pages/OrganizersDirectoryPage'
+import { OrganizerDetailPage } from './pages/OrganizerDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FeedPage } from './pages/FeedPage'
@@ -66,6 +68,8 @@ function App() {
         <Route path="/events/:slug" element={<EventDetailPage />} />
         <Route path="/artists/:slug" element={<ArtistDetailPage />} />
         <Route path="/venues/:slug" element={<VenueDetailPage />} />
+        <Route path="/organizers" element={<OrganizersDirectoryPage />} />
+        <Route path="/organizers/:slug" element={<OrganizerDetailPage />} />
       </Routes>
     </Router>
   )

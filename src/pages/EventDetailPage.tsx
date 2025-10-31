@@ -73,7 +73,8 @@ export const EventDetailPage: React.FC = () => {
       .select(`
         *,
         venue:venues(*),
-        event_artists(artist:artists(*))
+        event_artists(artist:artists(*)),
+        event_organizers(organizer:organizers(*))
       `)
       .eq('slug', slug)
       .single()
@@ -535,7 +536,7 @@ export const EventDetailPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     <div>
                       <h4 className="font-medium text-gray-900">{event.venue.name}</h4>
                       <p className="text-gray-600 text-sm">{event.venue.address}</p>
@@ -545,14 +546,14 @@ export const EventDetailPage: React.FC = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     {event.venue.phone && (
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
                         <p className="text-gray-900">{event.venue.phone}</p>
                       </div>
                     )}
-                    
+
                     {event.venue.website && (
                       <div>
                         <a
@@ -565,13 +566,55 @@ export const EventDetailPage: React.FC = () => {
                         </a>
                       </div>
                     )}
-                    
+
                     <button
                       onClick={() => navigate(`/venues/${event.venue?.slug}`)}
                       className="btn-white w-full"
                     >
                       View Venue Details
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Organizers Section */}
+              {event.event_organizers && event.event_organizers.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-gray-900 mb-4">
+                    Organized By
+                  </h3>
+                  <div className="space-y-4">
+                    {event.event_organizers.map(({ organizer }) => (
+                      <div key={organizer.id} className="space-y-3">
+                        {organizer.logo && (
+                          <div className="mb-3">
+                            <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-100 flex items-center justify-center mx-auto">
+                              <img
+                                src={organizer.logo}
+                                alt={`${organizer.name} logo`}
+                                className="w-full h-full object-contain p-3"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-center">
+                          <h4 className="font-medium text-gray-900">{organizer.name}</h4>
+                          {organizer.description && (
+                            <p className="text-gray-600 text-sm mt-1">
+                              {organizer.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => navigate(`/organizers/${organizer.slug}`)}
+                          className="btn-white w-full"
+                        >
+                          View Organizer
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

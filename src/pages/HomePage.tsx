@@ -5,6 +5,7 @@ import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
 import { ArtistCard } from '../components/ArtistCard'
 import { VenueCard } from '../components/VenueCard'
+import { OrganizerCard } from '../components/OrganizerCard'
 import { MenuProcCard } from '../components/MenuProcCard'
 import { MenuProcModal } from '../components/MenuProcModal'
 import { AnimatedStats } from '../components/AnimatedStats'
@@ -12,12 +13,13 @@ import { AnnouncementBanner } from '../components/AnnouncementBanner'
 import { AdvertisementBanner } from '../components/AdvertisementBanner'
 import { EventsTabSection } from '../components/EventsTabSection'
 import { ImageWithFallback } from '../components/ImageWithFallback'
-import { supabase, type Event, type Artist, type Venue, type MenuProc, trackPageView } from '../lib/supabase'
+import { supabase, type Event, type Artist, type Venue, type MenuProc, type Organizer, trackPageView } from '../lib/supabase'
 
 export const HomePage: React.FC = () => {
   const [starredEvents, setStarredEvents] = useState<Event[]>([])
   const [featuredArtists, setFeaturedArtists] = useState<Artist[]>([])
   const [featuredVenues, setFeaturedVenues] = useState<Venue[]>([])
+  const [featuredOrganizers, setFeaturedOrganizers] = useState<Organizer[]>([])
   const [latestMenuProcs, setLatestMenuProcs] = useState<MenuProc[]>([])
   const [loading, setLoading] = useState(true)
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -91,6 +93,33 @@ export const HomePage: React.FC = () => {
         const venuesWithImages = venuesData.filter(venue => venue.image_url)
         console.log('Featured venues with images:', venuesWithImages.length, venuesWithImages.map(v => ({ name: v.name, image_url: v.image_url })))
         setFeaturedVenues(venuesWithImages.slice(0, 6))
+      }
+
+      // Fetch featured organizers (with most upcoming events)
+      const { data: organizersData } = await supabase
+        .from('organizers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (organizersData) {
+        const organizersWithCounts = await Promise.all(
+          organizersData.map(async (organizer) => {
+            const { count } = await supabase
+              .from('event_organizers')
+              .select('events!inner(start_date)', { count: 'exact', head: true })
+              .eq('organizer_id', organizer.id)
+              .gte('events.start_date', new Date().toISOString())
+            return { ...organizer, upcomingEventsCount: count || 0 }
+          })
+        )
+
+        const sortedOrganizers = organizersWithCounts
+          .filter(org => org.upcomingEventsCount > 0)
+          .sort((a, b) => b.upcomingEventsCount - a.upcomingEventsCount)
+          .slice(0, 6)
+
+        setFeaturedOrganizers(sortedOrganizers)
       }
 
       // Fetch latest menu procs
@@ -369,20 +398,55 @@ export const HomePage: React.FC = () => {
                   Explore More Venues →
                 </Link>
               </div>
-              
+
               {/* Desktop Grid */}
               <div className="hidden lg:grid grid-cols-3 gap-6">
                 {featuredVenues.slice(0, 3).map((venue) => (
                   <VenueCard key={venue.id} venue={venue} />
                 ))}
               </div>
-              
+
               {/* Mobile Horizontal Scroll */}
               <div className="lg:hidden overflow-x-auto">
                 <div className="flex space-x-4 pb-4">
                   {featuredVenues.map((venue) => (
                     <div key={venue.id} className="flex-shrink-0 w-64">
                       <VenueCard venue={venue} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Featured Organizers Section */}
+          {featuredOrganizers.length > 0 && (
+            <section className="mb-12">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900 uppercase">
+                  Featured Organizers
+                </h2>
+                <Link
+                  to="/organizers"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  View All Organizers →
+                </Link>
+              </div>
+
+              {/* Desktop Grid */}
+              <div className="hidden lg:grid grid-cols-3 gap-6">
+                {featuredOrganizers.slice(0, 3).map((organizer) => (
+                  <OrganizerCard key={organizer.id} organizer={organizer} />
+                ))}
+              </div>
+
+              {/* Mobile Horizontal Scroll */}
+              <div className="lg:hidden overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {featuredOrganizers.map((organizer) => (
+                    <div key={organizer.id} className="flex-shrink-0 w-64">
+                      <OrganizerCard organizer={organizer} />
                     </div>
                   ))}
                 </div>

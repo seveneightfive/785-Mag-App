@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Menu, X, User, Calendar, Music, MapPin, Home, Star, Plus, Bell, Heart, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Menu, X, User, Calendar, Music, MapPin, Home, Star, Plus, Bell, Heart, BarChart3, ChevronLeft, ChevronRight, Building2 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { AuthModal } from './AuthModal'
@@ -37,6 +37,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Agenda', href: '/agenda', icon: Calendar },
     { name: 'Artists', href: '/artists', icon: Music },
     { name: 'Venues', href: '/venues', icon: MapPin },
+    { name: 'Organizers', href: '/organizers', icon: Building2 },
   ]
 
   const handleSearch = (e: React.FormEvent) => {

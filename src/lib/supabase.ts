@@ -50,6 +50,9 @@ export interface Event {
   event_artists?: {
     artist: Artist
   }[]
+  event_organizers?: {
+    organizer: Organizer
+  }[]
 }
 
 export interface Artist {
@@ -250,6 +253,33 @@ export interface EventRSVP {
   event_id?: string
   status: string
   created_at?: string
+}
+
+export interface Organizer {
+  id: string
+  name: string
+  description?: string
+  bio?: string
+  logo?: string
+  image_url?: string
+  website?: string
+  email?: string
+  phone?: string
+  social_links?: any
+  verified?: boolean
+  slug: string
+  created_by?: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface EventOrganizer {
+  id: string
+  event_id: string
+  organizer_id: string
+  created_at?: string
+  organizer?: Organizer
+  events?: Event
 }
 
 // Utility Functions

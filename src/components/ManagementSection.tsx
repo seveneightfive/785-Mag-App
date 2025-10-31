@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { MapPin, Music, Calendar, Loader } from 'lucide-react'
+import { MapPin, Music, Calendar, Loader, Building2 } from 'lucide-react'
 import { VenueManagementCard } from './VenueManagementCard'
 import { ArtistManagementCard } from './ArtistManagementCard'
+import { OrganizerManagementCard } from './OrganizerManagementCard'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Venue, type Artist, type Event } from '../lib/supabase'
+import { supabase, type Venue, type Artist, type Organizer, type Event } from '../lib/supabase'
 
 interface VenueWithEvents {
   venue: Venue
@@ -15,12 +16,18 @@ interface ArtistWithEvents {
   events: Event[]
 }
 
+interface OrganizerWithEvents {
+  organizer: Organizer
+  events: Event[]
+}
+
 export const ManagementSection: React.FC = () => {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [venues, setVenues] = useState<VenueWithEvents[]>([])
   const [artists, setArtists] = useState<ArtistWithEvents[]>([])
-  const [activeSection, setActiveSection] = useState<'venues' | 'artists'>('venues')
+  const [organizers, setOrganizers] = useState<OrganizerWithEvents[]>([])
+  const [activeSection, setActiveSection] = useState<'venues' | 'artists' | 'organizers'>('venues')
 
   useEffect(() => {
     if (user) {
@@ -35,7 +42,8 @@ export const ManagementSection: React.FC = () => {
     try {
       await Promise.all([
         fetchUserVenues(),
-        fetchUserArtists()
+        fetchUserArtists(),
+        fetchUserOrganizers()
       ])
     } catch (error) {
       console.error('Error fetching management data:', error)
@@ -134,6 +142,55 @@ export const ManagementSection: React.FC = () => {
     setArtists(artistsWithEvents)
   }
 
+  const fetchUserOrganizers = async () => {
+    if (!user) return
+
+    const { data: organizersData, error: organizersError } = await supabase
+      .from('organizers')
+      .select('*')
+      .eq('created_by', user.id)
+      .order('name')
+
+    if (organizersError) {
+      console.error('Error fetching organizers:', organizersError)
+      return
+    }
+
+    if (!organizersData || organizersData.length === 0) {
+      setOrganizers([])
+      return
+    }
+
+    const organizersWithEvents: OrganizerWithEvents[] = await Promise.all(
+      organizersData.map(async (organizer) => {
+        const { data: eventOrganizersData } = await supabase
+          .from('event_organizers')
+          .select(`
+            event:events(
+              *,
+              venue:venues(*),
+              event_artists(artist:artists(*))
+            )
+          `)
+          .eq('organizer_id', organizer.id)
+
+        const events = eventOrganizersData
+          ?.map((eo: any) => eo.event)
+          .filter(Boolean)
+          .sort((a: Event, b: Event) =>
+            new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+          ) || []
+
+        return {
+          organizer,
+          events
+        }
+      })
+    )
+
+    setOrganizers(organizersWithEvents)
+  }
+
   const canEditEvent = (event: Event): boolean => {
     if (!user) return false
 
@@ -164,7 +221,8 @@ export const ManagementSection: React.FC = () => {
 
   const hasVenues = venues.length > 0
   const hasArtists = artists.length > 0
-  const hasContent = hasVenues || hasArtists
+  const hasOrganizers = organizers.length > 0
+  const hasContent = hasVenues || hasArtists || hasOrganizers
 
   if (!hasContent) {
     return (
@@ -177,7 +235,7 @@ export const ManagementSection: React.FC = () => {
             No Content to Manage Yet
           </h3>
           <p className="text-gray-600 mb-6">
-            You haven't created any venues or artists yet. Get started by adding your first venue or artist profile.
+            You haven't created any venues, artists, or organizers yet. Get started by adding your first profile.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
@@ -260,6 +318,19 @@ export const ManagementSection: React.FC = () => {
               <span>My Artists ({artists.length})</span>
             </div>
           </button>
+          <button
+            onClick={() => setActiveSection('organizers')}
+            className={`px-4 py-2 font-medium transition-colors border-b-2 ${
+              activeSection === 'organizers'
+                ? 'border-[#FFCE03] text-gray-900'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <Building2 size={18} />
+              <span>My Organizers ({organizers.length})</span>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -328,6 +399,32 @@ export const ManagementSection: React.FC = () => {
                 <Music size={18} />
                 <span>Add Artist</span>
               </a>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSection === 'organizers' && (
+        <div className="space-y-4">
+          {hasOrganizers ? (
+            organizers.map(({ organizer, events }) => (
+              <OrganizerManagementCard
+                key={organizer.id}
+                organizer={organizer}
+                events={events}
+                onEventUpdate={fetchManagementData}
+                canEditEvent={canEditEvent}
+              />
+            ))
+          ) : (
+            <div className="bg-white rounded-2xl p-8 shadow-sm text-center">
+              <Building2 className="mx-auto text-gray-400 mb-4" size={48} />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No Organizers Yet
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Create your first organizer profile to start managing and promoting events.
+              </p>
             </div>
           )}
         </div>
