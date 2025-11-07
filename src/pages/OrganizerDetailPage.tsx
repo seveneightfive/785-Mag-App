@@ -83,6 +83,9 @@ export const OrganizerDetailPage: React.FC = () => {
   const fetchOrganizerEvents = async () => {
     if (!slug) return
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const { data } = await supabase
       .from('events')
       .select(`
@@ -91,7 +94,7 @@ export const OrganizerDetailPage: React.FC = () => {
         event_organizers!inner(organizer:organizers!inner(slug))
       `)
       .eq('event_organizers.organizer.slug', slug)
-      .gte('start_date', new Date().toISOString())
+      .gte('start_date', today.toISOString())
       .order('start_date', { ascending: true })
 
     if (data) {

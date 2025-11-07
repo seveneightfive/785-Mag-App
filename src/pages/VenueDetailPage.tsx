@@ -68,6 +68,9 @@ export const VenueDetailPage: React.FC = () => {
   const fetchVenueEvents = async () => {
     if (!slug) return
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const { data } = await supabase
       .from('events')
       .select(`
@@ -78,7 +81,7 @@ export const VenueDetailPage: React.FC = () => {
         )
       `)
       .eq('venue.slug', slug)
-      .gte('start_date', new Date().toISOString())
+      .gte('start_date', today.toISOString())
       .order('start_date', { ascending: true })
 
     if (data) {

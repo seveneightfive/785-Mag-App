@@ -66,13 +66,16 @@ export const VenuesDirectoryPage: React.FC = () => {
   }
 
   const fetchEventCounts = async (venuesData: Venue[]) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const venuesWithCounts = await Promise.all(
       venuesData.map(async (venue) => {
         const { count } = await supabase
           .from('events')
           .select('*', { count: 'exact', head: true })
           .eq('venue_id', venue.id)
-          .gte('start_date', new Date().toISOString())
+          .gte('start_date', today.toISOString())
 
         return {
           ...venue,
@@ -676,11 +679,14 @@ const DesktopVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
   }, [venue.id])
 
   const fetchUpcomingEventsCount = async () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const { count } = await supabase
       .from('events')
       .select('*', { count: 'exact', head: true })
       .eq('venue_id', venue.id)
-      .gte('start_date', new Date().toISOString())
+      .gte('start_date', today.toISOString())
 
     setUpcomingEventsCount(count || 0)
   }
