@@ -5,6 +5,7 @@ import { MapPin, Phone, Globe, Heart, Share2, ArrowLeft, Users, Calendar } from 
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
 import { EventModal } from '../components/EventModal'
+import { ShareModal } from '../components/ShareModal'
 import { MenuProcCard } from '../components/MenuProcCard'
 import { MenuProcModal } from '../components/MenuProcModal'
 import { MenuProcForm } from '../components/MenuProcForm'
@@ -25,6 +26,7 @@ export const VenueDetailPage: React.FC = () => {
   const [selectedMenuProc, setSelectedMenuProc] = useState<MenuProc | null>(null)
   const [showMenuProcModal, setShowMenuProcModal] = useState(false)
   const [showMenuProcForm, setShowMenuProcForm] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   const eventSlugFromUrl = searchParams.get('event')
   const isEventModalOpen = !!eventSlugFromUrl
@@ -150,21 +152,6 @@ export const VenueDetailPage: React.FC = () => {
     }
   }
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: venue?.name,
-          text: venue?.description,
-          url: window.location.href
-        })
-      } catch (error) {
-        console.log('Error sharing:', error)
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-    }
-  }
 
   const handleMenuProcClick = (menuProc: MenuProc) => {
     setSelectedMenuProc(menuProc)
@@ -306,7 +293,7 @@ export const VenueDetailPage: React.FC = () => {
                 {/* Actions */}
                 <div className="flex items-center space-x-4">
                   <button
-                    onClick={handleShare}
+                    onClick={() => setShareModalOpen(true)}
                     className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
                   >
                     <Share2 size={24} />
@@ -620,6 +607,17 @@ export const VenueDetailPage: React.FC = () => {
           isOpen={isEventModalOpen}
           onClose={handleCloseEventModal}
         />
+
+        {venue && (
+          <ShareModal
+            isOpen={shareModalOpen}
+            onClose={() => setShareModalOpen(false)}
+            title={venue.name}
+            description={venue.description}
+            url={window.location.href}
+            imageUrl={venue.image_url}
+          />
+        )}
     </Layout>
   )
 }

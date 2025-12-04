@@ -5,6 +5,7 @@ import { Music, Globe, Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, U
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
 import { EventModal } from '../components/EventModal'
+import { ShareModal } from '../components/ShareModal'
 import { AudioPlayer } from '../components/AudioPlayer'
 import { VideoPlayer } from '../components/VideoPlayer'
 import { WorksGallery } from '../components/WorksGallery'
@@ -28,6 +29,7 @@ export const ArtistDetailPage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [showAudioPlayer, setShowAudioPlayer] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   const eventSlugFromUrl = searchParams.get('event')
   const isEventModalOpen = !!eventSlugFromUrl
@@ -191,26 +193,6 @@ export const ArtistDetailPage: React.FC = () => {
     }
   }
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: artist?.name,
-          text: artist?.bio,
-          url: window.location.href
-        })
-      } catch (error) {
-        // Only log non-user-cancellation errors
-        if (error.name !== 'NotAllowedError') {
-          console.error('Error sharing:', error)
-        }
-        // Fallback to clipboard copy on any error
-        navigator.clipboard.writeText(window.location.href)
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-    }
-  }
 
   const getSocialIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -375,7 +357,7 @@ export const ArtistDetailPage: React.FC = () => {
                     </button>
                   )}
                   <button
-                    onClick={handleShare}
+                    onClick={() => setShareModalOpen(true)}
                     className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
                   >
                     <Share2 size={24} />
@@ -729,6 +711,17 @@ export const ArtistDetailPage: React.FC = () => {
           isOpen={isEventModalOpen}
           onClose={handleCloseEventModal}
         />
+
+        {artist && (
+          <ShareModal
+            isOpen={shareModalOpen}
+            onClose={() => setShareModalOpen(false)}
+            title={artist.name}
+            description={artist.bio}
+            url={window.location.href}
+            imageUrl={artist.avatar_url || artist.image_url}
+          />
+        )}
       </div>
     </Layout>
   )

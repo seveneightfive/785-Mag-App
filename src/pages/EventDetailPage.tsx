@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ArtistCard } from '../components/ArtistCard'
+import { ShareModal } from '../components/ShareModal'
 import { supabase, type Event, type EventRSVP, trackPageView } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { downloadICS, generateGoogleCalendarUrl } from '../utils/calendarUtils'
@@ -36,6 +37,7 @@ export const EventDetailPage: React.FC = () => {
   const [followLoading, setFollowLoading] = useState(false)
   const [pageViews, setPageViews] = useState(0)
   const [calendarMenuOpen, setCalendarMenuOpen] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   useEffect(() => {
     if (slug) {
@@ -659,24 +661,7 @@ export const EventDetailPage: React.FC = () => {
               {/* Share Section */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
                 <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: event.title,
-                        text: event.description,
-                        url: window.location.href
-                      }).catch((error) => {
-                        // Only log non-user-cancellation errors
-                        if (error.name !== 'NotAllowedError') {
-                          console.error('Error sharing:', error)
-                        }
-                        // Fallback to clipboard copy on any error
-                        navigator.clipboard.writeText(window.location.href)
-                      })
-                    } else {
-                      navigator.clipboard.writeText(window.location.href)
-                    }
-                  }}
+                  onClick={() => setShareModalOpen(true)}
                   className="btn-white w-full flex items-center justify-center space-x-2"
                 >
                   <Share2 size={16} />
@@ -687,6 +672,15 @@ export const EventDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        title={event.title}
+        description={event.description}
+        url={window.location.href}
+        imageUrl={event.image_url}
+      />
     </Layout>
   )
 }

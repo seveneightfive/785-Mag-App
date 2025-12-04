@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { EventModal } from '../components/EventModal'
+import { ShareModal } from '../components/ShareModal'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, type Organizer, type Event, trackPageView } from '../lib/supabase'
 
@@ -37,6 +38,7 @@ export const OrganizerDetailPage: React.FC = () => {
   const [followersCount, setFollowersCount] = useState(0)
   const [pageViews, setPageViews] = useState(0)
   const [totalEventsCount, setTotalEventsCount] = useState(0)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   const eventSlugFromUrl = searchParams.get('event')
   const isEventModalOpen = !!eventSlugFromUrl
@@ -173,24 +175,6 @@ export const OrganizerDetailPage: React.FC = () => {
     }
   }
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: organizer?.name,
-          text: organizer?.description,
-          url: window.location.href
-        })
-      } catch (error) {
-        if (error.name !== 'NotAllowedError') {
-          console.error('Error sharing:', error)
-        }
-        navigator.clipboard.writeText(window.location.href)
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-    }
-  }
 
   const handleEventClick = (eventSlug: string) => {
     setSearchParams({ event: eventSlug })
@@ -338,7 +322,7 @@ export const OrganizerDetailPage: React.FC = () => {
                     </button>
                   )}
                   <button
-                    onClick={handleShare}
+                    onClick={() => setShareModalOpen(true)}
                     className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
                   >
                     <Share2 size={24} />
@@ -566,6 +550,17 @@ export const OrganizerDetailPage: React.FC = () => {
           isOpen={isEventModalOpen}
           onClose={handleCloseEventModal}
         />
+
+        {organizer && (
+          <ShareModal
+            isOpen={shareModalOpen}
+            onClose={() => setShareModalOpen(false)}
+            title={organizer.name}
+            description={organizer.description}
+            url={window.location.href}
+            imageUrl={organizer.logo_url || organizer.image_url}
+          />
+        )}
       </div>
     </Layout>
   )

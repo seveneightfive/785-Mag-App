@@ -15,6 +15,7 @@ import {
 import { Link } from 'react-router-dom'
 import { supabase, type Event, trackPageView } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { ShareModal } from './ShareModal'
 
 interface EventModalProps {
   eventSlug: string | null
@@ -30,6 +31,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
   const [rsvpCounts, setRsvpCounts] = useState({ going: 0, interested: 0 })
   const [pageViews, setPageViews] = useState(0)
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   useEffect(() => {
     if (isOpen && eventSlug) {
@@ -157,28 +159,6 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
     fetchRSVPCounts()
   }
 
-  const handleShare = async () => {
-    if (!event) return
-
-    const eventUrl = `${window.location.origin}/events/${event.slug}`
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event.title,
-          text: event.description,
-          url: eventUrl
-        })
-      } catch (error: any) {
-        if (error.name !== 'NotAllowedError') {
-          console.error('Error sharing:', error)
-        }
-        navigator.clipboard.writeText(eventUrl)
-      }
-    } else {
-      navigator.clipboard.writeText(eventUrl)
-    }
-  }
 
   const formatDate = (dateString: string | Date) => {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString
@@ -399,7 +379,7 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
 
                   <div className="mb-6 border-t border-gray-200 pt-6">
                     <button
-                      onClick={handleShare}
+                      onClick={() => setShareModalOpen(true)}
                       className="btn-white w-full flex items-center justify-center space-x-2"
                     >
                       <Share2 size={16} />
@@ -501,6 +481,17 @@ export const EventModal: React.FC<EventModalProps> = ({ eventSlug, isOpen, onClo
           </div>
         </div>
       </div>
+
+      {event && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          title={event.title}
+          description={event.description}
+          url={`${window.location.origin}/events/${event.slug}`}
+          imageUrl={event.image_url}
+        />
+      )}
     </div>
   )
 }

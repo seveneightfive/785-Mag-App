@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ArtistCard } from './ArtistCard'
+import { ShareModal } from './ShareModal'
 import { supabase, type Event, type EventRSVP, trackPageView } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -30,6 +31,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [pageViews, setPageViews] = useState(0)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   useEffect(() => {
     if (eventSlug) {
@@ -187,28 +189,6 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
     }
   }
 
-  const handleShare = async () => {
-    if (!event) return
-    
-    const eventUrl = `${window.location.origin}/events/${event.slug}`
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event.title,
-          text: event.description,
-          url: eventUrl
-        })
-      } catch (error) {
-        if (error.name !== 'NotAllowedError') {
-          console.error('Error sharing:', error)
-        }
-        navigator.clipboard.writeText(eventUrl)
-      }
-    } else {
-      navigator.clipboard.writeText(eventUrl)
-    }
-  }
 
   const formatDate = (dateString: string | Date) => {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString
@@ -303,7 +283,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
           {/* Share Button - Repositioned here */}
           <div className="mb-6">
             <button
-              onClick={handleShare}
+              onClick={() => setShareModalOpen(true)}
               className="btn-white flex items-center space-x-2"
             >
               <Share2 size={16} />
@@ -516,6 +496,17 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({ eventSlug })
           )}
         </div>
       </div>
+
+      {event && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          title={event.title}
+          description={event.description}
+          url={`${window.location.origin}/events/${event.slug}`}
+          imageUrl={event.image_url}
+        />
+      )}
     </div>
   )
 }
