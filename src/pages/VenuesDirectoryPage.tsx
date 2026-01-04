@@ -181,7 +181,7 @@ export const VenuesDirectoryPage: React.FC = () => {
       })
     }
 
-    setFilteredVenues(filtered)
+    setFilteredVenues(filteredWithCounts)
   }
 
   const toggleType = (type: string) => {
