@@ -248,110 +248,113 @@ export const ArtistDetailPage: React.FC = () => {
     <Layout>
       <div className="min-h-screen bg-gray-50">
 
-        {/* Desktop Full-Width Hero */}
-        <div className="hidden lg:block relative h-[60vh] overflow-hidden">
-          {artist.avatar_url || artist.image_url ? (
-            <img
-              src={artist.avatar_url || artist.image_url}
-              alt={artist.name}
-              className={`w-full h-full object-cover transition-all duration-1000 ${
-                imageLoaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'
-              }`}
-              onLoad={() => setImageLoaded(true)}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Music size={120} className="text-white opacity-80" />
-            </div>
-          )}
-          
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-          
-          {/* Artist Name - Reverse Type */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="flex items-center mb-4">
-                    <h1 className="text-6xl font-bold text-white drop-shadow-lg">
-                      {artist.name}
-                    </h1>
-                    {artist.verified && (
-                      <div className="ml-4 bg-blue-500 text-white px-3 py-2 rounded-full flex items-center">
-                        <Star size={20} className="mr-2" />
-                        <span className="font-medium">Verified</span>
-                      </div>
-                    )}
-                  </div>
-                  {artist.tagline && (
-                    <p className="text-xl text-white/90 font-medium italic">{artist.tagline}</p>
-                  )}
-                  {!artist.tagline && artist.genre && (
-                    <p className="text-xl text-white/90 font-medium">{artist.genre}</p>
-                  )}
-                </div>
-                
-                {/* Actions */}
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={handleShare}
-                    className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
-                  >
-                    <Share2 size={24} />
-                  </button>
-                  {user && (
-                    <button
-                      onClick={handleFollow}
-                      disabled={followLoading}
-                      className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
-                        isFollowing 
-                          ? 'bg-red-500 text-white' 
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
-                    >
-                      <Heart size={24} fill={isFollowing ? 'currentColor' : 'none'} />
-                    </button>
-                  )}
-                </div>
+{/* Desktop Full-Width Hero */}
+<div className="hidden lg:block relative h-[60vh] overflow-hidden">
+  {artist.avatar_url || artist.image_url ? (
+    <img
+      src={artist.avatar_url || artist.image_url}
+      alt={artist.name}
+      className={`w-full h-full object-cover transition-all duration-1000 ${
+        imageLoaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'
+      }`}
+      style={{ objectPosition: 'center 30%' }} // ADD THIS LINE
+      onLoad={() => setImageLoaded(true)}
+    />
+  ) : (
+    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+      <Music size={120} className="text-white opacity-80" />
+    </div>
+  )}
+  
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+  
+  {/* Artist Name - Reverse Type */}
+  <div className="absolute bottom-0 left-0 right-0 p-8">
+    <div className="max-w-7xl mx-auto">
+      <div className="flex items-end justify-between">
+        <div>
+          <div className="flex items-center mb-4">
+            <h1 className="text-6xl font-bold text-white drop-shadow-lg">
+              {artist.name}
+            </h1>
+            {artist.verified && (
+              <div className="ml-4 bg-blue-500 text-white px-3 py-2 rounded-full flex items-center">
+                <Star size={20} className="mr-2" />
+                <span className="font-medium">Verified</span>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-
-        {/* Mobile Hero */}
-        <div className="lg:hidden aspect-[16/9] relative overflow-hidden">
-          {artist.avatar_url || artist.image_url ? (
-            <img
-              src={artist.avatar_url || artist.image_url}
-              alt={artist.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Music size={64} className="text-white opacity-80" />
-            </div>
+          {artist.tagline && (
+            <p className="text-xl text-white/90 font-medium italic">{artist.tagline}</p>
           )}
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-          
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="flex items-center mb-2">
-              <h1 className="text-2xl font-bold text-white">
-                {artist.name}
-              </h1>
-              {artist.verified && (
-                <Star size={16} className="ml-2 text-blue-400" />
-              )}
-            </div>
-            {artist.tagline && (
-              <p className="text-white/90 italic">{artist.tagline}</p>
-            )}
-            {!artist.tagline && artist.genre && (
-              <p className="text-white/90">{artist.genre}</p>
-            )}
-          </div>
+          {!artist.tagline && artist.genre && (
+            <p className="text-xl text-white/90 font-medium">{artist.genre}</p>
+          )}
         </div>
+        
+        {/* Actions */}
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleShare}
+            className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
+          >
+            <Share2 size={24} />
+          </button>
+          {user && (
+            <button
+              onClick={handleFollow}
+              disabled={followLoading}
+              className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
+                isFollowing 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              <Heart size={24} fill={isFollowing ? 'currentColor' : 'none'} />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+// 2. MOBILE HERO (around line 303) - Replace this section:
+{/* Mobile Hero */}
+<div className="lg:hidden aspect-[16/9] relative overflow-hidden">
+  {artist.avatar_url || artist.image_url ? (
+    <img
+      src={artist.avatar_url || artist.image_url}
+      alt={artist.name}
+      className="w-full h-full object-cover"
+      style={{ objectPosition: 'center 25%' }} // ADD THIS LINE
+    />
+  ) : (
+    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+      <Music size={64} className="text-white opacity-80" />
+    </div>
+  )}
+  
+  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+  
+  <div className="absolute bottom-4 left-4 right-4">
+    <div className="flex items-center mb-2">
+      <h1 className="text-2xl font-bold text-white">
+        {artist.name}
+      </h1>
+      {artist.verified && (
+        <Star size={16} className="ml-2 text-blue-400" />
+      )}
+    </div>
+    {artist.tagline && (
+      <p className="text-white/90 italic">{artist.tagline}</p>
+    )}
+    {!artist.tagline && artist.genre && (
+      <p className="text-white/90">{artist.genre}</p>
+    )}
+  </div>
+</div>
 
         {/* Stats Section - Desktop */}
         <div className="hidden lg:block bg-white border-b border-gray-100">
