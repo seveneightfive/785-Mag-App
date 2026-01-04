@@ -47,7 +47,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
         <div className="aspect-square bg-gray-200 overflow-hidden">
           {artist.image_url ? (
             <img
-              src={artist.image_url}
+              src={artist.avatar_url}
               alt={artist.name}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
             />
