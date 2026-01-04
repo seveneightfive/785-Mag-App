@@ -45,7 +45,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
       {/* Artist Image */}
       <Link to={`/artists/${artist.slug}`} className="block">
         <div className="aspect-square bg-gray-200 overflow-hidden">
-          {artist.image_url ? (
+          {artist.avatar_url ? (
             <img
               src={artist.avatar_url}
               alt={artist.name}
