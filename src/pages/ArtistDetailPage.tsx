@@ -419,7 +419,8 @@ export const ArtistDetailPage: React.FC = () => {
     </div>
   </div>
 </div>
-        {/* Stats Section - Desktop */}
+        
+      {/* Stats Section - Desktop */}
         <div className="hidden lg:block bg-white border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-8 py-6">
             <div className="flex items-center space-x-8 text-gray-600">
