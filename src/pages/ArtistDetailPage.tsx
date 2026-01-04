@@ -320,9 +320,9 @@ export const ArtistDetailPage: React.FC = () => {
   </div>
 </div>
 
-{/* Mobile Hero - Spaceman Style with Dots */}
+{/* Mobile Hero - Spaceman Style */}
 <div className="lg:hidden relative h-screen overflow-hidden">
-  {/* Hero Image */}
+  {/* Hero Image - Full screen */}
   {artist.avatar_url || artist.image_url ? (
     <img
       src={artist.avatar_url || artist.image_url}
@@ -336,12 +336,12 @@ export const ArtistDetailPage: React.FC = () => {
     </div>
   )}
   
-  {/* Black gradient overlay */}
+  {/* Black gradient overlay - fades from transparent to solid black */}
   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black"></div>
   
-  {/* Content */}
-  <div className="absolute inset-0 flex flex-col items-center justify-end pb-32 px-6">
-    {/* Artist Name */}
+  {/* Content - Centered in lower half */}
+  <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 px-6">
+    {/* Artist Name - Split styling */}
     <div className="text-center mb-6">
       {(() => {
         const nameParts = artist.name.split(' ')
@@ -350,9 +350,11 @@ export const ArtistDetailPage: React.FC = () => {
         
         return (
           <div>
+            {/* First name - smaller, uppercase */}
             <div className="text-white/80 text-sm font-medium tracking-widest uppercase mb-1">
               {firstName}
             </div>
+            {/* Last name - larger, uppercase, bold */}
             <h1 className="text-white text-5xl font-bold tracking-wide uppercase">
               {lastName}
             </h1>
@@ -360,6 +362,7 @@ export const ArtistDetailPage: React.FC = () => {
         )
       })()}
       
+      {/* Verified badge */}
       {artist.verified && (
         <div className="flex items-center justify-center mt-3">
           <Star size={16} className="text-blue-400 mr-1" />
@@ -368,45 +371,54 @@ export const ArtistDetailPage: React.FC = () => {
       )}
     </div>
     
-    {/* Tagline */}
+    {/* Tagline/Genre - Kicker line */}
     {(artist.tagline || artist.genre) && (
-      <p className="text-white/70 text-center text-sm font-light tracking-wide px-8 mb-6 max-w-md">
+      <p className="text-white/70 text-center text-sm font-light tracking-wide px-8 mb-8 max-w-md">
         {artist.tagline || artist.genre}
       </p>
     )}
     
-    {/* Pagination dots (optional - for visual style) */}
-    <div className="flex items-center space-x-2 mb-8">
-      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-      <div className="w-2 h-2 rounded-full bg-white/30"></div>
-      <div className="w-2 h-2 rounded-full bg-white/30"></div>
-    </div>
-    
     {/* Action buttons */}
-    <div className="flex items-center justify-center space-x-4 w-full px-6">
-      {user && (
-        <button
-          onClick={handleFollow}
-          disabled={followLoading}
-          className={`flex-1 max-w-xs px-8 py-4 rounded-full transition-all font-bold text-sm tracking-wide uppercase shadow-lg ${
-            isFollowing 
-              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' 
-              : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:shadow-xl hover:scale-105'
-          }`}
-        >
-          {isFollowing ? 'Following' : 'Follow Artist'}
-        </button>
-      )}
+    <div className="flex items-center justify-center space-x-4">
       <button
         onClick={handleShare}
         className="bg-white/10 backdrop-blur-md text-white p-4 rounded-full hover:bg-white/20 transition-all border border-white/20"
       >
         <Share2 size={20} />
       </button>
+      {user && (
+        <button
+          onClick={handleFollow}
+          disabled={followLoading}
+          className={`px-8 py-4 rounded-full backdrop-blur-md transition-all font-semibold text-sm tracking-wide uppercase ${
+            isFollowing 
+              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-2 border-pink-400' 
+              : 'bg-white/10 text-white hover:bg-white/20 border-2 border-white/20'
+          }`}
+        >
+          {isFollowing ? (
+            <span className="flex items-center">
+              <Heart size={16} className="mr-2" fill="currentColor" />
+              Following
+            </span>
+          ) : (
+            <span className="flex items-center">
+              <Heart size={16} className="mr-2" />
+              Follow
+            </span>
+          )}
+        </button>
+      )}
+    </div>
+  </div>
+  
+  {/* Scroll indicator (optional) */}
+  <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
+    <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
+      <div className="w-1 h-3 bg-white/50 rounded-full"></div>
     </div>
   </div>
 </div>
-
         {/* Stats Section - Desktop */}
         <div className="hidden lg:block bg-white border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-8 py-6">
