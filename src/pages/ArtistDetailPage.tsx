@@ -320,39 +320,90 @@ export const ArtistDetailPage: React.FC = () => {
   </div>
 </div>
 
-// 2. MOBILE HERO (around line 303) - Replace this section:
-{/* Mobile Hero */}
-<div className="lg:hidden aspect-[16/9] relative overflow-hidden">
+{/* Mobile Hero - Spaceman Style with Dots */}
+<div className="lg:hidden relative h-screen overflow-hidden">
+  {/* Hero Image */}
   {artist.avatar_url || artist.image_url ? (
     <img
       src={artist.avatar_url || artist.image_url}
       alt={artist.name}
-      className="w-full h-full object-cover"
-      style={{ objectPosition: 'center 5%' }} // ADD THIS LINE
+      className="absolute inset-0 w-full h-full object-cover"
+      style={{ objectPosition: 'center 15%' }}
     />
   ) : (
-    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
       <Music size={64} className="text-white opacity-80" />
     </div>
   )}
   
-  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+  {/* Black gradient overlay */}
+  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black"></div>
   
-  <div className="absolute bottom-4 left-4 right-4">
-    <div className="flex items-center mb-2">
-      <h1 className="text-2xl font-bold text-white">
-        {artist.name}
-      </h1>
+  {/* Content */}
+  <div className="absolute inset-0 flex flex-col items-center justify-end pb-32 px-6">
+    {/* Artist Name */}
+    <div className="text-center mb-6">
+      {(() => {
+        const nameParts = artist.name.split(' ')
+        const firstName = nameParts[0]
+        const lastName = nameParts.slice(1).join(' ')
+        
+        return (
+          <div>
+            <div className="text-white/80 text-sm font-medium tracking-widest uppercase mb-1">
+              {firstName}
+            </div>
+            <h1 className="text-white text-5xl font-bold tracking-wide uppercase">
+              {lastName}
+            </h1>
+          </div>
+        )
+      })()}
+      
       {artist.verified && (
-        <Star size={16} className="ml-2 text-blue-400" />
+        <div className="flex items-center justify-center mt-3">
+          <Star size={16} className="text-blue-400 mr-1" />
+          <span className="text-blue-400 text-xs font-medium uppercase tracking-wide">Verified</span>
+        </div>
       )}
     </div>
-    {artist.tagline && (
-      <p className="text-white/90 italic">{artist.tagline}</p>
+    
+    {/* Tagline */}
+    {(artist.tagline || artist.genre) && (
+      <p className="text-white/70 text-center text-sm font-light tracking-wide px-8 mb-6 max-w-md">
+        {artist.tagline || artist.genre}
+      </p>
     )}
-    {!artist.tagline && artist.genre && (
-      <p className="text-white/90">{artist.genre}</p>
-    )}
+    
+    {/* Pagination dots (optional - for visual style) */}
+    <div className="flex items-center space-x-2 mb-8">
+      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+      <div className="w-2 h-2 rounded-full bg-white/30"></div>
+      <div className="w-2 h-2 rounded-full bg-white/30"></div>
+    </div>
+    
+    {/* Action buttons */}
+    <div className="flex items-center justify-center space-x-4 w-full px-6">
+      {user && (
+        <button
+          onClick={handleFollow}
+          disabled={followLoading}
+          className={`flex-1 max-w-xs px-8 py-4 rounded-full transition-all font-bold text-sm tracking-wide uppercase shadow-lg ${
+            isFollowing 
+              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' 
+              : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:shadow-xl hover:scale-105'
+          }`}
+        >
+          {isFollowing ? 'Following' : 'Follow Artist'}
+        </button>
+      )}
+      <button
+        onClick={handleShare}
+        className="bg-white/10 backdrop-blur-md text-white p-4 rounded-full hover:bg-white/20 transition-all border border-white/20"
+      >
+        <Share2 size={20} />
+      </button>
+    </div>
   </div>
 </div>
 
