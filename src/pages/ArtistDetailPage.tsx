@@ -257,7 +257,7 @@ export const ArtistDetailPage: React.FC = () => {
       className={`w-full h-full object-cover transition-all duration-1000 ${
         imageLoaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'
       }`}
-      style={{ objectPosition: 'center 30%' }} // ADD THIS LINE
+      style={{ objectPosition: 'center 10%' }} // ADD THIS LINE
       onLoad={() => setImageLoaded(true)}
     />
   ) : (
@@ -328,7 +328,7 @@ export const ArtistDetailPage: React.FC = () => {
       src={artist.avatar_url || artist.image_url}
       alt={artist.name}
       className="w-full h-full object-cover"
-      style={{ objectPosition: 'center 25%' }} // ADD THIS LINE
+      style={{ objectPosition: 'center 5%' }} // ADD THIS LINE
     />
   ) : (
     <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
