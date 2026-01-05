@@ -1,34 +1,30 @@
-import React, { useState, useEffect } from 'react'
-import { Calendar, Music, MapPin, Heart, Users, TrendingUp, Clock, Star, X, Eye } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import { Calendar, Music, MapPin, User, Clock, TrendingUp, BarChart3, Edit2, Settings, FileText, Plus } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
-import { EventCard } from '../components/EventCard'
-import { ArtistCard } from '../components/ArtistCard'
-import { VenueCard } from '../components/VenueCard'
+import { ProjectCard } from '../components/ProjectCard'
+import { TaskItem } from '../components/TaskItem'
+import { StatCard } from '../components/StatCard'
+import { CalendarEvent } from '../components/CalendarEvent'
+import { AdManagementSection } from '../components/AdManagementSection'
+import { ManagementSection } from '../components/ManagementSection'
+import { SettingsSection } from '../components/SettingsSection'
 import { useAuth } from '../hooks/useAuth'
-import { supabase, type Event, type Artist, type Venue, type Follow, type EventRSVP, trackPageView } from '../lib/supabase'
-
-interface DashboardModal {
-  type: 'artists' | 'venues' | 'rsvps' | 'interested' | 'upcoming' | null
-  isOpen: boolean
-}
+import { supabase, type Event, type Artist, type Venue, trackPageView } from '../lib/supabase'
 
 export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth()
+  const navigate = useNavigate()
   const [followedArtists, setFollowedArtists] = useState<Artist[]>([])
   const [followedVenues, setFollowedVenues] = useState<Venue[]>([])
   const [rsvpEvents, setRsvpEvents] = useState<Event[]>([])
   const [interestedEvents, setInterestedEvents] = useState<Event[]>([])
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([])
-  const [stats, setStats] = useState({
-    followedArtists: 0,
-    followedVenues: 0,
-    rsvpEvents: 0,
-    interestedEvents: 0,
-    upcomingEvents: 0
-  })
+  const [allUpcomingEvents, setAllUpcomingEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
-  const [modal, setModal] = useState<DashboardModal>({ type: null, isOpen: false })
+  const [searchQuery, setSearchQuery] = useState('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'management' | 'ads' | 'settings'>('dashboard')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     trackPageView('dashboard')
@@ -41,7 +37,6 @@ export const DashboardPage: React.FC = () => {
     if (!user) return
 
     try {
-      // Fetch followed artists
       const { data: artistFollows } = await supabase
         .from('follows')
         .select(`
@@ -56,7 +51,6 @@ export const DashboardPage: React.FC = () => {
         setFollowedArtists(artists)
       }
 
-      // Fetch followed venues
       const { data: venueFollows } = await supabase
         .from('follows')
         .select(`
@@ -71,7 +65,6 @@ export const DashboardPage: React.FC = () => {
         setFollowedVenues(venues)
       }
 
-      // Fetch RSVP events
       const { data: rsvps } = await supabase
         .from('event_rsvps')
         .select(`
@@ -91,7 +84,6 @@ export const DashboardPage: React.FC = () => {
         setRsvpEvents(events)
       }
 
-      // Fetch interested events
       const { data: interestedRsvps } = await supabase
         .from('event_rsvps')
         .select(`
@@ -111,63 +103,10 @@ export const DashboardPage: React.FC = () => {
         setInterestedEvents(events)
       }
 
-      // Fetch upcoming events from followed artists and venues
-      const artistIds = artistFollows?.map(f => f.entity_id) || []
-      const venueIds = venueFollows?.map(f => f.entity_id) || []
-
-      let upcomingEventsData: Event[] = []
-
-      // Get events from followed venues
-      if (venueIds.length > 0) {
-        const { data: venueEvents } = await supabase
-          .from('events')
-          .select(`
-            *,
-            venue:venues(*),
-            event_artists(artist:artists(*))
-          `)
-          .in('venue_id', venueIds)
-          .gte('start_date', new Date().toISOString())
-          .order('start_date', { ascending: true })
-
-        if (venueEvents) {
-          upcomingEventsData = [...upcomingEventsData, ...venueEvents]
-        }
-      }
-
-      // Get events from followed artists
-      if (artistIds.length > 0) {
-        const { data: artistEvents } = await supabase
-          .from('events')
-          .select(`
-            *,
-            venue:venues(*),
-            event_artists!inner(artist:artists(*))
-          `)
-          .in('event_artists.artist_id', artistIds)
-          .gte('start_date', new Date().toISOString())
-          .order('start_date', { ascending: true })
-
-        if (artistEvents) {
-          // Remove duplicates and merge
-          const existingEventIds = new Set(upcomingEventsData.map(e => e.id))
-          const newEvents = artistEvents.filter(e => !existingEventIds.has(e.id))
-          upcomingEventsData = [...upcomingEventsData, ...newEvents]
-        }
-      }
-
-      // Sort by date
-      upcomingEventsData.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-      setUpcomingEvents(upcomingEventsData)
-
-      // Update stats
-      setStats({
-        followedArtists: artistFollows?.length || 0,
-        followedVenues: venueFollows?.length || 0,
-        rsvpEvents: rsvps?.length || 0,
-        interestedEvents: interestedRsvps?.length || 0,
-        upcomingEvents: upcomingEventsData.length
-      })
+      const allEvents = [...(rsvps?.map(r => r.event).filter(Boolean) || []), ...(interestedRsvps?.map(r => r.event).filter(Boolean) || [])]
+      const uniqueEvents = Array.from(new Map(allEvents.map(e => [e.id, e])).values())
+      uniqueEvents.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+      setAllUpcomingEvents(uniqueEvents)
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -176,141 +115,89 @@ export const DashboardPage: React.FC = () => {
     }
   }
 
-  const openModal = (type: 'artists' | 'venues' | 'rsvps' | 'interested' | 'upcoming') => {
-    setModal({ type, isOpen: true })
+  const calculatePercentage = (current: number, max: number = 100) => {
+    if (max === 0) return 0
+    return Math.min(Math.round((current / max) * 100), 100)
   }
 
-  const closeModal = () => {
-    setModal({ type: null, isOpen: false })
+  const getArtistImages = () => {
+    return followedArtists.slice(0, 5).map(artist => artist.image_url || artist.avatar_url || '').filter(Boolean)
   }
 
-  const renderModalContent = () => {
-    switch (modal.type) {
-      case 'artists':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Following Artists ({stats.followedArtists})</h3>
-            {followedArtists.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                {followedArtists.map((artist) => (
-                  <ArtistCard key={artist.id} artist={artist} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Music size={48} className="mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">You're not following any artists yet.</p>
-                <Link to="/artists" className="btn-pink mt-4 inline-block">
-                  Discover Artists
-                </Link>
-              </div>
-            )}
-          </div>
-        )
-      
-      case 'venues':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Following Venues ({stats.followedVenues})</h3>
-            {followedVenues.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                {followedVenues.map((venue) => (
-                  <VenueCard key={venue.id} venue={venue} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">You're not following any venues yet.</p>
-                <Link to="/venues" className="btn-yellow mt-4 inline-block">
-                  Discover Venues
-                </Link>
-              </div>
-            )}
-          </div>
-        )
-      
-      case 'rsvps':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Your RSVPs ({stats.rsvpEvents})</h3>
-            {rsvpEvents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {rsvpEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">You haven't RSVP'd to any events yet.</p>
-                <Link to="/events" className="btn-pink mt-4 inline-block">
-                  Browse Events
-                </Link>
-              </div>
-            )}
-          </div>
-        )
-      
-      case 'interested':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Interested Events ({stats.interestedEvents})</h3>
-            {interestedEvents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {interestedEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Star size={48} className="mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">You haven't marked any events as interesting yet.</p>
-                <Link to="/events" className="btn-yellow mt-4 inline-block">
-                  Browse Events
-                </Link>
-              </div>
-            )}
-          </div>
-        )
-      
-      case 'upcoming':
-        return (
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Upcoming Events ({stats.upcomingEvents})</h3>
-            <p className="text-sm text-gray-600">Events from artists and venues you follow</p>
-            {upcomingEvents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {upcomingEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <TrendingUp size={48} className="mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">No upcoming events from your followed artists and venues.</p>
-                <div className="flex flex-col sm:flex-row justify-center gap-4 mt-4">
-                  <Link to="/artists" className="btn-pink">
-                    Follow Artists
-                  </Link>
-                  <Link to="/venues" className="btn-yellow">
-                    Follow Venues
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        )
-      
-      default:
-        return null
+  const getVenueImages = () => {
+    return followedVenues.slice(0, 5).map(venue => venue.image_url || '').filter(Boolean)
+  }
+
+  const getEventImages = () => {
+    return rsvpEvents.slice(0, 5).map(event => event.image_url || '').filter(Boolean)
+  }
+
+  const formatDate = () => {
+    const now = new Date()
+    const day = now.toLocaleDateString('en-US', { weekday: 'long' })
+    const date = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    return { day, date }
+  }
+
+  const formatEventTime = (event: Event) => {
+    const date = new Date(event.start_date)
+    const time = event.event_start_time || date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    return time
+  }
+
+  const groupEventsByDate = (events: Event[]) => {
+    const groups: { [key: string]: Event[] } = {}
+    events.forEach(event => {
+      const dateKey = new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      if (!groups[dateKey]) {
+        groups[dateKey] = []
+      }
+      groups[dateKey].push(event)
+    })
+    return groups
+  }
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !user) return
+
+    try {
+      setUploadingAvatar(true)
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `avatars/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath)
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id)
+
+      if (updateError) throw updateError
+
+      window.location.reload()
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      alert('Failed to upload avatar. Please try again.')
+    } finally {
+      setUploadingAvatar(false)
     }
   }
 
   if (!user) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-[#F5F1EB]">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in</h1>
             <p className="text-gray-600">You need to be signed in to view your dashboard.</p>
@@ -323,179 +210,215 @@ export const DashboardPage: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="min-h-screen flex items-center justify-center bg-[#F5F1EB]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
         </div>
       </Layout>
     )
   }
 
+  const { day, date } = formatDate()
+  const eventGroups = groupEventsByDate(allUpcomingEvents)
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header Banner */}
-        <div className="bg-black text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl lg:text-4xl font-bold font-oswald mb-2">DASHBOARD</h1>
-            <p className="text-lg text-white/90">
-              Welcome back, {profile?.full_name || profile?.username || 'User'}!
-            </p>
+      <div className="min-h-screen bg-[#F5F1EB]">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            {/* Left Sidebar - User Profile */}
+            <aside className="lg:col-span-3">
+              <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-6">
+                <div className="flex flex-col items-center mb-6">
+                  <div className="relative mb-3">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg overflow-hidden">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-12 h-12 text-white" />
+                      )}
+                    </div>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-[#FFCE03] hover:bg-[#E5B902] rounded-full flex items-center justify-center shadow-md transition-colors disabled:opacity-50"
+                    >
+                      <Edit2 size={14} className="text-black" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 text-center">
+                    {profile?.full_name || profile?.username || 'User'}
+                  </h3>
+                  <p className="text-sm text-gray-500 text-center break-all">
+                    {profile?.email || user.email}
+                  </p>
+                  {profile?.phone && (
+                    <p className="text-sm text-gray-500 text-center">
+                      {profile.phone}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-400 text-center mt-2">
+                    Member since {new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
+
+                <nav className="space-y-1 mb-6">
+                  <button
+                    onClick={() => setActiveTab('dashboard')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'dashboard'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <BarChart3 size={18} />
+                    <span>Dashboard</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('management')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'management'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <FileText size={18} />
+                    <span>My Pages</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('ads')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'ads'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Settings size={18} />
+                    <span>My Ads</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('settings')}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                      activeTab === 'settings'
+                        ? 'bg-black text-yellow-400'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <User size={18} />
+                    <span>Settings</span>
+                  </button>
+                </nav>
+              </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="lg:col-span-6">
+              {activeTab === 'dashboard' ? (
+                <>
+                  {/* Header */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                          Hello, {profile?.full_name?.split(' ')[0] || profile?.username || 'there'}
+                        </h1>
+                        <p className="text-gray-600">Today is {day}, {date}</p>
+                      </div>
+                      <a
+                        href="https://seveneightfive.fillout.com/t/fVFVYBpMXKus"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#FFCE03] hover:bg-[#E5B902] text-black px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm flex items-center space-x-2"
+                      >
+                        <Plus size={16} />
+                        <span>Add Event</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Calendar */}
+                  <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold text-gray-900">Calendar</h2>
+                      <button className="p-1 hover:bg-gray-100 rounded transition-colors">
+                        <Calendar className="w-5 h-5 text-gray-600" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                      {Object.entries(eventGroups).map(([dateKey, events]) => (
+                        <div key={dateKey}>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-3">{dateKey}</h3>
+                          <div className="space-y-2">
+                            {events.map(event => (
+                              <CalendarEvent
+                                key={event.id}
+                                time={formatEventTime(event)}
+                                title={event.title}
+                                subtitle={event.venue?.name || 'Event'}
+                                onClick={() => navigate(`/events/${event.slug}`)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      {allUpcomingEvents.length === 0 && (
+                        <div className="text-center py-12 text-gray-400">
+                          <Calendar size={48} className="mx-auto mb-3" />
+                          <p className="text-sm">No upcoming events</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : activeTab === 'management' ? (
+                <ManagementSection />
+              ) : activeTab === 'ads' ? (
+                <AdManagementSection />
+              ) : (
+                <SettingsSection />
+              )}
+            </main>
+
+            {/* Right Sidebar - Project Cards */}
+            <aside className="lg:col-span-3 space-y-4">
+              <ProjectCard
+                title="Artists"
+                subtitle="Following"
+                taskCount={followedArtists.length}
+                percentage={calculatePercentage(followedArtists.length, 20)}
+                color="purple"
+                images={getArtistImages()}
+                onClick={() => navigate('/artists')}
+              />
+              <ProjectCard
+                title="Venues"
+                subtitle="Following"
+                taskCount={followedVenues.length}
+                percentage={calculatePercentage(followedVenues.length, 15)}
+                color="teal"
+                images={getVenueImages()}
+                onClick={() => navigate('/venues')}
+              />
+              <ProjectCard
+                title="Events"
+                subtitle="Attending"
+                taskCount={rsvpEvents.length}
+                percentage={calculatePercentage(rsvpEvents.length, 10)}
+                color="coral"
+                images={getEventImages()}
+                onClick={() => navigate('/events')}
+              />
+            </aside>
           </div>
         </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
-            <button
-              onClick={() => openModal('artists')}
-              className="bg-white rounded-xl p-4 lg:p-6 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
-            >
-              <div className="flex items-center">
-                <div className="bg-purple-100 p-3 rounded-lg group-hover:bg-purple-200 transition-colors">
-                  <Music className="text-purple-600" size={20} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-2xl font-bold text-gray-900">{stats.followedArtists}</p>
-                  <p className="text-sm text-gray-600">Artists</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => openModal('venues')}
-              className="bg-white rounded-xl p-4 lg:p-6 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
-            >
-              <div className="flex items-center">
-                <div className="bg-teal-100 p-3 rounded-lg group-hover:bg-teal-200 transition-colors">
-                  <MapPin className="text-teal-600" size={20} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-2xl font-bold text-gray-900">{stats.followedVenues}</p>
-                  <p className="text-sm text-gray-600">Venues</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => openModal('rsvps')}
-              className="bg-white rounded-xl p-4 lg:p-6 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
-            >
-              <div className="flex items-center">
-                <div className="bg-green-100 p-3 rounded-lg group-hover:bg-green-200 transition-colors">
-                  <Calendar className="text-green-600" size={20} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-2xl font-bold text-gray-900">{stats.rsvpEvents}</p>
-                  <p className="text-sm text-gray-600">RSVPs</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => openModal('interested')}
-              className="bg-white rounded-xl p-4 lg:p-6 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
-            >
-              <div className="flex items-center">
-                <div className="bg-yellow-100 p-3 rounded-lg group-hover:bg-yellow-200 transition-colors">
-                  <Star className="text-yellow-600" size={20} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-2xl font-bold text-gray-900">{stats.interestedEvents}</p>
-                  <p className="text-sm text-gray-600">Interested</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => openModal('upcoming')}
-              className="bg-white rounded-xl p-4 lg:p-6 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
-            >
-              <div className="flex items-center">
-                <div className="bg-blue-100 p-3 rounded-lg group-hover:bg-blue-200 transition-colors">
-                  <TrendingUp className="text-blue-600" size={20} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-2xl font-bold text-gray-900">{stats.upcomingEvents}</p>
-                  <p className="text-sm text-gray-600">Upcoming</p>
-                </div>
-              </div>
-            </button>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link
-                to="/events"
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <Calendar className="text-blue-600 mr-3" size={20} />
-                <span className="font-medium text-gray-900">Browse Events</span>
-              </Link>
-              <Link
-                to="/artists"
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <Music className="text-purple-600 mr-3" size={20} />
-                <span className="font-medium text-gray-900">Discover Artists</span>
-              </Link>
-              <Link
-                to="/venues"
-                className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <MapPin className="text-teal-600 mr-3" size={20} />
-                <span className="font-medium text-gray-900">Find Venues</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Empty State */}
-          {stats.followedArtists === 0 && stats.followedVenues === 0 && stats.rsvpEvents === 0 && stats.interestedEvents === 0 && (
-            <div className="text-center py-12 mt-8">
-              <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <Heart size={48} className="mx-auto mb-4 text-gray-400" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Start Building Your Network</h3>
-                <p className="text-gray-600 mb-6">
-                  Follow your favorite artists and venues to get personalized recommendations and never miss an event.
-                </p>
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Link
-                    to="/artists"
-                    className="btn-pink"
-                  >
-                    Discover Artists
-                  </Link>
-                  <Link
-                    to="/venues"
-                    className="btn-yellow"
-                  >
-                    Find Venues
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Modal */}
-        {modal.isOpen && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <div className="flex-1">
-                  {renderModalContent()}
-                </div>
-                <button
-                  onClick={closeModal}
-                  className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </Layout>
   )

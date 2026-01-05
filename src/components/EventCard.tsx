@@ -2,35 +2,41 @@ import React from 'react'
 import { Calendar, MapPin, Clock, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Event } from '../lib/supabase'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface EventCardProps {
   event: Event
+  onSelect?: (slug: string) => void
+  onClick?: () => void
+  useModal?: boolean
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event }) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, useModal = false }) => {
   const allArtists = event.event_artists || []
 
-  return (
-    <Link 
-      to={`/events/${event.slug}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
-    >
+  const handleClick = (e: React.MouseEvent) => {
+    if (useModal && onClick) {
+      e.preventDefault()
+      onClick()
+    } else if (onSelect) {
+      e.preventDefault()
+      onSelect(event.slug || '')
+    }
+  }
+
+  const cardContent = (
+    <>
       {/* Event Image - Taller aspect ratio */}
-      <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
-        {event.image_url ? (
-          <img
-            src={event.image_url}
-            alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <Calendar className="w-12 h-12 text-white opacity-50" />
-          </div>
-        )}
-        
+      <div className="relative aspect-[4/3] lg:aspect-[16/9] bg-gray-200 overflow-hidden">
+        <ImageWithFallback
+          src={event.image_url}
+          alt={event.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          fallbackType="event"
+        />
+
         {/* Date Badge - Upper Left */}
-        <div className="absolute top-0 left-0 bg-yellow-400 rounded-br-lg px-4 py-3 shadow-sm">
+        <div className="absolute top-0 left-0 bg-yellow-400 rounded-br-lg px-4 py-3 shadow-sm z-10">
           <div className="text-xs font-medium text-gray-600 uppercase tracking-wide text-center">
             {new Date(event.start_date).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
           </div>
@@ -50,7 +56,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         )}
 
         {/* Event Title - Second line */}
-        <h3 className="font-medium text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-oswald uppercase tracking-wide">
+        <h3 className="font-medium text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-urbanist uppercase tracking-wide">
           {event.title.toUpperCase()}
         </h3>
 
@@ -94,6 +100,27 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
           </div>
         )}
       </div>
+    </>
+  )
+
+  if (useModal) {
+    return (
+      <div
+        className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group cursor-pointer"
+        onClick={handleClick}
+      >
+        {cardContent}
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      to={`/events/${event.slug}`}
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+      onClick={handleClick}
+    >
+      {cardContent}
     </Link>
   )
 }

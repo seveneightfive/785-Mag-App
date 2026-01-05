@@ -1,27 +1,36 @@
 {
-  "name": "seveneightfive",
-  "short_name": "785 MAG",
-  "description": "Discover amazing events, artists, and venues in Top City",
-  "start_url": "/",
+  "name": "seveneightfive magazine",
+  "short_name": "785mag",
+  "description": "Discover amazing events, artists, and venues in Topeka",
+  "start_url": "https://785mag.com",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#3B82F6",
-  "orientation": "portrait-primary",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFCE03",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785logo_App-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png", 
+      "src": "https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-Splash-512-White.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["art", "entertainment", "lifestyle", "local flavor"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "related_applications": [],
+  "prefer_related_applications": false
 }

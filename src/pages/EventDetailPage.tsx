@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  DollarSign, 
-  ExternalLink, 
+import { Helmet } from 'react-helmet-async'
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  DollarSign,
+  ExternalLink,
   ArrowLeft,
   Star,
   Heart,
   Share2,
   Music,
   Palette,
-  Eye
+  Eye,
+  CalendarPlus,
+  ChevronDown
 } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ArtistCard } from '../components/ArtistCard'
+import { ShareModal } from '../components/ShareModal'
 import { supabase, type Event, type EventRSVP, trackPageView } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { downloadICS, generateGoogleCalendarUrl } from '../utils/calendarUtils'
 
 export const EventDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -31,12 +36,26 @@ export const EventDetailPage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [pageViews, setPageViews] = useState(0)
+  const [calendarMenuOpen, setCalendarMenuOpen] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   useEffect(() => {
     if (slug) {
       fetchEvent()
     }
   }, [slug])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (calendarMenuOpen && !target.closest('.calendar-dropdown-container')) {
+        setCalendarMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [calendarMenuOpen])
 
   useEffect(() => {
     if (event && user) {
@@ -56,7 +75,8 @@ export const EventDetailPage: React.FC = () => {
       .select(`
         *,
         venue:venues(*),
-        event_artists(artist:artists(*))
+        event_artists(artist:artists(*)),
+        event_organizers(organizer:organizers(*))
       `)
       .eq('slug', slug)
       .single()
@@ -108,7 +128,7 @@ export const EventDetailPage: React.FC = () => {
       .eq('follower_id', user.id)
       .eq('entity_type', 'event')
       .eq('entity_id', event.id)
-      .single()
+      .maybeSingle()
 
     setIsFollowing(!!data)
   }
@@ -206,6 +226,19 @@ export const EventDetailPage: React.FC = () => {
     return colors[type] || 'bg-gray-600 text-white'
   }
 
+  const handleAddToGoogleCalendar = () => {
+    if (!event) return
+    const url = generateGoogleCalendarUrl(event)
+    window.open(url, '_blank', 'noopener,noreferrer')
+    setCalendarMenuOpen(false)
+  }
+
+  const handleDownloadICS = () => {
+    if (!event) return
+    downloadICS(event)
+    setCalendarMenuOpen(false)
+  }
+
   if (loading) {
     return (
       <Layout>
@@ -234,12 +267,85 @@ export const EventDetailPage: React.FC = () => {
     )
   }
 
+  const eventJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description || `Join us for ${event.title}`,
+    startDate: event.start_time,
+    endDate: event.end_time,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: event.venue ? {
+      '@type': 'Place',
+      name: event.venue.name,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: event.venue.address,
+        addressLocality: event.venue.city || 'Topeka',
+        addressRegion: event.venue.state || 'KS',
+        postalCode: event.venue.zip_code,
+        addressCountry: 'US'
+      }
+    } : undefined,
+    image: event.image_url ? [event.image_url] : undefined,
+    organizer: {
+      '@type': 'Organization',
+      name: '785 Magazine',
+      url: 'https://785mag.com'
+    },
+    offers: event.ticket_price ? {
+      '@type': 'Offer',
+      price: event.ticket_price,
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      url: event.ticket_url || `https://785mag.com/events/${event.slug}/`
+    } : undefined,
+    performer: event.event_artists?.map((ea: any) => ({
+      '@type': 'PerformingGroup',
+      name: ea.artist?.name
+    }))
+  };
+
   return (
     <Layout>
+      <Helmet>
+        <link rel="canonical" href={`https://785mag.com/events/${event.slug}/`} />
+        <title>{event.title} | seveneightfive magazine</title>
+        <meta name="description" content={event.description || `Join us for ${event.title} at ${event.venue?.name || 'our venue'}`} />
+        <meta property="og:url" content={`https://785mag.com/events/${event.slug}/`} />
+        <meta property="og:type" content="event" />
+        <meta property="og:title" content={event.title} />
+        <meta property="og:description" content={event.description || `Join us for ${event.title}`} />
+        {event.image_url && <meta property="og:image" content={event.image_url} />}
+        <script type="application/ld+json">
+          {JSON.stringify(eventJsonLd)}
+        </script>
+      </Helmet>
       <div className="min-h-screen bg-gray-50">
 
+        {/* Mobile Back Button - Fixed Header */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+          <div className="flex items-center px-4 py-3">
+            <button
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1)
+                } else {
+                  navigate('/events')
+                }
+              }}
+              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 active:scale-95 transition-transform"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={24} />
+              <span className="font-medium">Back</span>
+            </button>
+          </div>
+        </div>
+
         {/* Mobile Hero Image - Full Width */}
-        <div className="lg:hidden w-full">
+        <div className="lg:hidden w-full pt-[52px]">
           {event.image_url ? (
             <img
               src={event.image_url}
@@ -294,7 +400,7 @@ export const EventDetailPage: React.FC = () => {
                   ))}
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-4 font-oswald">{event.title}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4 font-urbanist">{event.title}</h1>
 
                 {event.description && (
                   <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
@@ -373,7 +479,7 @@ export const EventDetailPage: React.FC = () => {
               {/* Featured Artists */}
               {event.event_artists && event.event_artists.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-                  <h2 className="text-xl font-bold font-oswald text-gray-900 mb-4">FEATURING</h2>
+                  <h2 className="text-xl font-bold font-urbanist text-gray-900 mb-4">FEATURING</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {event.event_artists.map(({ artist }) => (
                       <ArtistCard key={artist.id} artist={artist} />
@@ -432,7 +538,7 @@ export const EventDetailPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     <div>
                       <h4 className="font-medium text-gray-900">{event.venue.name}</h4>
                       <p className="text-gray-600 text-sm">{event.venue.address}</p>
@@ -442,14 +548,14 @@ export const EventDetailPage: React.FC = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     {event.venue.phone && (
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
                         <p className="text-gray-900">{event.venue.phone}</p>
                       </div>
                     )}
-                    
+
                     {event.venue.website && (
                       <div>
                         <a
@@ -462,7 +568,7 @@ export const EventDetailPage: React.FC = () => {
                         </a>
                       </div>
                     )}
-                    
+
                     <button
                       onClick={() => navigate(`/venues/${event.venue?.slug}`)}
                       className="btn-white w-full"
@@ -473,27 +579,89 @@ export const EventDetailPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Organizers Section */}
+              {event.event_organizers && event.event_organizers.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-gray-900 mb-4">
+                    Organized By
+                  </h3>
+                  <div className="space-y-4">
+                    {event.event_organizers.map(({ organizer }) => (
+                      <div key={organizer.id} className="space-y-3">
+                        {organizer.logo && (
+                          <div className="mb-3">
+                            <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-100 flex items-center justify-center mx-auto">
+                              <img
+                                src={organizer.logo}
+                                alt={`${organizer.name} logo`}
+                                className="w-full h-full object-contain p-3"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-center">
+                          <h4 className="font-medium text-gray-900">{organizer.name}</h4>
+                          {organizer.description && (
+                            <p className="text-gray-600 text-sm mt-1">
+                              {organizer.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => navigate(`/organizers/${organizer.slug}`)}
+                          className="btn-white w-full"
+                        >
+                          View Organizer
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add to Calendar Section */}
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <h3 className="font-bold text-gray-900 mb-4">Add to Calendar</h3>
+                <div className="relative calendar-dropdown-container">
+                  <button
+                    onClick={() => setCalendarMenuOpen(!calendarMenuOpen)}
+                    className="btn-yellow w-full flex items-center justify-center space-x-2"
+                  >
+                    <CalendarPlus size={16} />
+                    <span>Add to Calendar</span>
+                    <ChevronDown size={14} className={`transition-transform ${calendarMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {calendarMenuOpen && (
+                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                      <button
+                        onClick={handleAddToGoogleCalendar}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                      >
+                        <Calendar size={18} className="text-blue-600" />
+                        <span className="text-gray-900">Google Calendar</span>
+                      </button>
+                      <button
+                        onClick={handleDownloadICS}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 border-t border-gray-100"
+                      >
+                        <CalendarPlus size={18} className="text-gray-600" />
+                        <div>
+                          <div className="text-gray-900">Download ICS</div>
+                          <div className="text-xs text-gray-500">Apple Calendar, Outlook, etc.</div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Share Section */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
                 <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: event.title,
-                        text: event.description,
-                        url: window.location.href
-                      }).catch((error) => {
-                        // Only log non-user-cancellation errors
-                        if (error.name !== 'NotAllowedError') {
-                          console.error('Error sharing:', error)
-                        }
-                        // Fallback to clipboard copy on any error
-                        navigator.clipboard.writeText(window.location.href)
-                      })
-                    } else {
-                      navigator.clipboard.writeText(window.location.href)
-                    }
-                  }}
+                  onClick={() => setShareModalOpen(true)}
                   className="btn-white w-full flex items-center justify-center space-x-2"
                 >
                   <Share2 size={16} />
@@ -504,6 +672,15 @@ export const EventDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        title={event.title}
+        description={event.description}
+        url={window.location.href}
+        imageUrl={event.image_url}
+      />
     </Layout>
   )
 }

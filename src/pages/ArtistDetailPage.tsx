@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Music, Globe, Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, Users, Palette, Eye, Instagram, Twitter, Facebook, Youtube, Mail } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, Users, Palette, Eye, Instagram, Twitter, Facebook, Youtube, Mail, Globe, ChevronDown } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
-import { EventCard } from '../components/EventCard'
+import { EventModal } from '../components/EventModal'
+import { ShareModal } from '../components/ShareModal'
+import { ArtistGallery } from '../components/ArtistGallery'
 import { AudioPlayer } from '../components/AudioPlayer'
 import { VideoPlayer } from '../components/VideoPlayer'
 import { WorksGallery } from '../components/WorksGallery'
@@ -13,6 +16,7 @@ import { supabase, type Artist, type Event, type Work, trackPageView } from '../
 export const ArtistDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
   const [artist, setArtist] = useState<Artist | null>(null)
   const [events, setEvents] = useState<Event[]>([])
@@ -26,6 +30,12 @@ export const ArtistDetailPage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [showAudioPlayer, setShowAudioPlayer] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  const eventSlugFromUrl = searchParams.get('event')
+  const isEventModalOpen = !!eventSlugFromUrl
 
   useEffect(() => {
     if (slug) {
@@ -47,6 +57,15 @@ export const ArtistDetailPage: React.FC = () => {
     }
   }, [artist, user])
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const fetchArtist = async () => {
     if (!slug) return
 
@@ -54,7 +73,7 @@ export const ArtistDetailPage: React.FC = () => {
       .from('artists')
       .select('*')
       .eq('slug', slug)
-      .single()
+      .maybeSingle()
 
     if (error) {
       console.error('Error fetching artist:', error)
@@ -70,6 +89,9 @@ export const ArtistDetailPage: React.FC = () => {
   const fetchArtistEvents = async () => {
     if (!slug) return
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const { data } = await supabase
       .from('events')
       .select(`
@@ -78,7 +100,7 @@ export const ArtistDetailPage: React.FC = () => {
         event_artists!inner(artist:artists!inner(slug))
       `)
       .eq('event_artists.artist.slug', slug)
-      .gte('start_date', new Date().toISOString())
+      .gte('start_date', today.toISOString())
       .order('start_date', { ascending: true })
 
     if (data) {
@@ -89,54 +111,49 @@ export const ArtistDetailPage: React.FC = () => {
   const fetchArtistWorks = async () => {
     if (!artist) return
 
-    // Fetch artist's works
-    const { data: artistWorksData } = await supabase
+    const { data } = await supabase
       .from('works')
       .select('*')
       .eq('artist_id', artist.id)
       .order('created_at', { ascending: false })
 
-    if (artistWorksData) {
-      setWorks(artistWorksData)
-    }
+    if (data) {
+      setWorks(data)
 
-    // Fetch works in collections
-    const { data: collectedWorksData } = await supabase
-      .from('works')
-      .select('*')
-      .eq('artist_id', artist.id)
-      .eq('is_in_collection', true)
-      .order('created_at', { ascending: false })
+      const { data: collected } = await supabase
+        .from('work_collectors')
+        .select('work_id')
+        .eq('artist_id', artist.id)
+        .in('work_id', data.map((w) => w.id))
 
-    if (collectedWorksData) {
-      setCollectedWorks(collectedWorksData)
-      
-      // Count unique collectors
-      const uniqueCollectors = new Set(collectedWorksData.map(work => work.user_id))
-      setCollectorsCount(uniqueCollectors.size)
+      if (collected) {
+        setCollectedWorks(data.filter((w) => collected.some((c) => c.work_id === w.id)))
+      }
     }
   }
 
   const fetchArtistStats = async () => {
     if (!artist) return
 
-    // Get followers count
-    const { count: followersCount } = await supabase
+    const { data: followers } = await supabase
       .from('follows')
-      .select('id', { count: 'exact', head: true })
-      .eq('entity_type', 'artist')
-      .eq('entity_id', artist.id)
+      .select('id')
+      .eq('following_id', artist.id)
+      .eq('following_type', 'artist')
 
-    setFollowersCount(followersCount || 0)
+    if (followers) {
+      setFollowersCount(followers.length)
+    }
 
-    // Get page views count
-    const { count: viewsCount } = await supabase
+    const { data: views } = await supabase
       .from('page_views')
-      .select('id', { count: 'exact', head: true })
-      .eq('page_type', 'artist')
-      .eq('page_id', artist.id)
+      .select('id')
+      .eq('entity_id', artist.id)
+      .eq('entity_type', 'artist')
 
-    setPageViews(viewsCount || 0)
+    if (views) {
+      setPageViews(views.length)
+    }
   }
 
   const checkFollowStatus = async () => {
@@ -146,9 +163,9 @@ export const ArtistDetailPage: React.FC = () => {
       .from('follows')
       .select('id')
       .eq('follower_id', user.id)
-      .eq('entity_type', 'artist')
-      .eq('entity_id', artist.id)
-      .single()
+      .eq('following_id', artist.id)
+      .eq('following_type', 'artist')
+      .maybeSingle()
 
     setIsFollowing(!!data)
   }
@@ -159,48 +176,31 @@ export const ArtistDetailPage: React.FC = () => {
     setFollowLoading(true)
     try {
       if (isFollowing) {
-        await supabase
+        const { error } = await supabase
           .from('follows')
           .delete()
           .eq('follower_id', user.id)
-          .eq('entity_type', 'artist')
-          .eq('entity_id', artist.id)
+          .eq('following_id', artist.id)
+          .eq('following_type', 'artist')
+
+        if (!error) {
+          setIsFollowing(false)
+          setFollowersCount(Math.max(0, followersCount - 1))
+        }
       } else {
-        await supabase
-          .from('follows')
-          .insert({
-            follower_id: user.id,
-            entity_type: 'artist',
-            entity_id: artist.id
-          })
+        const { error } = await supabase.from('follows').insert({
+          follower_id: user.id,
+          following_id: artist.id,
+          following_type: 'artist',
+        })
+
+        if (!error) {
+          setIsFollowing(true)
+          setFollowersCount(followersCount + 1)
+        }
       }
-      setIsFollowing(!isFollowing)
-      fetchArtistStats() // Refresh stats
-    } catch (error) {
-      console.error('Error following artist:', error)
     } finally {
       setFollowLoading(false)
-    }
-  }
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: artist?.name,
-          text: artist?.bio,
-          url: window.location.href
-        })
-      } catch (error) {
-        // Only log non-user-cancellation errors
-        if (error.name !== 'NotAllowedError') {
-          console.error('Error sharing:', error)
-        }
-        // Fallback to clipboard copy on any error
-        navigator.clipboard.writeText(window.location.href)
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href)
     }
   }
 
@@ -210,17 +210,25 @@ export const ArtistDetailPage: React.FC = () => {
       case 'twitter': return <Twitter size={20} />
       case 'facebook': return <Facebook size={20} />
       case 'youtube': return <Youtube size={20} />
-      case 'spotify': return <Music size={20} />
+      case 'spotify': return null
       case 'email': return <Mail size={20} />
       default: return <Globe size={20} />
     }
+  }
+
+  const handleEventClick = (eventSlug: string) => {
+    setSearchParams({ event: eventSlug })
+  }
+
+  const handleCloseEventModal = () => {
+    setSearchParams({})
   }
 
   if (loading) {
     return (
       <Layout>
         <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
       </Layout>
     )
@@ -234,7 +242,7 @@ export const ArtistDetailPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Artist not found</h1>
             <button
               onClick={() => navigate('/artists')}
-              className="text-purple-600 hover:text-purple-700"
+              className="text-yellow-400 hover:text-yellow-500"
             >
               Back to Artists
             </button>
@@ -244,464 +252,283 @@ export const ArtistDetailPage: React.FC = () => {
     )
   }
 
+  const galleryImages = artist.social_media || []
+  const heroImage = artist.avatar_url || artist.image_url
+
+  const artistJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicGroup',
+    name: artist.name,
+    description: artist.bio || `Discover ${artist.name}`,
+    image: heroImage,
+    url: `https://785mag.com/artists/${artist.slug}`,
+  }
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
+      <Helmet>
+        <link rel="canonical" href={`https://785mag.com/artists/${artist.slug}/`} />
+        <title>{artist.name} | seveneightfive magazine</title>
+        <meta name="description" content={artist.bio || `Discover ${artist.name}`} />
+        <meta property="og:url" content={`https://785mag.com/artists/${artist.slug}/`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content={artist.name} />
+        <meta property="og:description" content={artist.bio || `Discover ${artist.name}`} />
+        {heroImage && <meta property="og:image" content={heroImage} />}
+        <script type="application/ld+json">
+          {JSON.stringify(artistJsonLd)}
+        </script>
+      </Helmet>
 
-{/* Desktop Full-Width Hero */}
-<div className="hidden lg:block relative h-[60vh] overflow-hidden">
-  {artist.avatar_url || artist.image_url ? (
-    <img
-      src={artist.avatar_url || artist.image_url}
-      alt={artist.name}
-      className={`w-full h-full object-cover transition-all duration-1000 ${
-        imageLoaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'
-      }`}
-      style={{ objectPosition: 'center 10%' }} // ADD THIS LINE
-      onLoad={() => setImageLoaded(true)}
-    />
-  ) : (
-    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-      <Music size={120} className="text-white opacity-80" />
-    </div>
-  )}
-  
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-  
-  {/* Artist Name - Reverse Type */}
-  <div className="absolute bottom-0 left-0 right-0 p-8">
-    <div className="max-w-7xl mx-auto">
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="flex items-center mb-4">
-            <h1 className="text-6xl font-bold text-white drop-shadow-lg">
-              {artist.name}
-            </h1>
-            {artist.verified && (
-              <div className="ml-4 bg-blue-500 text-white px-3 py-2 rounded-full flex items-center">
-                <Star size={20} className="mr-2" />
-                <span className="font-medium">Verified</span>
-              </div>
-            )}
-          </div>
-          {artist.tagline && (
-            <p className="text-xl text-white/90 font-medium italic">{artist.tagline}</p>
-          )}
-          {!artist.tagline && artist.genre && (
-            <p className="text-xl text-white/90 font-medium">{artist.genre}</p>
-          )}
-        </div>
-        
-        {/* Actions */}
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={handleShare}
-            className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
-          >
-            <Share2 size={24} />
-          </button>
-          {user && (
-            <button
-              onClick={handleFollow}
-              disabled={followLoading}
-              className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
-                isFollowing 
-                  ? 'bg-red-500 text-white' 
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              <Heart size={24} fill={isFollowing ? 'currentColor' : 'none'} />
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{/* Mobile Hero - Spaceman Style */}
-<div className="lg:hidden relative h-screen overflow-hidden">
-  {/* Hero Image - Full screen */}
-  {artist.avatar_url || artist.image_url ? (
-    <img
-      src={artist.avatar_url || artist.image_url}
-      alt={artist.name}
-      className="absolute inset-0 w-full h-full object-cover"
-      style={{ objectPosition: 'center 15%' }}
-    />
-  ) : (
-    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-      <Music size={64} className="text-white opacity-80" />
-    </div>
-  )}
-  
-  {/* Black gradient overlay - fades from transparent to solid black */}
-  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black"></div>
-  
-  {/* Content - Centered in lower half */}
-  <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 px-6">
-    {/* Artist Name - Split styling */}
-    <div className="text-center mb-6">
-      {(() => {
-        const nameParts = artist.name.split(' ')
-        const firstName = nameParts[0]
-        const lastName = nameParts.slice(1).join(' ')
-        
-        return (
-          <div>
-            {/* First name - smaller, uppercase */}
-            <div className="text-white/80 text-sm font-medium tracking-widest uppercase mb-1">
-              {firstName}
-            </div>
-            {/* Last name - larger, uppercase, bold */}
-            <h1 className="text-white text-5xl font-bold tracking-wide uppercase">
-              {lastName}
-            </h1>
-          </div>
-        )
-      })()}
-      
-      {/* Verified badge */}
-      {artist.verified && (
-        <div className="flex items-center justify-center mt-3">
-          <Star size={16} className="text-blue-400 mr-1" />
-          <span className="text-blue-400 text-xs font-medium uppercase tracking-wide">Verified</span>
-        </div>
-      )}
-    </div>
-    
-    {/* Tagline/Genre - Kicker line */}
-    {(artist.tagline || artist.genre) && (
-      <p className="text-white/70 text-center text-sm font-light tracking-wide px-8 mb-8 max-w-md">
-        {artist.tagline || artist.genre}
-      </p>
-    )}
-    
-    {/* Action buttons */}
-    <div className="flex items-center justify-center space-x-4">
-      <button
-        onClick={handleShare}
-        className="bg-white/10 backdrop-blur-md text-white p-4 rounded-full hover:bg-white/20 transition-all border border-white/20"
-      >
-        <Share2 size={20} />
-      </button>
-      {user && (
-        <button
-          onClick={handleFollow}
-          disabled={followLoading}
-          className={`px-8 py-4 rounded-full backdrop-blur-md transition-all font-semibold text-sm tracking-wide uppercase ${
-            isFollowing 
-              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-2 border-pink-400' 
-              : 'bg-white/10 text-white hover:bg-white/20 border-2 border-white/20'
-          }`}
+      <div className="relative min-h-screen bg-white">
+        {/* Hero Section with Image and Name */}
+        <div
+          ref={heroRef}
+          className="relative h-screen overflow-hidden bg-gray-900"
         >
-          {isFollowing ? (
-            <span className="flex items-center">
-              <Heart size={16} className="mr-2" fill="currentColor" />
-              Following
-            </span>
-          ) : (
-            <span className="flex items-center">
-              <Heart size={16} className="mr-2" />
-              Follow
-            </span>
+          {/* Background Image with Ken Burns Effect */}
+          {heroImage && (
+            <div className="absolute inset-0 overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
+                style={{
+                  backgroundImage: `url('${heroImage}')`,
+                  transform: `scale(${1 + scrollY * 0.0003})`,
+                }}
+              />
+              <div className="absolute inset-0 bg-black/40" />
+            </div>
           )}
-        </button>
-      )}
-    </div>
-  </div>
-  
-  {/* Scroll indicator (optional) */}
-  <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
-    <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-      <div className="w-1 h-3 bg-white/50 rounded-full"></div>
-    </div>
-  </div>
-</div>
-        
-      {/* Stats Section - Desktop */}
-        <div className="hidden lg:block bg-white border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-8 py-6">
-            <div className="flex items-center space-x-8 text-gray-600">
-              <div className="flex items-center">
-                <Heart size={20} className="mr-2 text-red-500" />
-                <span className="font-semibold text-gray-900">{followersCount.toLocaleString()}</span>
-                <span className="ml-1">followers</span>
-              </div>
-              <div className="flex items-center">
-                <Eye size={20} className="mr-2 text-blue-500" />
-                <span className="font-semibold text-gray-900">{pageViews.toLocaleString()}</span>
-                <span className="ml-1">views</span>
-              </div>
-              {collectorsCount > 0 && (
-                <div className="flex items-center">
-                  <Users size={20} className="mr-2 text-purple-500" />
-                  <span className="font-semibold text-gray-900">{collectorsCount}</span>
-                  <span className="ml-1">collectors</span>
-                </div>
+
+          {/* Fixed Header Controls */}
+          <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 lg:p-6">
+            <button
+              onClick={() => navigate('/artists')}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShareModalOpen(true)}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
+                aria-label="Share artist"
+              >
+                <Share2 size={20} />
+              </button>
+              {user && (
+                <button
+                  onClick={handleFollow}
+                  disabled={followLoading}
+                  className={`flex items-center justify-center px-4 py-2 rounded-full backdrop-blur-sm transition-all ${
+                    isFollowing
+                      ? 'bg-yellow-400/90 text-gray-900 hover:bg-yellow-400'
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                  }`}
+                >
+                  <Heart size={18} fill={isFollowing ? 'currentColor' : 'none'} />
+                </button>
               )}
             </div>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
-          {/* Desktop Back Button */}
-          <div className="hidden lg:block mb-8">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft size={16} className="mr-2" />
-              Back to Artists
-            </button>
+          {/* Name Overlay */}
+          <div className="absolute inset-0 flex items-end justify-start p-6 lg:p-12">
+            <div className="max-w-2xl z-10">
+              <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-4">
+                {artist.name}
+              </h1>
+              {artist.genre && (
+                <p className="text-lg lg:text-xl text-white/90">
+                  {artist.genre}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Mobile Stats */}
-          <div className="lg:hidden bg-white rounded-xl p-6 mb-8 shadow-sm">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+            <ChevronDown className="text-white" size={32} />
+          </div>
+        </div>
+
+        {/* About Section - White Card Over Image */}
+        <div className="relative z-20 -mt-24 lg:-mt-32 px-4 lg:px-0 pb-12 lg:pb-24">
+          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8 lg:p-12">
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-6 mb-8 pb-8 border-b border-gray-200">
               <div>
-                <div className="text-2xl font-bold text-gray-900">{followersCount.toLocaleString()}</div>
+                <div className="text-3xl font-bold text-gray-900">{followersCount.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Followers</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{pageViews.toLocaleString()}</div>
+                <div className="text-3xl font-bold text-gray-900">{works.length}</div>
+                <div className="text-sm text-gray-600">Works</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-gray-900">{pageViews.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Views</div>
               </div>
-              {collectorsCount > 0 && (
-                <div>
-                  <div className="text-2xl font-bold text-gray-900">{collectorsCount}</div>
-                  <div className="text-sm text-gray-600">Collectors</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* About Section */}
-              {artist.bio && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                      {artist.bio}
-                    </p>
-                  </div>
-                </section>
-              )}
-
-              {/* Audio Player Section - Musicians only */}
-              {/* Upcoming Events */}
-              {events.length > 0 && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Events</h2>
-                  <div className="space-y-4">
-                    {events.map((event) => {
-                      const eventDate = new Date(event.start_date)
-                      const monthShort = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
-                      const dayNumber = eventDate.getDate()
-                      
-                      return (
-                        <Link
-                          key={event.id}
-                          to={`/events/${event.slug}`}
-                          className="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors group"
-                        >
-                          {/* Date Box */}
-                          <div className="bg-[#FFCE03] rounded-lg p-3 text-center flex-shrink-0 w-16">
-                            <div className="text-xs font-medium text-black">{monthShort}</div>
-                            <div className="text-xl font-bold text-black">{dayNumber}</div>
-                          </div>
-                          
-                          {/* Event Details */}
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-600 mb-1">
-                              {event.venue?.name}
-                            </div>
-                            <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
-                              {event.title}
-                            </div>
-                            {event.event_start_time && (
-                              <div className="text-sm text-gray-500">
-                                {event.event_start_time}
-                              </div>
-                            )}
-                          </div>
-                        </Link>
-                      )
-                    })}
-                  </div>
-                </section>
-              )}
-
-              {/* Works Gallery */}
-              {works.length > 0 && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <WorksGallery 
-                    works={works.filter(work => !work.is_in_collection)} 
-                    title="Available Works" 
-                  />
-                </section>
-              )}
-
-              {/* Collections Section */}
-              {collectedWorks.length > 0 && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">In Collections</h2>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <Users size={16} className="mr-1" />
-                        <span>{collectorsCount} collector{collectorsCount !== 1 ? 's' : ''}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Palette size={16} className="mr-1" />
-                        <span>{collectedWorks.length} work{collectedWorks.length !== 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <WorksGallery 
-                    works={collectedWorks} 
-                    title="" 
-                    showCollector={true}
-                  />
-                </section>
-              )}
-
-              {/* Video Section */}
-              {artist.video_url && artist.video_title && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Video</h2>
-                  <VideoPlayer videoUrl={artist.video_url} title={artist.video_title} />
-                </section>
-              )}
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-8">
-              {/* Contact Information */}
-              {(artist.artist_website || artist.website || artist.social_facebook || artist.artist_spotify || artist.artist_youtube || artist.artist_email || (artist.social_links && Object.keys(artist.social_links).length > 0)) && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Connect</h2>
-                  <div className="space-y-3">
-                    {(artist.artist_website || artist.website) && (
-                      <a
-                        href={artist.artist_website || artist.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <Globe size={20} className="mr-3 text-gray-600" />
-                        <span className="font-medium text-gray-900">Website</span>
-                      </a>
-                    )}
-                    
-                    {artist.artist_email && (
-                      <a
-                        href={`mailto:${artist.artist_email}`}
-                        className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <Mail size={20} className="mr-3 text-gray-600" />
-                        <span className="font-medium text-gray-900">Email</span>
-                      </a>
-                    )}
+            {/* About */}
+            {artist.bio && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
+                <p className="text-gray-700 leading-relaxed text-lg">
+                  {artist.bio}
+                </p>
+              </div>
+            )}
 
-                    {artist.social_facebook && (
-                      <a
-                        href={artist.social_facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <Facebook size={20} className="mr-3 text-gray-600" />
-                        <span className="font-medium text-gray-900">Facebook</span>
-                      </a>
-                    )}
-
-                    {artist.artist_spotify && (
-                      <a
-                        href={artist.artist_spotify}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <Music size={20} className="mr-3 text-gray-600" />
-                        <span className="font-medium text-gray-900">Spotify</span>
-                      </a>
-                    )}
-
-                    {artist.artist_youtube && (
-                      <a
-                        href={artist.artist_youtube}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <Youtube size={20} className="mr-3 text-gray-600" />
-                        <span className="font-medium text-gray-900">YouTube</span>
-                      </a>
-                    )}
-
-                    {artist.social_links && Object.entries(artist.social_links).map(([platform, url]) => (
-                      <a
-                        key={platform}
-                        href={url as string}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="mr-3 text-gray-600">
-                          {getSocialIcon(platform)}
-                        </div>
-                        <span className="font-medium text-gray-900 capitalize">{platform}</span>
-                      </a>
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-          </div>
-
-          {/* Reviews Section */}
-          <div className="mt-8">
-            <ReviewSection entityType="artist" entityId={artist.id} />
+            {/* Type Badge */}
+            {artist.artist_type && (
+              <div className="inline-block bg-yellow-100 text-yellow-900 px-4 py-2 rounded-full text-sm font-medium">
+                {artist.artist_type}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Sticky Featured Track - Musicians only */}
-        {artist.artist_type === 'Musician' && artist.audio_file_url && artist.audio_title && (
-          <div className="fixed bottom-16 lg:bottom-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg z-40 lg:left-64">
-            <div className="max-w-7xl mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white truncate">{artist.audio_title}</h3>
-                  <p className="text-white/80 text-sm">by {artist.name}</p>
-                </div>
+        {/* Gallery Section */}
+        {galleryImages.length > 0 && (
+          <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-16 lg:py-24">
+            <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-8 lg:mb-12">Gallery</h2>
+            <ArtistGallery images={galleryImages} />
+          </div>
+        )}
+
+        {/* Works Section */}
+        {works.length > 0 && (
+          <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-12 lg:py-24">
+            <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-8">Works</h2>
+            <WorksGallery
+              works={works}
+              onWorkClick={() => {}}
+            />
+          </div>
+        )}
+
+        {/* Events Section */}
+        {events.length > 0 && (
+          <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-12 lg:py-24">
+            <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-8">Upcoming Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {events.map((event) => (
                 <button
-                  onClick={() => setShowAudioPlayer(true)}
-                  className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors shadow-lg ml-4 flex-shrink-0"
+                  key={event.id}
+                  onClick={() => handleEventClick(event.slug)}
+                  className="text-left bg-gray-50 hover:bg-gray-100 rounded-xl p-6 transition-colors"
                 >
-                  <Play size={20} />
+                  <div className="text-sm font-semibold text-yellow-600 mb-2">
+                    {new Date(event.start_date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{event.title}</h3>
+                  {event.venue && (
+                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                      <MapPin size={16} />
+                      {event.venue.name}
+                    </p>
+                  )}
                 </button>
-              </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Audio Player */}
-        {showAudioPlayer && artist.audio_file_url && artist.audio_title && (
-          <AudioPlayer
-            audioUrl={artist.audio_file_url}
-            title={artist.audio_title}
-            artistName={artist.name}
-            purchaseLink={artist.purchase_link}
-            onClose={() => setShowAudioPlayer(false)}
-          />
-        )}
+        {/* Reviews Section */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-12 lg:py-24">
+          <ReviewSection entityType="artist" entityId={artist.id} />
+        </div>
+
+        {/* Social Links at Bottom */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-12 lg:py-24 border-t border-gray-200">
+          <h3 className="text-lg font-bold text-gray-900 mb-6">Connect</h3>
+          <div className="flex gap-4 flex-wrap">
+            {artist.instagram_url && (
+              <a
+                href={artist.instagram_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                title="Instagram"
+              >
+                {getSocialIcon('instagram')}
+              </a>
+            )}
+            {artist.twitter_url && (
+              <a
+                href={artist.twitter_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                title="Twitter"
+              >
+                {getSocialIcon('twitter')}
+              </a>
+            )}
+            {artist.facebook_url && (
+              <a
+                href={artist.facebook_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                title="Facebook"
+              >
+                {getSocialIcon('facebook')}
+              </a>
+            )}
+            {artist.youtube_url && (
+              <a
+                href={artist.youtube_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                title="YouTube"
+              >
+                {getSocialIcon('youtube')}
+              </a>
+            )}
+            {artist.website_url && (
+              <a
+                href={artist.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                title="Website"
+              >
+                {getSocialIcon('website')}
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Spacing */}
+        <div className="relative z-10 h-12" />
       </div>
+
+      {/* Modals */}
+      <EventModal
+        eventSlug={eventSlugFromUrl}
+        isOpen={isEventModalOpen}
+        onClose={handleCloseEventModal}
+      />
+
+      {artist && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          title={artist.name}
+          description={artist.bio}
+          url={window.location.href}
+          imageUrl={heroImage}
+        />
+      )}
     </Layout>
   )
 }

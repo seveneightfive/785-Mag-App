@@ -4,7 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'oswald': ['Oswald', 'sans-serif'],
+        'urbanist': ['Urbanist', 'sans-serif'],
+        'redhat': ['Red Hat Display', 'sans-serif'],
       },
     },
   },

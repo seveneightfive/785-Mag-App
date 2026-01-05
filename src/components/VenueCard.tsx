@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { MapPin, Calendar, Phone, Globe, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase, type Venue } from '../lib/supabase'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface VenueCardProps {
   venue: Venue
@@ -9,23 +10,38 @@ interface VenueCardProps {
 
 export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
   const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+  const [logoAspectRatio, setLogoAspectRatio] = useState<number>(1)
 
   useEffect(() => {
     fetchUpcomingEventsCount()
   }, [venue.id])
 
   const fetchUpcomingEventsCount = async () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const { count } = await supabase
       .from('events')
       .select('*', { count: 'exact', head: true })
       .eq('venue_id', venue.id)
-      .gte('start_date', new Date().toISOString())
+      .gte('start_date', today.toISOString())
 
     setUpcomingEventsCount(count || 0)
   }
 
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    setLogoAspectRatio(img.naturalWidth / img.naturalHeight)
+  }
+
+  const getLogoContainerClass = (aspectRatio: number) => {
+    if (aspectRatio > 1.5) return "w-24 h-16"
+    if (aspectRatio < 0.7) return "w-16 h-24"
+    return "w-20 h-20"
+  }
+
   // Extract just the street address (first part before comma)
-  const streetAddress = venue.address.split(',')[0].trim()
+  const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
 
   return (
     <Link 
@@ -33,15 +49,17 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
       className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
     >
       <div className="relative">
-        {venue.image_url && (
-          <div className="aspect-video overflow-hidden">
-            <img
-              src={venue.image_url}
+        <div className="aspect-video overflow-hidden bg-gray-50 flex items-center justify-center">
+          <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-white rounded-lg overflow-hidden border border-gray-200`}>
+            <ImageWithFallback
+              src={venue.logo || venue.image_url}
               alt={venue.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              className="max-w-full max-h-full object-contain p-3"
+              fallbackType="venue"
+              onLoad={handleImageLoad}
             />
           </div>
-        )}
+        </div>
         
         {/* Venue Type Tag - Bottom Left */}
         {venue.venue_type && (
@@ -66,7 +84,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue }) => {
       </div>
       
       <div className="p-6 relative">
-        <h3 className="font-oswald text-xl font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
+        <h3 className="font-urbanist text-xl font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
           {venue.name.toUpperCase()}
         </h3>
         

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Music, X, Palette, Mic, BookOpen } from 'lucide-react'
+import { Search, Filter, Music, X, Palette, Mic, BookOpen, Heart } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ArtistCard } from '../components/ArtistCard'
+import { useAuth } from '../hooks/useAuth'
 import { supabase, type Artist, trackPageView } from '../lib/supabase'
 
 const ARTIST_TYPES = ['Musician', 'Visual', 'Performance', 'Literary']
@@ -267,55 +268,61 @@ export const ArtistsDirectoryPage: React.FC = () => {
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          {/* Desktop Header */}
-          <div className="hidden lg:block mb-8">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold font-oswald text-gray-900">Artists Directory</h1>
-                <p className="text-gray-600 mt-2">Discover amazing local artists</p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+        {/* Desktop Layout - Sidebar + Content */}
+        <div className="hidden lg:flex h-screen">
+          {/* Left Sidebar - Filters */}
+          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
+            <div className="flex-1 overflow-y-auto p-6">
+              {/* Header with Search and Clear */}
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">ARTIST DIRECTORY</h1>
+                <p className="text-sm text-gray-600 mb-4">Discover amazing local artists</p>
+
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search artists..."
-                    className="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+
                 {activeFiltersCount > 0 && (
                   <button
                     onClick={clearFilters}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                    className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1"
                   >
-                    <X size={16} />
-                    <span>Clear Filters</span>
+                    <X size={12} />
+                    <span>Clear all filters</span>
                   </button>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Filters */}
-          <div className="hidden lg:block mb-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">Filters</h3>
-              
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold font-urbanist text-gray-900 text-base">FILTERS</h3>
+                  {activeFiltersCount > 0 && (
+                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </div>
+              </div>
+
               {/* Artist Types Filter */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">Artist Type</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">ARTIST TYPE</h4>
+                <div className="space-y-2">
                   {ARTIST_TYPES.map((type) => (
                     <button
                       key={type}
                       onClick={() => toggleType(type)}
-                      className={`btn-filter transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                         selectedTypes.includes(type)
-                          ? 'active'
-                          : ''
+                          ? 'bg-black text-white'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       {type}
@@ -327,16 +334,16 @@ export const ArtistsDirectoryPage: React.FC = () => {
               {/* Musical Genres Filter */}
               {selectedTypes.includes('Musician') && (
                 <div className="mb-6">
-                  <h4 className="font-medium text-gray-700 mb-3">Musical Genres</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">MUSICAL GENRES</h4>
+                  <div className="space-y-2">
                     {MUSICAL_GENRES.map((genre) => (
                       <button
                         key={genre}
                         onClick={() => toggleGenre(genre)}
-                        className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                           selectedGenres.includes(genre)
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         {genre}
@@ -349,16 +356,16 @@ export const ArtistsDirectoryPage: React.FC = () => {
               {/* Visual Mediums Filter */}
               {selectedTypes.includes('Visual') && (
                 <div className="mb-6">
-                  <h4 className="font-medium text-gray-700 mb-3">Visual Mediums</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">VISUAL MEDIUMS</h4>
+                  <div className="space-y-2">
                     {VISUAL_MEDIUMS.map((medium) => (
                       <button
                         key={medium}
                         onClick={() => toggleMedium(medium)}
-                        className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                           selectedMediums.includes(medium)
-                            ? 'bg-green-600 text-white border-green-600'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         {medium}
@@ -370,43 +377,61 @@ export const ArtistsDirectoryPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Results */}
-          <div className="mb-4">
-            <p className="text-gray-600">
-              {loading ? 'Loading...' : `${filteredArtists.length} artist${filteredArtists.length !== 1 ? 's' : ''} found`}
-            </p>
+          {/* Right Content Area */}
+          <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className="p-6">
+              {/* Results Count */}
+              <div className="mb-4">
+                <p className="text-gray-600">
+                  {loading ? 'Loading...' : `${filteredArtists.length} artist${filteredArtists.length !== 1 ? 's' : ''} found`}
+                </p>
+              </div>
+
+              {/* Artists Grid */}
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                </div>
+              ) : (
+                <>
+                  {filteredArtists.length > 0 ? (
+                    <div className="grid grid-cols-2 xl:grid-cols-3 gap-6">
+                      {filteredArtists.map((artist) => (
+                        <ArtistCard key={artist.id} artist={artist} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Music size={48} className="mx-auto mb-4 text-gray-400" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No artists found</h3>
+                      <p className="text-gray-600">Try adjusting your search or filters</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
+        </div>
 
-          {/* Artists Grid */}
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-          ) : (
-            <>
-              {/* Mobile Layout - List Cards */}
-              <div className="lg:hidden space-y-3">
-                {filteredArtists.map((artist) => (
-                  <MobileArtistCard key={artist.id} artist={artist} />
-                ))}
+        {/* Mobile Layout - List Cards */}
+        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="space-y-3 pb-24">
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
               </div>
-              
-              {/* Desktop Layout - Grid */}
-              <div className="hidden lg:grid grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredArtists.map((artist) => (
-                  <ArtistCard key={artist.id} artist={artist} />
-                ))}
+            ) : filteredArtists.length > 0 ? (
+              filteredArtists.map((artist) => (
+                <MobileArtistCard key={artist.id} artist={artist} />
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Music size={48} className="mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No artists found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters</p>
               </div>
-            </>
-          )}
-
-          {!loading && filteredArtists.length === 0 && (
-            <div className="text-center py-12">
-              <Music size={48} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No artists found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </Layout>
@@ -415,6 +440,80 @@ export const ArtistsDirectoryPage: React.FC = () => {
 
 // Mobile Artist Card Component with horizontal layout
 const MobileArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
+  const { user } = useAuth()
+  const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
+
+  useEffect(() => {
+    fetchUpcomingEventsCount()
+    if (user) {
+      checkFollowStatus()
+    }
+  }, [artist.id])
+
+  useEffect(() => {
+    if (user) {
+      checkFollowStatus()
+    } else {
+      setIsFollowing(false)
+    }
+  }, [user])
+  const fetchUpcomingEventsCount = async () => {
+    const { count } = await supabase
+      .from('event_artists')
+      .select('events!inner(start_date)', { count: 'exact', head: true })
+      .eq('artist_id', artist.id)
+      .gte('events.start_date', new Date().toISOString())
+
+    setUpcomingEventsCount(count || 0)
+  }
+
+  const checkFollowStatus = async () => {
+    if (!user) return
+
+    const { data } = await supabase
+      .from('follows')
+      .select('id')
+      .eq('follower_id', user.id)
+      .eq('entity_type', 'artist')
+      .eq('entity_id', artist.id)
+      .maybeSingle()
+
+    setIsFollowing(!!data)
+  }
+
+  const handleFollow = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!user) return
+
+    setFollowLoading(true)
+    try {
+      if (isFollowing) {
+        await supabase
+          .from('follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('entity_type', 'artist')
+          .eq('entity_id', artist.id)
+      } else {
+        await supabase
+          .from('follows')
+          .insert({
+            follower_id: user.id,
+            entity_type: 'artist',
+            entity_id: artist.id
+          })
+      }
+      setIsFollowing(!isFollowing)
+    } catch (error) {
+      console.error('Error following artist:', error)
+    } finally {
+      setFollowLoading(false)
+    }
+  }
   const getArtistTypeIcon = (type: string) => {
     switch (type) {
       case 'Musician':
@@ -433,8 +532,20 @@ const MobileArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
   return (
     <Link 
       to={`/artists/${artist.slug}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2"
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2 relative"
     >
+      {/* Event Count Badge - Top Right */}
+      {upcomingEventsCount > 0 && (
+        <div className="absolute top-2 right-2 z-10">
+          <div 
+            className="w-6 h-6 rounded-full flex items-center justify-center text-black text-xs font-bold shadow-lg"
+            style={{ backgroundColor: '#FFCE03' }}
+          >
+            {upcomingEventsCount}
+          </div>
+        </div>
+      )}
+      
       <div className="flex">
         {/* Artist Image */}
         <div className="w-20 h-20 bg-gray-200 overflow-hidden flex-shrink-0">
@@ -454,7 +565,7 @@ const MobileArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
         {/* Artist Details */}
         <div className="flex-1 p-3 min-w-0">
           {/* Artist Name */}
-          <h3 className="font-oswald text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
+          <h3 className="font-urbanist text-base font-medium text-gray-900 mb-1 line-clamp-1 uppercase tracking-wide">
             {artist.name.toUpperCase()}
           </h3>
 
@@ -500,6 +611,24 @@ const MobileArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
             </div>
           )}
         </div>
+        
+        {/* Follow Button */}
+        {user && (
+          <div className="flex items-center pr-3">
+            <button
+              onClick={handleFollow}
+              disabled={followLoading}
+              className={`p-2 rounded-full transition-colors ${
+                isFollowing 
+                  ? 'text-red-500 hover:text-red-600' 
+                  : 'text-gray-400 hover:text-red-500'
+              } ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title={isFollowing ? 'Unfollow artist' : 'Follow artist'}
+            >
+              <Heart size={14} fill={isFollowing ? 'currentColor' : 'none'} />
+            </button>
+          </div>
+        )}
       </div>
     </Link>
   )
