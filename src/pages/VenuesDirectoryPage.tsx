@@ -698,12 +698,6 @@ const DesktopVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
     setLogoAspectRatio(img.naturalWidth / img.naturalHeight)
   }
 
-  const getLogoContainerClass = (aspectRatio: number) => {
-    if (aspectRatio > 1.5) return "w-48 h-32"
-    if (aspectRatio < 0.7) return "w-32 h-48"
-    return "w-40 h-40"
-  }
-
   const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
 
   return (
@@ -725,11 +719,11 @@ const DesktopVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
 
       <div className="flex items-center p-6">
         {/* Venue Image */}
-        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200`}>
+        <div className="w-48 h-48 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
           <ImageWithFallback
             src={venue.logo || venue.image_url}
             alt={venue.name}
-            className="max-w-full max-h-full object-contain p-4"
+            className="w-full h-full object-contain p-4"
             fallbackType="venue"
             onLoad={handleImageLoad}
           />
@@ -794,12 +788,6 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
     setLogoAspectRatio(img.naturalWidth / img.naturalHeight)
   }
 
-  const getLogoContainerClass = (aspectRatio: number) => {
-    if (aspectRatio > 1.5) return "w-24 h-16"
-    if (aspectRatio < 0.7) return "w-16 h-24"
-    return "w-20 h-20"
-  }
-
   const streetAddress = venue.address?.split(',')[0]?.trim() || 'Address not available'
 
   return (
@@ -821,11 +809,11 @@ const MobileVenueCard: React.FC<{ venue: Venue }> = ({ venue }) => {
 
       <div className="flex">
         {/* Venue Image */}
-        <div className={`${getLogoContainerClass(logoAspectRatio)} flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200`}>
+        <div className="w-32 h-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
           <ImageWithFallback
             src={venue.logo || venue.image_url}
             alt={venue.name}
-            className="max-w-full max-h-full object-contain p-2"
+            className="w-full h-full object-contain p-2"
             fallbackType="venue"
             onLoad={handleImageLoad}
           />
