@@ -166,7 +166,7 @@ export const VenuesDirectoryPage: React.FC = () => {
       )
     }
 
-    // Apply sorting
+    // Apply sorting with event counts
     const filteredWithCounts = filtered.map(venue => {
       const venueWithCount = venuesWithEventCounts.find(v => v.id === venue.id)
       return {
@@ -175,24 +175,26 @@ export const VenuesDirectoryPage: React.FC = () => {
       }
     })
 
-    switch (sortBy) {
-      case 'alphabetical-asc':
-        filteredWithCounts.sort((a, b) => a.name.localeCompare(b.name))
-        break
-      case 'alphabetical-desc':
-        filteredWithCounts.sort((a, b) => b.name.localeCompare(a.name))
-        break
-      case 'events-desc':
-        filteredWithCounts.sort((a, b) => {
-          if (b.eventCount !== a.eventCount) {
-            return b.eventCount - a.eventCount
-          }
-          return a.name.localeCompare(b.name)
-        })
-        break
+    // Sort by upcoming events count (descending), then by name (ascending)
+    filteredWithCounts.sort((a, b) => {
+      if (b.eventCount !== a.eventCount) {
+        return b.eventCount - a.eventCount
+      }
+      return a.name.localeCompare(b.name)
+    })
+
+    // Apply additional sorting based on sortBy option
+    if (sortBy === 'alphabetical-desc') {
+      // For alphabetical desc, we still want events first, but reverse the name order for venues with same event count
+      filteredWithCounts.sort((a, b) => {
+        if (b.eventCount !== a.eventCount) {
+          return b.eventCount - a.eventCount
+        }
+        return b.name.localeCompare(a.name)
+      })
     }
 
-    setFilteredVenues(filtered)
+    setFilteredVenues(filteredWithCounts)
   }
 
   const toggleType = (type: string) => {
