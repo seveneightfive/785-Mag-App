@@ -3,9 +3,10 @@ import React from 'react'
 interface VideoPlayerProps {
   videoUrl: string
   title: string
+  description?: string
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title }) => {
+export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, description }) => {
   // Extract YouTube video ID from URL
   const getYouTubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
