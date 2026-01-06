@@ -508,7 +508,7 @@ export const ArtistDetailPage: React.FC = () => {
               {artist.video_url && artist.video_title && (
                 <section className="bg-white rounded-xl p-6 shadow-sm">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Video</h2>
-                  <VideoPlayer videoUrl={artist.video_url} title={artist.video_title} />
+                  <VideoPlayer videoUrl={artist.video_url} title={artist.video_title} description={artist.artistvideoabout} />
                 </section>
               )}
             </div>
