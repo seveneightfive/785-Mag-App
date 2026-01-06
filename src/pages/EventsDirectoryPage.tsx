@@ -257,21 +257,14 @@ export const EventsDirectoryPage: React.FC = () => {
     setFilteredEvents(filtered)
   }
 
-  const toggleType = (type: string) => {
-    setSelectedTypes(prev =>
-      prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    )
-  }
-
   const clearFilters = () => {
-    setSelectedTypes([])
+    setSelectedVenue('all')
+    setSelectedCategory('all')
     setDateFilter('all')
     setSearchQuery('')
   }
 
-  const activeFiltersCount = selectedTypes.length + (dateFilter !== 'all' ? 1 : 0)
+  const activeFiltersCount = (selectedVenue !== 'all' ? 1 : 0) + (selectedCategory !== 'all' ? 1 : 0) + (dateFilter !== 'all' ? 1 : 0)
 
   // Group events by date for mobile view
   const groupEventsByDate = (events: Event[]) => {
