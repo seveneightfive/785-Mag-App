@@ -155,7 +155,7 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;
