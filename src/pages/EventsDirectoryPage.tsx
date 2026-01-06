@@ -49,6 +49,24 @@ export const EventsDirectoryPage: React.FC = () => {
     calculateEventTypeCounts()
   }, [events, searchQuery, selectedVenue, selectedCategory, dateFilter])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (venueDropdownRef.current && !venueDropdownRef.current.contains(event.target as Node)) {
+        setVenueDropdownOpen(false)
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setCategoryDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('eventViewMode', viewMode)
+  }, [viewMode])
+
   const fetchEvents = async () => {
     // Get current date in local timezone, start of today
     const now = new Date()
