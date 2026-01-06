@@ -244,7 +244,7 @@ export const ArtPage: React.FC = () => {
                 </div>
                 <Building2 size={40} className="opacity-50" />
               </div>
-              <p className="text-gray-300">Showcasing excellence across 40 countries.</p>
+              <p className="text-gray-300">Showcasing excellence across Topeka.</p>
             </div>
           </section>
 
@@ -254,7 +254,7 @@ export const ArtPage: React.FC = () => {
             <div className="bg-orange-600 text-white p-12 lg:p-16 flex flex-col justify-center">
               <h2 className="text-4xl font-oswald font-bold mb-4">FOR ARTISTS</h2>
               <p className="text-lg text-white/90 mb-8 leading-relaxed">
-                Showcase your portfolio, connect with leading galleries, and sell your work to a global audience of dedicated collectors.
+                Showcase your portfolio, connect with local galleries, and sell your work to dedicated collectors.
               </p>
               <Link
                 to="/register?type=artist"
