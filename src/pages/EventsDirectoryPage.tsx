@@ -150,6 +150,59 @@ export const EventsDirectoryPage: React.FC = () => {
     setEventCounts(counts)
   }
 
+  const calculateEventTypeCounts = () => {
+    let baseEvents = events
+
+    // Apply search filter
+    if (searchQuery) {
+      baseEvents = baseEvents.filter(event =>
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.venue?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.event_artists?.some(ea =>
+          ea.artist.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    }
+
+    // Apply venue filter
+    if (selectedVenue !== 'all') {
+      baseEvents = baseEvents.filter(event => event.venue_id === selectedVenue)
+    }
+
+    // Apply date filter
+    if (dateFilter !== 'all') {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      baseEvents = baseEvents.filter(event => {
+        const eventDate = new Date(event.start_date)
+        switch (dateFilter) {
+          case 'today':
+            const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+            return eventDate >= today && eventDate < tomorrow
+          case 'week':
+            const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+            return eventDate >= today && eventDate < weekFromNow
+          case 'month':
+            const monthFromNow = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate())
+            return eventDate >= today && eventDate < monthFromNow
+          default:
+            return true
+        }
+      })
+    }
+
+    // Count each event type
+    const counts: Record<string, number> = {}
+    EVENT_TYPES.forEach(type => {
+      counts[type] = baseEvents.filter(event =>
+        event.event_types?.includes(type)
+      ).length
+    })
+
+    setEventTypeCounts(counts)
+  }
+
   const filterEvents = () => {
     let filtered = events
 
