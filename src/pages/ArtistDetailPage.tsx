@@ -284,29 +284,6 @@ export const ArtistDetailPage: React.FC = () => {
                 {artist.name.toUpperCase()}
               </h1>
             </div>
-
-            {/* Actions */}
-            <div className="absolute top-8 right-8 flex items-center space-x-4">
-              <button
-                onClick={handleShare}
-                className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
-              >
-                <Share2 size={24} />
-              </button>
-              {user && (
-                <button
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
-                    isFollowing
-                      ? 'bg-red-500 text-white'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                >
-                  <Heart size={24} fill={isFollowing ? 'currentColor' : 'none'} />
-                </button>
-              )}
-            </div>
           </div>
 
           {/* Right Column - Avatar */}
