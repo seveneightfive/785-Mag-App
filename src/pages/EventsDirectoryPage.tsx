@@ -47,7 +47,8 @@ export const EventsDirectoryPage: React.FC = () => {
   useEffect(() => {
     filterEvents()
     calculateEventCounts()
-  }, [events, searchQuery, selectedTypes, dateFilter])
+    calculateEventTypeCounts()
+  }, [events, searchQuery, selectedVenue, selectedCategory, dateFilter])
 
   const fetchEvents = async () => {
     // Get current date in local timezone, start of today
