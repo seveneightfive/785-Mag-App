@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react'
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, Filter, Calendar, X, Clock, MapPin, ChevronDown, ChevronLeft, ChevronRight, List, Grid as GridIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
