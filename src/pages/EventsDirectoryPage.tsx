@@ -3,6 +3,8 @@ import { Search, Filter, Calendar, X, Clock, MapPin, ChevronDown, ChevronLeft, C
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
+import { AgendaEventCard } from '../components/AgendaEventCard'
+import { CalendarView } from '../components/CalendarView'
 import { supabase, type Event, type Venue, trackPageView } from '../lib/supabase'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
