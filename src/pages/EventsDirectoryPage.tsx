@@ -115,22 +115,21 @@ export const EventsDirectoryPage: React.FC = () => {
 
     let baseEvents = events
 
-    // Apply search and type filters first
+    // Apply search filter first
     if (searchQuery) {
       baseEvents = baseEvents.filter(event =>
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.venue?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.event_artists?.some(ea => 
+        event.event_artists?.some(ea =>
           ea.artist.name.toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
     }
 
-    if (selectedTypes.length > 0) {
-      baseEvents = baseEvents.filter(event =>
-        event.event_types?.some(type => selectedTypes.includes(type))
-      )
+    // Apply venue filter
+    if (selectedVenue !== 'all') {
+      baseEvents = baseEvents.filter(event => event.venue_id === selectedVenue)
     }
 
     const counts = {
