@@ -266,6 +266,22 @@ export const EventsDirectoryPage: React.FC = () => {
 
   const activeFiltersCount = (selectedVenue !== 'all' ? 1 : 0) + (selectedCategory !== 'all' ? 1 : 0) + (dateFilter !== 'all' ? 1 : 0)
 
+  const goToToday = () => {
+    setCurrentDate(new Date())
+  }
+
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+  }
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+  }
+
+  const getMonthYearDisplay = () => {
+    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
+
   // Group events by date for mobile view
   const groupEventsByDate = (events: Event[]) => {
     const grouped: { [key: string]: Event[] } = {}
