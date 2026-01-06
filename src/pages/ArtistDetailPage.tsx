@@ -359,24 +359,57 @@ export const ArtistDetailPage: React.FC = () => {
         {/* Stats Section - Desktop */}
         <div className="hidden lg:block bg-white border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-8 py-6">
-            <div className="flex items-center space-x-8 text-gray-600">
-              <div className="flex items-center">
-                <Heart size={20} className="mr-2 text-red-500" />
-                <span className="font-semibold text-gray-900">{followersCount.toLocaleString()}</span>
-                <span className="ml-1">followers</span>
-              </div>
-              <div className="flex items-center">
-                <Eye size={20} className="mr-2 text-blue-500" />
-                <span className="font-semibold text-gray-900">{pageViews.toLocaleString()}</span>
-                <span className="ml-1">views</span>
-              </div>
-              {collectorsCount > 0 && (
+            <div className="flex items-center justify-between text-gray-600">
+              <div className="flex items-center space-x-8">
                 <div className="flex items-center">
-                  <Users size={20} className="mr-2 text-purple-500" />
-                  <span className="font-semibold text-gray-900">{collectorsCount}</span>
-                  <span className="ml-1">collectors</span>
+                  <Heart size={20} className="mr-2 text-red-500" />
+                  <span className="font-semibold text-gray-900">{followersCount.toLocaleString()}</span>
+                  <span className="ml-1">followers</span>
                 </div>
-              )}
+                <div className="flex items-center">
+                  <Eye size={20} className="mr-2 text-blue-500" />
+                  <span className="font-semibold text-gray-900">{pageViews.toLocaleString()}</span>
+                  <span className="ml-1">views</span>
+                </div>
+                {collectorsCount > 0 && (
+                  <div className="flex items-center">
+                    <Users size={20} className="mr-2 text-purple-500" />
+                    <span className="font-semibold text-gray-900">{collectorsCount}</span>
+                    <span className="ml-1">collectors</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions and Verified */}
+              <div className="flex items-center space-x-4">
+                {artist.verified && (
+                  <div className="bg-blue-500 text-white px-3 py-2 rounded-full flex items-center">
+                    <Star size={16} className="mr-2" />
+                    <span className="text-sm font-medium">Verified</span>
+                  </div>
+                )}
+                <button
+                  onClick={handleShare}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Share"
+                >
+                  <Share2 size={20} />
+                </button>
+                {user && (
+                  <button
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                    className={`transition-colors ${
+                      isFollowing
+                        ? 'text-red-500 hover:text-red-600'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                    title={isFollowing ? 'Unfollow' : 'Follow'}
+                  >
+                    <Heart size={20} fill={isFollowing ? 'currentColor' : 'none'} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
