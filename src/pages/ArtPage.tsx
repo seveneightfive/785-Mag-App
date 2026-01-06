@@ -183,6 +183,22 @@ export const ArtPage: React.FC = () => {
             </div>
           </section>
 
+          {/* Explore Artist Directory CTA Section */}
+          <section className="mb-20 bg-black rounded-xl p-16 text-center text-white">
+            <h2 className="text-4xl lg:text-5xl font-oswald font-bold mb-4">
+              EXPLORE THE ARTIST DIRECTORY
+            </h2>
+            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+              Find your next favorite artist
+            </p>
+            <Link
+              to="/artists"
+              className="inline-block bg-white text-black px-8 py-3 rounded font-bold hover:bg-gray-200 transition-colors"
+            >
+              Browse Artists
+            </Link>
+          </section>
+
           {/* Community Feed Section */}
           <section className="mb-20">
             <div className="text-center mb-12">
