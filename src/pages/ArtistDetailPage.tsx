@@ -248,74 +248,91 @@ export const ArtistDetailPage: React.FC = () => {
     <Layout>
       <div className="min-h-screen bg-gray-50">
 
-        {/* Desktop Full-Width Hero */}
-        <div className="hidden lg:block relative h-[60vh] overflow-hidden">
-          {artist.avatar_url || artist.image_url ? (
-            <img
-              src={artist.avatar_url || artist.image_url}
-              alt={artist.name}
-              className={`w-full h-full object-cover transition-all duration-1000 ${
-                imageLoaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'
-              }`}
-              onLoad={() => setImageLoaded(true)}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Music size={120} className="text-white opacity-80" />
-            </div>
-          )}
-          
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-          
-          {/* Artist Name - Reverse Type */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="flex items-center mb-4">
-                    <h1 className="text-6xl font-bold text-white drop-shadow-lg">
-                      {artist.name}
-                    </h1>
-                    {artist.verified && (
-                      <div className="ml-4 bg-blue-500 text-white px-3 py-2 rounded-full flex items-center">
-                        <Star size={20} className="mr-2" />
-                        <span className="font-medium">Verified</span>
-                      </div>
-                    )}
+        {/* Desktop 3-Column Hero */}
+        <div className="hidden lg:grid lg:grid-cols-3 relative h-[60vh] overflow-hidden">
+          {/* Left Column - Image */}
+          <div className="relative overflow-hidden">
+            {artist.image_url ? (
+              <img
+                src={artist.image_url}
+                alt={artist.name}
+                className={`w-full h-full object-cover transition-all duration-1000 ${
+                  imageLoaded ? 'hero-ken-burns-left' : 'scale-110 opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <Music size={80} className="text-white opacity-80" />
+              </div>
+            )}
+          </div>
+
+          {/* Middle Column - Text Section */}
+          <div className="bg-black flex flex-col items-center justify-center p-8 relative">
+            <div className="text-center">
+              {artist.tagline && (
+                <p className={`text-xl text-white mb-6 transition-all duration-1000 ${
+                  imageLoaded ? 'hero-fade-in-text opacity-100' : 'opacity-0'
+                }`}>
+                  {artist.tagline}
+                </p>
+              )}
+              <div className="flex items-center justify-center gap-4">
+                <h1 className={`text-6xl font-oswald font-light text-white tracking-tight transition-all duration-1000 ${
+                  imageLoaded ? 'hero-fade-in-text opacity-100' : 'opacity-0'
+                }`}>
+                  {artist.name.toUpperCase()}
+                </h1>
+                {artist.verified && (
+                  <div className="bg-blue-500 text-white px-3 py-2 rounded-full flex items-center flex-shrink-0">
+                    <Star size={18} className="mr-1" />
+                    <span className="text-sm font-medium">Verified</span>
                   </div>
-                  {artist.tagline && (
-                    <p className="text-xl text-white/90 font-medium italic">{artist.tagline}</p>
-                  )}
-                  {!artist.tagline && artist.genre && (
-                    <p className="text-xl text-white/90 font-medium">{artist.genre}</p>
-                  )}
-                </div>
-                
-                {/* Actions */}
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={handleShare}
-                    className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
-                  >
-                    <Share2 size={24} />
-                  </button>
-                  {user && (
-                    <button
-                      onClick={handleFollow}
-                      disabled={followLoading}
-                      className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
-                        isFollowing 
-                          ? 'bg-red-500 text-white' 
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
-                    >
-                      <Heart size={24} fill={isFollowing ? 'currentColor' : 'none'} />
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
             </div>
+
+            {/* Actions */}
+            <div className="absolute top-8 right-8 flex items-center space-x-4">
+              <button
+                onClick={handleShare}
+                className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors"
+              >
+                <Share2 size={24} />
+              </button>
+              {user && (
+                <button
+                  onClick={handleFollow}
+                  disabled={followLoading}
+                  className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
+                    isFollowing
+                      ? 'bg-red-500 text-white'
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                  }`}
+                >
+                  <Heart size={24} fill={isFollowing ? 'currentColor' : 'none'} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Avatar */}
+          <div className="relative overflow-hidden">
+            {artist.avatar_url ? (
+              <img
+                src={artist.avatar_url}
+                alt={artist.name}
+                className={`w-full h-full object-cover transition-all duration-1000 ${
+                  imageLoaded ? 'hero-ken-burns-right' : 'scale-110 opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                <Music size={80} className="text-white opacity-80" />
+              </div>
+            )}
           </div>
         </div>
 
