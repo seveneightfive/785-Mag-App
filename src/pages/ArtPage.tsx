@@ -275,7 +275,7 @@ export const ArtPage: React.FC = () => {
                 to="/register?type=collector"
                 className="inline-flex items-center bg-black text-yellow-500 px-8 py-3 rounded font-bold hover:bg-gray-800 transition-colors w-fit"
               >
-                Join as Collector
+                Coming Soon
                 <ChevronRight size={20} className="ml-2" />
               </Link>
             </div>
