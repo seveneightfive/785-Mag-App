@@ -13,18 +13,30 @@ type DateFilter = 'all' | 'today' | 'week' | 'month'
 
 export const EventsDirectoryPage: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([])
+  const [venues, setVenues] = useState<Venue[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
-  const [showFilters, setShowFilters] = useState(false)
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all')
+  const [selectedVenue, setSelectedVenue] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all')
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return (localStorage.getItem('eventViewMode') as ViewMode) || 'grid'
+  })
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({
     all: 0,
     today: 0,
     week: 0,
     month: 0
   })
+  const [eventTypeCounts, setEventTypeCounts] = useState<Record<string, number>>({})
+  const [showFilters, setShowFilters] = useState(false)
+  const [venueDropdownOpen, setVenueDropdownOpen] = useState(false)
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+
+  const venueDropdownRef = useRef<HTMLDivElement>(null)
+  const categoryDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     trackPageView('events-directory')
