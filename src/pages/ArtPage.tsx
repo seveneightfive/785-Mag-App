@@ -74,6 +74,7 @@ export const ArtPage: React.FC = () => {
       const { count: venueCount } = await supabase
         .from('venues')
         .select('id', { count: 'exact', head: true })
+        .eq('venue_type', 'Gallery / Museum')
 
       setStats({
         totalArtists: artistCount || 0,
