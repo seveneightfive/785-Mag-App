@@ -32,7 +32,7 @@ export const ArtPage: React.FC = () => {
           venue:venues(*),
           event_artists(artist:artists(*))
         `)
-        .ilike('event_type', '%Exhibition%')
+        .contains('event_types', ['Exhibition'])
         .gte('start_date', today.toISOString())
         .order('start_date', { ascending: true })
         .limit(5)
