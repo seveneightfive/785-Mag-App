@@ -668,6 +668,55 @@ export const ArtistDetailPage: React.FC = () => {
             onClose={() => setShowAudioPlayer(false)}
           />
         )}
+
+        {/* Hero Animations */}
+        <style>{`
+          @keyframes kenBurnsLeft {
+            from {
+              opacity: 0;
+              transform: scale(1.1) translateX(0);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1) translateX(-5px);
+            }
+          }
+
+          @keyframes kenBurnsRight {
+            from {
+              opacity: 0;
+              transform: scale(1.1) translateX(0);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1) translateX(5px);
+            }
+          }
+
+          @keyframes fadeInText {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .hero-ken-burns-left {
+            animation: kenBurnsLeft 3s ease-out forwards;
+          }
+
+          .hero-ken-burns-right {
+            animation: kenBurnsRight 3s ease-out forwards;
+          }
+
+          .hero-fade-in-text {
+            animation: fadeInText 1s ease-out forwards;
+            animation-delay: 0.5s;
+          }
+        `}</style>
       </div>
     </Layout>
   )
