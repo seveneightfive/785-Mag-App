@@ -447,20 +447,20 @@ export const ArtistDetailPage: React.FC = () => {
             </div>
           </div>
 
+          {/* About Section - Full Width */}
+          {artist.bio && (
+            <section className="bg-white mb-8">
+              <div className="px-4 lg:px-12 py-12">
+                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap text-lg">
+                  {artist.bio}
+                </p>
+              </div>
+            </section>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-8">
-              {/* About Section */}
-              {artist.bio && (
-                <section className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                      {artist.bio}
-                    </p>
-                  </div>
-                </section>
-              )}
 
               {/* Audio Player Section - Musicians only */}
               {/* Upcoming Events */}
