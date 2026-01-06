@@ -41,6 +41,7 @@ export const EventsDirectoryPage: React.FC = () => {
   useEffect(() => {
     trackPageView('events-directory')
     fetchEvents()
+    fetchVenues()
   }, [])
 
   useEffect(() => {
