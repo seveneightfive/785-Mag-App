@@ -38,6 +38,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, descr
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-gray-900">{title}</h3>
+        {description && (
+          <p className="text-sm text-gray-600 mt-2">{description}</p>
+        )}
       </div>
     </div>
   )
