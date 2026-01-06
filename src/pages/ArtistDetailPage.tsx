@@ -336,36 +336,53 @@ export const ArtistDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Hero */}
-        <div className="lg:hidden aspect-[16/9] relative overflow-hidden">
-          {artist.avatar_url || artist.image_url ? (
-            <img
-              src={artist.avatar_url || artist.image_url}
-              alt={artist.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Music size={64} className="text-white opacity-80" />
-            </div>
-          )}
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-          
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="flex items-center mb-2">
-              <h1 className="text-2xl font-bold text-white">
-                {artist.name}
+        {/* Mobile Hero - Stacked Vertical */}
+        <div className="lg:hidden flex flex-col">
+          {/* Mobile Left Image */}
+          <div className="aspect-square overflow-hidden">
+            {artist.image_url ? (
+              <img
+                src={artist.image_url}
+                alt={artist.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <Music size={48} className="text-white opacity-80" />
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Middle Text Section */}
+          <div className="bg-black text-white p-6 flex flex-col items-center justify-center min-h-[200px]">
+            {artist.tagline && (
+              <p className="text-center text-base mb-4">{artist.tagline}</p>
+            )}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <h1 className="text-3xl font-oswald font-light uppercase tracking-tight">
+                {artist.name.toUpperCase()}
               </h1>
               {artist.verified && (
-                <Star size={16} className="ml-2 text-blue-400" />
+                <div className="bg-blue-500 text-white px-2 py-1 rounded-full flex items-center flex-shrink-0">
+                  <Star size={14} className="mr-1" />
+                  <span className="text-xs font-medium">Verified</span>
+                </div>
               )}
             </div>
-            {artist.tagline && (
-              <p className="text-white/90 italic">{artist.tagline}</p>
-            )}
-            {!artist.tagline && artist.genre && (
-              <p className="text-white/90">{artist.genre}</p>
+          </div>
+
+          {/* Mobile Right Image */}
+          <div className="aspect-square overflow-hidden">
+            {artist.avatar_url ? (
+              <img
+                src={artist.avatar_url}
+                alt={artist.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                <Music size={48} className="text-white opacity-80" />
+              </div>
             )}
           </div>
         </div>
