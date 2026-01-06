@@ -78,6 +78,108 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
 
+      {/* Top Header */}
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40 h-16">
+        <div className="h-16 px-4 lg:px-8 flex items-center justify-between">
+          {/* Left: Logo (desktop only shows in sidebar, but we show simplified version on mobile) */}
+          <Link to="/" className="lg:hidden flex items-center">
+            <img
+              src="/785 Logo Valentine.png"
+              alt="seveneightfive"
+              className="h-6 w-auto"
+            />
+          </Link>
+
+          {/* Center: Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-auto ml-64">
+            <form onSubmit={handleSearch} className="w-full">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                />
+                <button type="submit" className="absolute right-3 top-2.5 text-gray-400">
+                  <Search size={18} />
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Right: Auth Area */}
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="w-10 h-10 rounded-full bg-blue-500 text-white font-medium flex items-center justify-center hover:bg-blue-600 transition-colors"
+                >
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile?.full_name || 'User'}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    getInitials()
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">
+                        {profile?.full_name || user.email?.split('@')[0] || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      Edit Profile
+                    </Link>
+                    <Link
+                      to="/dashboard"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                    >
+                      <LogOut size={16} />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => openAuthModal('signin')}
+                className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Sign In
+              </button>
+            )}
+
+            {/* Mobile Hamburger Menu */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden text-gray-700 hover:text-black transition-colors"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+      </header>
+
       {/* Desktop Sidebar */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <div className="flex min-h-0 flex-1 flex-col bg-white border-r border-gray-100">
