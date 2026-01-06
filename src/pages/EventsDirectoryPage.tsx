@@ -72,6 +72,19 @@ export const EventsDirectoryPage: React.FC = () => {
     setLoading(false)
   }
 
+  const fetchVenues = async () => {
+    const { data, error } = await supabase
+      .from('venues')
+      .select('id, name, slug')
+      .order('name', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching venues:', error)
+    } else {
+      setVenues(data || [])
+    }
+  }
+
   const calculateEventCounts = () => {
     // Use local timezone for date calculations
     const now = new Date()
