@@ -10,6 +10,7 @@ import { ArtistDetailPage } from './pages/ArtistDetailPage'
 import { VenueDetailPage } from './pages/VenueDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { DashboardPage } from './pages/DashboardPage'
+import { ArtPage } from './pages/ArtPage'
 
 function App() {
   return (
