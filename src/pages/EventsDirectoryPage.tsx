@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, Calendar, X, Clock, MapPin } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Search, Filter, Calendar, X, Clock, MapPin, ChevronDown, ChevronLeft, ChevronRight, List, Grid as GridIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
-import { supabase, type Event, trackPageView } from '../lib/supabase'
+import { supabase, type Event, type Venue, trackPageView } from '../lib/supabase'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
+
+type ViewMode = 'grid' | 'agenda' | 'calendar'
+type DateFilter = 'all' | 'today' | 'week' | 'month'
 
 export const EventsDirectoryPage: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([])
