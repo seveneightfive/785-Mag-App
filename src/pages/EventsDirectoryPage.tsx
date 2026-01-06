@@ -212,16 +212,21 @@ export const EventsDirectoryPage: React.FC = () => {
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.venue?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.event_artists?.some(ea => 
+        event.event_artists?.some(ea =>
           ea.artist.name.toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
     }
 
-    // Type filter
-    if (selectedTypes.length > 0) {
+    // Venue filter
+    if (selectedVenue !== 'all') {
+      filtered = filtered.filter(event => event.venue_id === selectedVenue)
+    }
+
+    // Category filter
+    if (selectedCategory !== 'all') {
       filtered = filtered.filter(event =>
-        event.event_types?.some(type => selectedTypes.includes(type))
+        event.event_types?.includes(selectedCategory)
       )
     }
 
@@ -230,10 +235,10 @@ export const EventsDirectoryPage: React.FC = () => {
       const now = new Date()
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      
+
       filtered = filtered.filter(event => {
         const eventDate = new Date(event.start_date)
-        
+
         switch (dateFilter) {
           case 'today':
             return eventDate >= today && eventDate < tomorrow
