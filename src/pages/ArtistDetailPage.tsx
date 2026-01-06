@@ -278,19 +278,11 @@ export const ArtistDetailPage: React.FC = () => {
                   {artist.tagline}
                 </p>
               )}
-              <div className="flex items-center justify-center gap-4">
-                <h1 className={`text-6xl font-oswald font-light text-white tracking-tight transition-all duration-1000 ${
-                  imageLoaded ? 'hero-fade-in-text opacity-100' : 'opacity-0'
-                }`}>
-                  {artist.name.toUpperCase()}
-                </h1>
-                {artist.verified && (
-                  <div className="bg-blue-500 text-white px-3 py-2 rounded-full flex items-center flex-shrink-0">
-                    <Star size={18} className="mr-1" />
-                    <span className="text-sm font-medium">Verified</span>
-                  </div>
-                )}
-              </div>
+              <h1 className={`text-6xl font-oswald font-light text-white tracking-tight transition-all duration-1000 ${
+                imageLoaded ? 'hero-fade-in-text opacity-100' : 'opacity-0'
+              }`}>
+                {artist.name.toUpperCase()}
+              </h1>
             </div>
 
             {/* Actions */}
