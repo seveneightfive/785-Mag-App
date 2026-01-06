@@ -56,8 +56,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   const isActiveRoute = (href: string) => {
-    return location.pathname === href || 
+    return location.pathname === href ||
            (href !== '/' && location.pathname.startsWith(href))
+  }
+
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    }
+    if (user?.email) {
+      return user.email.split('@')[0][0].toUpperCase()
+    }
+    return 'U'
+  }
+
+  const handleSignOut = async () => {
+    setProfileDropdownOpen(false)
+    await signOut()
   }
 
   return (
