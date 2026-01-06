@@ -399,57 +399,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
 
-      {/* Placeholder for old mobile nav - now removed */}
-      <nav className="hidden lg:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 z-50 h-16">
-        <div className="grid grid-cols-5 h-16">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center justify-center text-white hover:text-[#FFCE03] transition-colors"
-          >
-            <img 
-              src="https://assets.softr-files.com/applications/06852328-a343-4027-96ff-d4aff30169c8/assets/3bd00154-80ee-4525-8f04-dd8c544af6e7.png" 
-              alt="EventHub" 
-              className="h-6 w-auto"
-            />
-          </Link>
-          
-          {navigation.filter(item => item.name !== 'Home' && item.name !== 'Dashboard').map((item) => {
-            const isActive = isActiveRoute(item.href)
-            return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
-                isActive ? 'text-[#FFCE03]' : 'text-white hover:text-[#FFCE03]'
-              }`}
-            >
-              <item.icon size={20} />
-              <span className="text-xs font-medium">{item.name}</span>
-            </Link>
-          )
-          })}
-          
-          {/* Profile/Dashboard Button */}
-          <button
-            onClick={() => {
-              if (user) {
-                navigate('/dashboard')
-              } else {
-                openAuthModal('signin')
-              }
-            }}
-            className="flex flex-col items-center justify-center space-y-1 text-white hover:text-[#FFCE03] transition-colors"
-          >
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              user ? 'bg-[#FFCE03]' : 'bg-gray-600'
-            }`}>
-              <User size={16} className={user ? 'text-black' : 'text-white'} />
-            </div>
-            <span className="text-xs font-medium">{user ? 'Dashboard' : 'Sign In'}</span>
-          </button>
-        </div>
-      </nav>
 
       <AuthModal 
         isOpen={authModalOpen}
