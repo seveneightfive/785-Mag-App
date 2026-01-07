@@ -129,6 +129,24 @@ export const HomePage: React.FC = () => {
     setCurrentSlide((prev) => (prev - 1 + starredEvents.length) % starredEvents.length)
   }
 
+  const scrollEventsLeft = () => {
+    if (eventsScrollRef.current) {
+      eventsScrollRef.current.scrollBy({
+        left: -360,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const scrollEventsRight = () => {
+    if (eventsScrollRef.current) {
+      eventsScrollRef.current.scrollBy({
+        left: 360,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   if (loading) {
     return (
       <Layout>
