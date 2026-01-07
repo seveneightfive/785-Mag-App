@@ -32,27 +32,27 @@
   }
   
   .btn-yellow {
-    @apply btn-primary bg-supernova text-black border-2 border-supernova;
+    @apply btn-primary bg-[#FFCE03] text-black border-2 border-[#FFCE03];
   }
 
   .btn-yellow:hover {
-    @apply bg-black text-supernova border-black;
+    @apply bg-black text-[#FFCE03] border-black;
   }
 
   .btn-pink {
-    @apply btn-primary bg-razzmatazz text-white border-2 border-razzmatazz;
+    @apply btn-primary bg-[#C80650] text-white border-2 border-[#C80650];
   }
 
   .btn-pink:hover {
-    @apply bg-white text-razzmatazz border-razzmatazz;
+    @apply bg-white text-[#C80650] border-[#C80650];
   }
 
   .btn-green {
-    @apply btn-primary bg-apple text-white border-2 border-apple;
+    @apply btn-primary bg-[#61B347] text-white border-2 border-[#61B347];
   }
 
   .btn-green:hover {
-    @apply bg-white text-apple border-apple;
+    @apply bg-white text-[#61B347] border-[#61B347];
   }
   
   .btn-filter {
