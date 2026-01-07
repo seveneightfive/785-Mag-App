@@ -303,15 +303,37 @@ export const HomePage: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Horizontal Scrollable Carousel */}
-              <div className="overflow-x-auto scrollbar-hide">
-                <div className="flex gap-6 pb-4">
-                  {upcomingEvents.map((event) => (
-                    <div key={event.id} className="flex-shrink-0 w-[320px]">
-                      <EventCard event={event} />
-                    </div>
-                  ))}
+              {/* Horizontal Scrollable Carousel with Navigation */}
+              <div className="relative">
+                <div
+                  ref={eventsScrollRef}
+                  className="overflow-x-auto scrollbar-hide"
+                >
+                  <div className="flex gap-6 pb-4">
+                    {upcomingEvents.map((event) => (
+                      <div key={event.id} className="flex-shrink-0 w-[320px]">
+                        <EventCard event={event} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Navigation Arrows - Desktop Only */}
+                <button
+                  onClick={scrollEventsLeft}
+                  className="hidden lg:flex absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-16 items-center justify-center w-12 h-12 rounded-full bg-gray-200 hover:bg-razzmatazz hover:text-white transition-colors duration-200 z-10"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+
+                <button
+                  onClick={scrollEventsRight}
+                  className="hidden lg:flex absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-16 items-center justify-center w-12 h-12 rounded-full bg-gray-200 hover:bg-razzmatazz hover:text-white transition-colors duration-200 z-10"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight size={24} />
+                </button>
               </div>
             </section>
           )}
