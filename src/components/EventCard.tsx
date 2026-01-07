@@ -44,7 +44,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
       <div className="p-4">
         {/* Venue - First line */}
         {event.venue && (
-          <div className="text-sm font-medium mb-1 uppercase tracking-wide" style={{ color: '#C80650' }}>
+          <div className="text-sm font-medium mb-1 uppercase tracking-wide text-razzmatazz">
             {event.venue.name}
           </div>
         )}
