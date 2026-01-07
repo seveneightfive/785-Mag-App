@@ -265,21 +265,34 @@ export const HomePage: React.FC = () => {
           {upcomingEvents.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-oswald text-gray-900">
-                  Upcoming Events
-                </h2>
+                <div>
+                  <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-2">
+                    Coming soon
+                  </p>
+                  <h2 className="text-3xl lg:text-4xl font-bold font-oswald text-gray-900 mb-2">
+                    Events
+                  </h2>
+                  <p className="text-gray-600 text-base">
+                    See what's happening this week and beyond.
+                  </p>
+                </div>
                 <Link
                   to="/events"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-gray-900 hover:text-razzmatazz font-medium whitespace-nowrap ml-4"
                 >
-                  View All Events →
+                  View all →
                 </Link>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {upcomingEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
+
+              {/* Horizontal Scrollable Carousel */}
+              <div className="overflow-x-auto scrollbar-hide">
+                <div className="flex gap-6 pb-4">
+                  {upcomingEvents.map((event) => (
+                    <div key={event.id} className="flex-shrink-0 w-[320px]">
+                      <EventCard event={event} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
           )}
