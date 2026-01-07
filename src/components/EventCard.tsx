@@ -88,7 +88,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         {event.ticket_price && (
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">From</span>
-            <span className="font-semibold text-green-600">
+            <span className="font-semibold text-apple">
               ${parseFloat(event.ticket_price.toString()).toFixed(0)}
             </span>
           </div>
