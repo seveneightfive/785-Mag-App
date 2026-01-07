@@ -5,6 +5,12 @@ export default {
     extend: {
       fontFamily: {
         'oswald': ['Oswald', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif'],
+      },
+      colors: {
+        'supernova': '#FFCE03',
+        'razzmatazz': '#C80650',
+        'apple': '#61B347',
       },
     },
   },
