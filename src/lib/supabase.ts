@@ -75,6 +75,7 @@ export interface Artist {
   audio_title?: string
   video_url?: string
   video_title?: string
+  artistvideoabout?: string
   purchase_link?: string
   tagline?: string
   avatar_url?: string

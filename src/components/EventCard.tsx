@@ -14,18 +14,11 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, useModal = false }) => {
   const allArtists = event.event_artists || []
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (useModal && onClick) {
-      e.preventDefault()
-      onClick()
-    } else if (onSelect) {
-      e.preventDefault()
-      onSelect(event.slug || '')
-    }
-  }
-
-  const cardContent = (
-    <>
+  return (
+    <Link
+      to={`/events/${event.slug}`}
+      className="block bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group h-full"
+    >
       {/* Event Image - Taller aspect ratio */}
       <div className="relative aspect-[4/3] lg:aspect-[16/9] bg-gray-200 overflow-hidden">
         <ImageWithFallback
@@ -36,8 +29,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, 
         />
 
         {/* Date Badge - Upper Left */}
-        <div className="absolute top-0 left-0 bg-yellow-400 rounded-br-lg px-4 py-3 shadow-sm z-10">
-          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide text-center">
+        <div className="absolute top-0 left-0 bg-supernova rounded-br-lg px-4 py-3 shadow-md">
+          <div className="text-xs font-medium text-gray-800 uppercase tracking-wide text-center font-semibold">
             {new Date(event.start_date).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
           </div>
           <div className="text-2xl font-bold text-black text-center">
@@ -50,7 +43,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, 
       <div className="p-4">
         {/* Venue - First line */}
         {event.venue && (
-          <div className="text-sm font-medium mb-1 uppercase tracking-wide" style={{ color: '#C80650' }}>
+          <div className="text-sm font-medium mb-1 uppercase tracking-wide text-razzmatazz">
             {event.venue.name}
           </div>
         )}
@@ -94,7 +87,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onClick, 
         {event.ticket_price && (
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">From</span>
-            <span className="font-semibold text-green-600">
+            <span className="font-semibold text-apple">
               ${parseFloat(event.ticket_price.toString()).toFixed(0)}
             </span>
           </div>

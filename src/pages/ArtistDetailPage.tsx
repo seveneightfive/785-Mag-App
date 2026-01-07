@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
-import { Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, Users, Palette, Eye, Instagram, Twitter, Facebook, Youtube, Mail, Globe, ChevronDown } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Music, Globe, Heart, Share2, ArrowLeft, Star, Calendar, MapPin, Play, Users, Palette, Eye, Instagram, Twitter, Facebook, Youtube, Mail } from 'lucide-react'
 import { Layout } from '../components/Layout'
 import { ReviewSection } from '../components/ReviewSection'
 import { EventModal } from '../components/EventModal'
@@ -266,91 +265,170 @@ export const ArtistDetailPage: React.FC = () => {
 
   return (
     <Layout>
-      <Helmet>
-        <link rel="canonical" href={`https://785mag.com/artists/${artist.slug}/`} />
-        <title>{artist.name} | seveneightfive magazine</title>
-        <meta name="description" content={artist.bio || `Discover ${artist.name}`} />
-        <meta property="og:url" content={`https://785mag.com/artists/${artist.slug}/`} />
-        <meta property="og:type" content="profile" />
-        <meta property="og:title" content={artist.name} />
-        <meta property="og:description" content={artist.bio || `Discover ${artist.name}`} />
-        {heroImage && <meta property="og:image" content={heroImage} />}
-        <script type="application/ld+json">
-          {JSON.stringify(artistJsonLd)}
-        </script>
-      </Helmet>
+      <div className="min-h-screen bg-gray-50">
 
-      <div className="relative min-h-screen bg-white">
-        {/* Hero Section with Image and Name */}
-        <div
-          ref={heroRef}
-          className="relative h-screen overflow-hidden bg-gray-900"
-        >
-          {/* Background Image with Ken Burns Effect */}
-          {heroImage && (
-            <div className="absolute inset-0 overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
-                style={{
-                  backgroundImage: `url('${heroImage}')`,
-                  transform: `scale(${1 + scrollY * 0.0003})`,
-                }}
+        {/* Desktop 3-Column Hero */}
+        <div className="hidden lg:grid lg:grid-cols-3 relative h-[60vh] overflow-hidden">
+          {/* Left Column - Image */}
+          <div className="relative overflow-hidden">
+            {artist.image_url ? (
+              <img
+                src={artist.image_url}
+                alt={artist.name}
+                className={`w-full h-full object-cover transition-all duration-1000 ${
+                  imageLoaded ? 'hero-ken-burns-left' : 'scale-110 opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
               />
-              <div className="absolute inset-0 bg-black/40" />
-            </div>
-          )}
-
-          {/* Fixed Header Controls */}
-          <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 lg:p-6">
-            <button
-              onClick={() => navigate('/artists')}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
-              aria-label="Go back"
-            >
-              <ArrowLeft size={20} />
-            </button>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShareModalOpen(true)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
-                aria-label="Share artist"
-              >
-                <Share2 size={20} />
-              </button>
-              {user && (
-                <button
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`flex items-center justify-center px-4 py-2 rounded-full backdrop-blur-sm transition-all ${
-                    isFollowing
-                      ? 'bg-yellow-400/90 text-gray-900 hover:bg-yellow-400'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                >
-                  <Heart size={18} fill={isFollowing ? 'currentColor' : 'none'} />
-                </button>
-              )}
-            </div>
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <Music size={80} className="text-white opacity-80" />
+              </div>
+            )}
           </div>
 
-          {/* Name Overlay */}
-          <div className="absolute inset-0 flex items-end justify-start p-6 lg:p-12">
-            <div className="max-w-2xl z-10">
-              <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-4">
-                {artist.name}
-              </h1>
-              {artist.genre && (
-                <p className="text-lg lg:text-xl text-white/90">
-                  {artist.genre}
+          {/* Middle Column - Text Section */}
+          <div className="bg-black flex flex-col items-center justify-center p-8 relative">
+            <div className="text-center">
+              {artist.tagline && (
+                <p className={`text-xl text-white mb-6 transition-all duration-1000 ${
+                  imageLoaded ? 'hero-fade-in-text opacity-100' : 'opacity-0'
+                }`}>
+                  {artist.tagline}
                 </p>
               )}
+              <h1 className={`text-6xl font-oswald font-light text-white tracking-tight transition-all duration-1000 ${
+                imageLoaded ? 'hero-fade-in-text opacity-100' : 'opacity-0'
+              }`}>
+                {artist.name.toUpperCase()}
+              </h1>
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-            <ChevronDown className="text-white" size={32} />
+          {/* Right Column - Avatar */}
+          <div className="relative overflow-hidden">
+            {artist.avatar_url ? (
+              <img
+                src={artist.avatar_url}
+                alt={artist.name}
+                className={`w-full h-full object-cover transition-all duration-1000 ${
+                  imageLoaded ? 'hero-ken-burns-right' : 'scale-110 opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                <Music size={80} className="text-white opacity-80" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Hero - Stacked Vertical */}
+        <div className="lg:hidden flex flex-col">
+          {/* Mobile Left Image */}
+          <div className="aspect-square overflow-hidden">
+            {artist.image_url ? (
+              <img
+                src={artist.image_url}
+                alt={artist.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <Music size={48} className="text-white opacity-80" />
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Middle Text Section */}
+          <div className="bg-black text-white p-6 flex flex-col items-center justify-center min-h-[200px]">
+            {artist.tagline && (
+              <p className="text-center text-base mb-4">{artist.tagline}</p>
+            )}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <h1 className="text-3xl font-oswald font-light uppercase tracking-tight">
+                {artist.name.toUpperCase()}
+              </h1>
+              {artist.verified && (
+                <div className="bg-blue-500 text-white px-2 py-1 rounded-full flex items-center flex-shrink-0">
+                  <Star size={14} className="mr-1" />
+                  <span className="text-xs font-medium">Verified</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Right Image */}
+          <div className="aspect-square overflow-hidden">
+            {artist.avatar_url ? (
+              <img
+                src={artist.avatar_url}
+                alt={artist.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                <Music size={48} className="text-white opacity-80" />
+              </div>
+            )}
+          </div>
+
+        {/* Stats Section - Desktop */}
+        <div className="hidden lg:block bg-white border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-8 py-6">
+            <div className="flex items-center justify-between text-gray-600">
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center">
+                  <Heart size={20} className="mr-2 text-red-500" />
+                  <span className="font-semibold text-gray-900">{followersCount.toLocaleString()}</span>
+                  <span className="ml-1">followers</span>
+                </div>
+                <div className="flex items-center">
+                  <Eye size={20} className="mr-2 text-blue-500" />
+                  <span className="font-semibold text-gray-900">{pageViews.toLocaleString()}</span>
+                  <span className="ml-1">views</span>
+                </div>
+                {collectorsCount > 0 && (
+                  <div className="flex items-center">
+                    <Users size={20} className="mr-2 text-purple-500" />
+                    <span className="font-semibold text-gray-900">{collectorsCount}</span>
+                    <span className="ml-1">collectors</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions and Verified */}
+              <div className="flex items-center space-x-4">
+                {artist.verified && (
+                  <div className="bg-blue-500 text-white px-3 py-2 rounded-full flex items-center">
+                    <Star size={16} className="mr-2" />
+                    <span className="text-sm font-medium">Verified</span>
+                  </div>
+                )}
+                <button
+                  onClick={handleShare}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Share"
+                >
+                  <Share2 size={20} />
+                </button>
+                {user && (
+                  <button
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                    className={`transition-colors ${
+                      isFollowing
+                        ? 'text-red-500 hover:text-red-600'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                    title={isFollowing ? 'Unfollow' : 'Follow'}
+                  >
+                    <Heart size={20} fill={isFollowing ? 'currentColor' : 'none'} />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -372,6 +450,22 @@ export const ArtistDetailPage: React.FC = () => {
                 <div className="text-sm text-gray-600">Views</div>
               </div>
             </div>
+          </div>
+
+          {/* About Section - Full Width */}
+          {artist.bio && (
+            <section className="bg-white mb-8">
+              <div className="px-4 lg:px-12 py-12">
+                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap text-lg">
+                  {artist.bio}
+                </p>
+              </div>
+            </section>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-8">
 
             {/* About */}
             {artist.bio && (
@@ -383,14 +477,14 @@ export const ArtistDetailPage: React.FC = () => {
               </div>
             )}
 
-            {/* Type Badge */}
-            {artist.artist_type && (
-              <div className="inline-block bg-yellow-100 text-yellow-900 px-4 py-2 rounded-full text-sm font-medium">
-                {artist.artist_type}
-              </div>
-            )}
-          </div>
-        </div>
+              {/* Video Section */}
+              {artist.video_url && artist.video_title && (
+                <section className="bg-white rounded-xl p-6 shadow-sm">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Video</h2>
+                  <VideoPlayer videoUrl={artist.video_url} title={artist.video_title} description={artist.artistvideoabout} />
+                </section>
+              )}
+            </div>
 
         {/* Gallery Section */}
         {galleryImages.length > 0 && (
@@ -441,75 +535,65 @@ export const ArtistDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Reviews Section */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-12 lg:py-24">
-          <ReviewSection entityType="artist" entityId={artist.id} />
-        </div>
+        {/* Audio Player */}
+        {showAudioPlayer && artist.audio_file_url && artist.audio_title && (
+          <AudioPlayer
+            audioUrl={artist.audio_file_url}
+            title={artist.audio_title}
+            artistName={artist.name}
+            purchaseLink={artist.purchase_link}
+            onClose={() => setShowAudioPlayer(false)}
+          />
+        )}
 
-        {/* Social Links at Bottom */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 lg:px-0 py-12 lg:py-24 border-t border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-6">Connect</h3>
-          <div className="flex gap-4 flex-wrap">
-            {artist.instagram_url && (
-              <a
-                href={artist.instagram_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
-                title="Instagram"
-              >
-                {getSocialIcon('instagram')}
-              </a>
-            )}
-            {artist.twitter_url && (
-              <a
-                href={artist.twitter_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
-                title="Twitter"
-              >
-                {getSocialIcon('twitter')}
-              </a>
-            )}
-            {artist.facebook_url && (
-              <a
-                href={artist.facebook_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
-                title="Facebook"
-              >
-                {getSocialIcon('facebook')}
-              </a>
-            )}
-            {artist.youtube_url && (
-              <a
-                href={artist.youtube_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
-                title="YouTube"
-              >
-                {getSocialIcon('youtube')}
-              </a>
-            )}
-            {artist.website_url && (
-              <a
-                href={artist.website_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
-                title="Website"
-              >
-                {getSocialIcon('website')}
-              </a>
-            )}
-          </div>
-        </div>
+        {/* Hero Animations */}
+        <style>{`
+          @keyframes kenBurnsLeft {
+            from {
+              opacity: 0;
+              transform: scale(1.1) translateX(0);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1) translateX(-5px);
+            }
+          }
 
-        {/* Bottom Spacing */}
-        <div className="relative z-10 h-12" />
+          @keyframes kenBurnsRight {
+            from {
+              opacity: 0;
+              transform: scale(1.1) translateX(0);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1) translateX(5px);
+            }
+          }
+
+          @keyframes fadeInText {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .hero-ken-burns-left {
+            animation: kenBurnsLeft 3s ease-out forwards;
+          }
+
+          .hero-ken-burns-right {
+            animation: kenBurnsRight 3s ease-out forwards;
+          }
+
+          .hero-fade-in-text {
+            animation: fadeInText 1s ease-out forwards;
+            animation-delay: 0.5s;
+          }
+        `}</style>
       </div>
 
       {/* Modals */}

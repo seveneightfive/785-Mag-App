@@ -30,6 +30,7 @@ export const HomePage: React.FC = () => {
     totalArtists: 0,
     totalVenues: 0
   })
+  const eventsScrollRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     trackPageView('home')
@@ -165,9 +166,22 @@ export const HomePage: React.FC = () => {
     setCurrentSlide((prev) => (prev - 1 + starredEvents.length) % starredEvents.length)
   }
 
-  const handleMenuProcClick = (menuProc: MenuProc) => {
-    setSelectedMenuProc(menuProc)
-    setShowMenuProcModal(true)
+  const scrollEventsLeft = () => {
+    if (eventsScrollRef.current) {
+      eventsScrollRef.current.scrollBy({
+        left: -360,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const scrollEventsRight = () => {
+    if (eventsScrollRef.current) {
+      eventsScrollRef.current.scrollBy({
+        left: 360,
+        behavior: 'smooth'
+      })
+    }
   }
 
   if (loading) {
@@ -306,27 +320,56 @@ export const HomePage: React.FC = () => {
           {latestMenuProcs.length > 0 && (
             <section className="mb-12">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-bold font-urbanist text-gray-900 uppercase">
-                  Latest Menu Procs
-                </h2>
+                <div>
+                  <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-2">
+                    Coming soon
+                  </p>
+                  <h2 className="text-3xl lg:text-4xl font-bold font-oswald text-gray-900 mb-2">
+                    Events
+                  </h2>
+                  <p className="text-gray-600 text-base">
+                    See what's happening this week and beyond.
+                  </p>
+                </div>
                 <Link
-                  to="/feed"
-                  className="text-orange-600 hover:text-orange-700 font-medium"
+                  to="/events"
+                  className="text-gray-900 hover:text-razzmatazz font-medium whitespace-nowrap ml-4"
                 >
-                  See All →
+                  View all →
                 </Link>
               </div>
-              
-              {/* Desktop Grid */}
-              <div className="hidden lg:grid grid-cols-3 gap-6">
-                {latestMenuProcs.slice(0, 3).map((menuProc) => (
-                  <MenuProcCard
-                    key={menuProc.id}
-                    menuProc={menuProc}
-                    onClick={() => handleMenuProcClick(menuProc)}
-                    showVenue={true}
-                  />
-                ))}
+
+              {/* Horizontal Scrollable Carousel with Navigation */}
+              <div className="relative">
+                <div
+                  ref={eventsScrollRef}
+                  className="overflow-x-auto scrollbar-hide"
+                >
+                  <div className="flex gap-6 pb-4">
+                    {upcomingEvents.map((event) => (
+                      <div key={event.id} className="flex-shrink-0 w-[320px]">
+                        <EventCard event={event} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Navigation Arrows - Desktop Only */}
+                <button
+                  onClick={scrollEventsLeft}
+                  className="hidden lg:flex absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-16 items-center justify-center w-12 h-12 rounded-full bg-gray-200 hover:bg-razzmatazz hover:text-white transition-colors duration-200 z-10"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+
+                <button
+                  onClick={scrollEventsRight}
+                  className="hidden lg:flex absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-16 items-center justify-center w-12 h-12 rounded-full bg-gray-200 hover:bg-razzmatazz hover:text-white transition-colors duration-200 z-10"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight size={24} />
+                </button>
               </div>
               
               {/* Mobile Horizontal Scroll */}

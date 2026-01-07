@@ -3,9 +3,10 @@ import React from 'react'
 interface VideoPlayerProps {
   videoUrl: string
   title: string
+  description?: string
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title }) => {
+export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, description }) => {
   // Extract YouTube video ID from URL
   const getYouTubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
@@ -37,6 +38,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title }) => 
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-gray-900">{title}</h3>
+        {description && (
+          <p className="text-sm text-gray-600 mt-2">{description}</p>
+        )}
       </div>
     </div>
   )

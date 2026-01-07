@@ -4,8 +4,13 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'urbanist': ['Urbanist', 'sans-serif'],
-        'redhat': ['Red Hat Display', 'sans-serif'],
+        'oswald': ['Oswald', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif'],
+      },
+      colors: {
+        'supernova': '#FFCE03',
+        'razzmatazz': '#C80650',
+        'apple': '#61B347',
       },
     },
   },

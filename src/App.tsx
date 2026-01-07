@@ -16,17 +16,7 @@ import { OrganizersDirectoryPage } from './pages/OrganizersDirectoryPage'
 import { OrganizerDetailPage } from './pages/OrganizerDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { DashboardPage } from './pages/DashboardPage'
-import { FeedPage } from './pages/FeedPage'
-
-function AnalyticsTracker() {
-  const location = useLocation()
-
-  useEffect(() => {
-    trackPageView(location.pathname + location.search)
-  }, [location])
-
-  return null
-}
+import { ArtPage } from './pages/ArtPage'
 
 function App() {
   const { user, needsProfileCompletion, authMethod, completeProfile } = useAuth()
@@ -60,7 +50,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/feed" element={<FeedPage />} />
+        <Route path="/art" element={<ArtPage />} />
         <Route path="/events" element={<EventsDirectoryPage />} />
         <Route path="/agenda" element={<AgendaPage />} />
         <Route path="/artists" element={<ArtistsDirectoryPage />} />

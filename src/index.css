@@ -34,17 +34,25 @@
   .btn-yellow {
     @apply btn-primary bg-[#FFCE03] text-black border-2 border-[#FFCE03];
   }
-  
+
   .btn-yellow:hover {
     @apply bg-black text-[#FFCE03] border-black;
   }
-  
+
   .btn-pink {
     @apply btn-primary bg-[#C80650] text-white border-2 border-[#C80650];
   }
-  
+
   .btn-pink:hover {
-    @apply bg-white text-[#C80650];
+    @apply bg-white text-[#C80650] border-[#C80650];
+  }
+
+  .btn-green {
+    @apply btn-primary bg-[#61B347] text-white border-2 border-[#61B347];
+  }
+
+  .btn-green:hover {
+    @apply bg-white text-[#61B347] border-[#61B347];
   }
   
   .btn-filter {
@@ -76,19 +84,28 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
   }
-  
+
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
-  
+
   .line-clamp-3 {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -109,16 +126,5 @@
   
   .backdrop-blur {
     backdrop-filter: blur(8px);
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 }

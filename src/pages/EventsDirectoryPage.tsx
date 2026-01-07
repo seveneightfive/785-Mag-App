@@ -1,39 +1,51 @@
-import React, { useState, useEffect } from 'react'
-import { Search, Filter, Calendar, X, Clock, MapPin } from 'lucide-react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import { Search, Filter, Calendar, X, Clock, MapPin, ChevronDown, ChevronLeft, ChevronRight, List, Grid as GridIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
-import { EventModal } from '../components/EventModal'
-import { supabase, type Event, type Advertisement, trackPageView } from '../lib/supabase'
-import { injectAds } from '../utils/adInjector'
-import { SponsoredEventCard } from '../components/SponsoredEventCard'
+import { AgendaEventCard } from '../components/AgendaEventCard'
+import { CalendarView } from '../components/CalendarView'
+import { supabase, type Event, type Venue, trackPageView } from '../lib/supabase'
 
 const EVENT_TYPES = ['Art', 'Entertainment', 'Lifestyle', 'Local Flavor', 'Live Music', 'Party For A Cause', 'Community / Cultural', 'Shop Local']
+
+type ViewMode = 'grid' | 'agenda' | 'calendar'
+type DateFilter = 'all' | 'today' | 'week' | 'month'
 
 export const EventsDirectoryPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const [events, setEvents] = useState<Event[]>([])
+  const [venues, setVenues] = useState<Venue[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [activeAds, setActiveAds] = useState<Advertisement[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
-  const [showFilters, setShowFilters] = useState(false)
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all')
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalEventSlug, setModalEventSlug] = useState<string | null>(null)
+  const [selectedVenue, setSelectedVenue] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all')
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return (localStorage.getItem('eventViewMode') as ViewMode) || 'grid'
+  })
   const [eventCounts, setEventCounts] = useState<Record<string, number>>({
     all: 0,
     today: 0,
     week: 0,
     month: 0
   })
+  const [eventTypeCounts, setEventTypeCounts] = useState<Record<string, number>>({})
+  const [showFilters, setShowFilters] = useState(false)
+  const [venueDropdownOpen, setVenueDropdownOpen] = useState(false)
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+
+  const venueDropdownRef = useRef<HTMLDivElement>(null)
+  const categoryDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     trackPageView('events-directory')
     fetchEvents()
-    fetchActiveAds()
+    fetchVenues()
   }, [])
 
   useEffect(() => {
@@ -63,7 +75,26 @@ export const EventsDirectoryPage: React.FC = () => {
   useEffect(() => {
     filterEvents()
     calculateEventCounts()
-  }, [events, searchQuery, selectedTypes, dateFilter])
+    calculateEventTypeCounts()
+  }, [events, searchQuery, selectedVenue, selectedCategory, dateFilter])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (venueDropdownRef.current && !venueDropdownRef.current.contains(event.target as Node)) {
+        setVenueDropdownOpen(false)
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setCategoryDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('eventViewMode', viewMode)
+  }, [viewMode])
 
   const fetchEvents = async () => {
     // Get current date in local timezone, start of today
@@ -88,19 +119,16 @@ export const EventsDirectoryPage: React.FC = () => {
     setLoading(false)
   }
 
-  const fetchActiveAds = async () => {
-    const today = new Date().toISOString().split('T')[0]
-
+  const fetchVenues = async () => {
     const { data, error } = await supabase
-      .from('advertisements')
-      .select('*')
-      .lte('start_date', today)
-      .gte('end_date', today)
-      .eq('payment_status', 'completed')
-      .order('created_at', { ascending: false })
+      .from('venues')
+      .select('id, name, slug')
+      .order('name', { ascending: true })
 
-    if (!error && data) {
-      setActiveAds(data)
+    if (error) {
+      console.error('Error fetching venues:', error)
+    } else {
+      setVenues(data || [])
     }
   }
 
@@ -114,22 +142,21 @@ export const EventsDirectoryPage: React.FC = () => {
 
     let baseEvents = events
 
-    // Apply search and type filters first
+    // Apply search filter first
     if (searchQuery) {
       baseEvents = baseEvents.filter(event =>
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.venue?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.event_artists?.some(ea => 
+        event.event_artists?.some(ea =>
           ea.artist.name.toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
     }
 
-    if (selectedTypes.length > 0) {
-      baseEvents = baseEvents.filter(event =>
-        event.event_types?.some(type => selectedTypes.includes(type))
-      )
+    // Apply venue filter
+    if (selectedVenue !== 'all') {
+      baseEvents = baseEvents.filter(event => event.venue_id === selectedVenue)
     }
 
     const counts = {
@@ -151,6 +178,59 @@ export const EventsDirectoryPage: React.FC = () => {
     setEventCounts(counts)
   }
 
+  const calculateEventTypeCounts = () => {
+    let baseEvents = events
+
+    // Apply search filter
+    if (searchQuery) {
+      baseEvents = baseEvents.filter(event =>
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.venue?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.event_artists?.some(ea =>
+          ea.artist.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    }
+
+    // Apply venue filter
+    if (selectedVenue !== 'all') {
+      baseEvents = baseEvents.filter(event => event.venue_id === selectedVenue)
+    }
+
+    // Apply date filter
+    if (dateFilter !== 'all') {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      baseEvents = baseEvents.filter(event => {
+        const eventDate = new Date(event.start_date)
+        switch (dateFilter) {
+          case 'today':
+            const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+            return eventDate >= today && eventDate < tomorrow
+          case 'week':
+            const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+            return eventDate >= today && eventDate < weekFromNow
+          case 'month':
+            const monthFromNow = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate())
+            return eventDate >= today && eventDate < monthFromNow
+          default:
+            return true
+        }
+      })
+    }
+
+    // Count each event type
+    const counts: Record<string, number> = {}
+    EVENT_TYPES.forEach(type => {
+      counts[type] = baseEvents.filter(event =>
+        event.event_types?.includes(type)
+      ).length
+    })
+
+    setEventTypeCounts(counts)
+  }
+
   const filterEvents = () => {
     let filtered = events
 
@@ -160,16 +240,21 @@ export const EventsDirectoryPage: React.FC = () => {
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.venue?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.event_artists?.some(ea => 
+        event.event_artists?.some(ea =>
           ea.artist.name.toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
     }
 
-    // Type filter
-    if (selectedTypes.length > 0) {
+    // Venue filter
+    if (selectedVenue !== 'all') {
+      filtered = filtered.filter(event => event.venue_id === selectedVenue)
+    }
+
+    // Category filter
+    if (selectedCategory !== 'all') {
       filtered = filtered.filter(event =>
-        event.event_types?.some(type => selectedTypes.includes(type))
+        event.event_types?.includes(selectedCategory)
       )
     }
 
@@ -178,10 +263,10 @@ export const EventsDirectoryPage: React.FC = () => {
       const now = new Date()
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      
+
       filtered = filtered.filter(event => {
         const eventDate = new Date(event.start_date)
-        
+
         switch (dateFilter) {
           case 'today':
             return eventDate >= today && eventDate < tomorrow
@@ -200,21 +285,30 @@ export const EventsDirectoryPage: React.FC = () => {
     setFilteredEvents(filtered)
   }
 
-  const toggleType = (type: string) => {
-    setSelectedTypes(prev =>
-      prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    )
-  }
-
   const clearFilters = () => {
-    setSelectedTypes([])
+    setSelectedVenue('all')
+    setSelectedCategory('all')
     setDateFilter('all')
     setSearchQuery('')
   }
 
-  const activeFiltersCount = selectedTypes.length + (dateFilter !== 'all' ? 1 : 0)
+  const activeFiltersCount = (selectedVenue !== 'all' ? 1 : 0) + (selectedCategory !== 'all' ? 1 : 0) + (dateFilter !== 'all' ? 1 : 0)
+
+  const goToToday = () => {
+    setCurrentDate(new Date())
+  }
+
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+  }
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+  }
+
+  const getMonthYearDisplay = () => {
+    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
 
   const handleEventClick = (slug: string) => {
     setSearchParams({ event: slug })
@@ -258,334 +352,256 @@ export const EventsDirectoryPage: React.FC = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
-        {/* Mobile Header */}
-        <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-40">
-          <div className="p-4">
-            <div className="flex items-center space-x-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          {/* Control Bar with Date Navigation & View Toggles */}
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+              {/* Left: TODAY button and Month Navigation */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={goToToday}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  TODAY
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={goToPreviousMonth}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Previous month"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={goToNextMonth}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Next month"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  {getMonthYearDisplay()}
+                </h1>
+              </div>
+
+              {/* Right: View Mode Toggles */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setViewMode('calendar')}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === 'calendar' ? 'bg-black text-white' : 'hover:bg-gray-100'
+                  }`}
+                  aria-label="Calendar view"
+                  title="Calendar view"
+                >
+                  <Calendar size={20} />
+                </button>
+                <button
+                  onClick={() => setViewMode('agenda')}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === 'agenda' ? 'bg-black text-white' : 'hover:bg-gray-100'
+                  }`}
+                  aria-label="Agenda view"
+                  title="Agenda view"
+                >
+                  <List size={20} />
+                </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === 'grid' ? 'bg-black text-white' : 'hover:bg-gray-100'
+                  }`}
+                  aria-label="Grid view"
+                  title="Grid view"
+                >
+                  <GridIcon size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Filter Bar with Dropdowns */}
+            <div className="flex flex-col lg:flex-row gap-3">
+              {/* Search Input */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search events..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C80650]"
+                  placeholder="Search events"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg flex-shrink-0"
-              >
-                <Filter size={16} />
-                <span className="text-sm">Filters</span>
-                {activeFiltersCount > 0 && (
-                  <span className="text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#C80650' }}>
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Mobile Filter Modal - Full Screen */}
-        {showFilters && (
-          <div className="lg:hidden fixed inset-0 z-[60] bg-white">
-            <div className="flex flex-col h-full">
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-                <h3 className="text-2xl font-bold font-urbanist text-gray-900">FILTERS</h3>
+              {/* Venue Dropdown */}
+              <div ref={venueDropdownRef} className="relative lg:w-64">
                 <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  aria-label="Close filters"
+                  onClick={() => setVenueDropdownOpen(!venueDropdownOpen)}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
-                  <X size={24} />
+                  <span className="text-gray-700 truncate">
+                    {selectedVenue === 'all' ? 'All Venues' : venues.find(v => v.id === selectedVenue)?.name || 'All Venues'}
+                  </span>
+                  <ChevronDown size={18} className="text-gray-400 flex-shrink-0" />
                 </button>
-              </div>
 
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-6 pb-32">
-                {/* Date Filter */}
-                <div className="mb-8">
-                  <h4 className="font-bold font-urbanist text-gray-900 mb-4 text-lg">WHEN</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: 'all', label: 'All Upcoming', count: eventCounts.all },
-                      { value: 'today', label: 'Today', count: eventCounts.today },
-                      { value: 'week', label: 'This Week', count: eventCounts.week },
-                      { value: 'month', label: 'This Month', count: eventCounts.month }
-                    ].map((option) => (
+                {venueDropdownOpen && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                    <button
+                      onClick={() => {
+                        setSelectedVenue('all')
+                        setVenueDropdownOpen(false)
+                      }}
+                      className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors ${
+                        selectedVenue === 'all' ? 'bg-blue-50 text-blue-700 font-medium' : ''
+                      }`}
+                    >
+                      All Venues
+                    </button>
+                    {venues.map(venue => (
                       <button
-                        key={option.value}
-                        onClick={() => setDateFilter(option.value as any)}
-                        className={`btn-filter transition-colors ${
-                          dateFilter === option.value
-                            ? 'active'
-                            : ''
+                        key={venue.id}
+                        onClick={() => {
+                          setSelectedVenue(venue.id)
+                          setVenueDropdownOpen(false)
+                        }}
+                        className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors ${
+                          selectedVenue === venue.id ? 'bg-blue-50 text-blue-700 font-medium' : ''
                         }`}
                       >
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-xs opacity-75">{option.count} events</div>
+                        {venue.name}
                       </button>
                     ))}
                   </div>
-                </div>
+                )}
+              </div>
 
-                {/* Event Types Filter */}
-                <div className="mb-8">
-                  <h4 className="font-bold font-urbanist text-gray-900 mb-4 text-lg">EVENT TYPES</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {EVENT_TYPES.map((type) => (
+              {/* Category Dropdown (with Event Type Counts) */}
+              <div ref={categoryDropdownRef} className="relative lg:w-64">
+                <button
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-gray-700 truncate">
+                    {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
+                  </span>
+                  <ChevronDown size={18} className="text-gray-400 flex-shrink-0" />
+                </button>
+
+                {categoryDropdownOpen && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                    <button
+                      onClick={() => {
+                        setSelectedCategory('all')
+                        setCategoryDropdownOpen(false)
+                      }}
+                      className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors ${
+                        selectedCategory === 'all' ? 'bg-blue-50 text-blue-700 font-medium' : ''
+                      }`}
+                    >
+                      All Categories
+                    </button>
+                    {EVENT_TYPES.map(type => (
                       <button
                         key={type}
-                        onClick={() => toggleType(type)}
-                        className={`btn-filter transition-colors ${
-                          selectedTypes.includes(type)
-                            ? 'active'
-                            : ''
+                        onClick={() => {
+                          setSelectedCategory(type)
+                          setCategoryDropdownOpen(false)
+                        }}
+                        className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between ${
+                          selectedCategory === type ? 'bg-blue-50 text-blue-700 font-medium' : ''
                         }`}
                       >
-                        {type}
+                        <span>{type}</span>
+                        <span className="text-xs opacity-75 ml-2">({eventTypeCounts[type] || 0})</span>
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* Fixed Bottom Button */}
-              <div className="border-t border-gray-200 p-4 bg-white">
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="w-full btn-pink py-4 text-lg font-bold"
-                >
-                  View {filteredEvents.length} Event{filteredEvents.length !== 1 ? 's' : ''}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Desktop Layout - Sidebar + Content */}
-        <div className="hidden lg:flex h-screen">
-          {/* Left Sidebar - Filters */}
-          <div className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6">
-              {/* Header with Search and Clear */}
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold font-urbanist text-gray-900 mb-2 uppercase">Events Directory</h1>
-                <p className="text-sm text-gray-600 mb-4">Discover amazing upcoming events</p>
-
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search events..."
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C80650]"
-                  />
-                </div>
-
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={clearFilters}
-                    className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1"
-                  >
-                    <X size={12} />
-                    <span>Clear all filters</span>
-                  </button>
                 )}
               </div>
 
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  {activeFiltersCount > 0 && (
-                    <span className="text-white text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#C80650' }}>
-                      {activeFiltersCount}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Date Filter */}
-              <div className="mb-6">
-                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">WHEN</h4>
-                <div className="space-y-2">
-                  {[
-                    { value: 'all', label: 'All Upcoming', count: eventCounts.all },
-                    { value: 'today', label: 'Today', count: eventCounts.today },
-                    { value: 'week', label: 'This Week', count: eventCounts.week },
-                    { value: 'month', label: 'This Month', count: eventCounts.month }
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setDateFilter(option.value as any)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                        dateFilter === option.value
-                          ? 'bg-black text-white'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{option.label}</span>
-                        <span className="text-xs opacity-75">({option.count})</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Event Types Filter */}
-              <div className="mb-6">
-                <h4 className="font-bold font-urbanist text-gray-900 mb-3 text-sm">EVENT TYPES</h4>
-                <div className="space-y-2">
-                  {EVENT_TYPES.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => toggleType(type)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                        selectedTypes.includes(type)
-                          ? 'bg-black text-white'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Results Count */}
+          <div className="mb-4">
+            <p className="text-gray-600">
+              {loading ? 'Loading...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
+            </p>
           </div>
 
-          {/* Right Content Area */}
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="p-6">
-              {/* Results Count */}
-              <div className="mb-4">
-                <p className="text-gray-600">
-                  {loading ? 'Loading...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
-                </p>
-              </div>
-
-            {/* Events Grid */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#C80650' }}></div>
-              </div>
-            ) : (
-              <>
-                {filteredEvents.length > 0 ? (
-                  <div className="overflow-y-auto" style={{ height: 'calc(100vh - 180px)' }}>
-                    <div className="grid grid-cols-4 gap-6 pr-6">
-                      {injectAds(filteredEvents, activeAds, 'events-directory').map((item, index) => {
-                        if (item.type === 'ad') {
-                          return (
-                            <div key={`ad-${item.data.id}-${index}`} className="rounded-xl transition-all">
-                              <SponsoredEventCard
-                                ad={item.data as Advertisement}
-                                position={item.position}
-                                pageType="events-directory"
-                              />
-                            </div>
-                          )
-                        } else {
-                          const event = item.data as Event
-                          return (
-                            <div key={`event-${event.id}-${index}`} className="rounded-xl transition-all">
-                              <EventCard
-                                event={event}
-                                onClick={() => handleEventClick(event.slug || '')}
-                                useModal={true}
-                              />
-                            </div>
-                          )
-                        }
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-                    <p className="text-gray-600">Try adjusting your search or filters</p>
-                  </div>
-                )}
-              </>
-            )}
+          {/* Conditional Rendering by View Mode */}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
-          </div>
-        </div>
-
-        {/* Mobile Layout - Date Grouped */}
-        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="space-y-6 pb-24">
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#C80650' }}></div>
-              </div>
-            ) : filteredEvents.length > 0 ? (
-              (() => {
-                const injectedItems = injectAds(filteredEvents, activeAds, 'events-directory-mobile')
-
-                return injectedItems.map((item, index) => {
-                  if (item.type === 'ad') {
-                    const ad = item.data as Advertisement
-                    return (
-                      <div key={`mobile-ad-${ad.id}-${index}`} className="px-2 mb-6">
-                        <SponsoredEventCard
-                          ad={ad}
-                          position={item.position}
-                          pageType="events-directory-mobile"
-                        />
-                      </div>
-                    )
-                  }
-
-                  const event = item.data as Event
-                  const eventDate = new Date(event.start_date)
-                  const dateKey = eventDate.toDateString()
-
-                  const prevItem = index > 0 ? injectedItems[index - 1] : null
-                  const showDateHeader = !prevItem ||
-                    (prevItem.type === 'ad') ||
-                    (prevItem.type === 'event' && new Date((prevItem.data as Event).start_date).toDateString() !== dateKey)
-
-                  const dayNumber = eventDate.getDate()
-                  const monthName = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+          ) : viewMode === 'agenda' ? (
+            // AGENDA VIEW - List layout with grouped dates
+            <div className="space-y-6">
+              {sortedDateKeys.length > 0 ? (
+                sortedDateKeys.map((dateKey) => {
+                  const date = new Date(dateKey)
+                  const dayNumber = date.getDate()
+                  const monthName = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+                  const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
 
                   return (
-                    <div key={`mobile-event-${event.id}-${index}`}>
-                      {showDateHeader && (
-                        <div className="sticky top-20 z-30 bg-white shadow-sm flex items-center space-x-4 px-4 py-3 mb-3">
-                          <div className="text-center">
-                            <div className="text-sm text-gray-700 font-medium">{monthName}</div>
-                            <div className="text-3xl font-bold" style={{ color: '#C80650' }}>{dayNumber}</div>
-                          </div>
-                          <div className="flex-1 h-px bg-gray-200"></div>
-                          <div className="text-sm text-gray-500 font-medium">
-                            <span className="font-bold">{eventDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
-                          </div>
+                    <div key={dateKey} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-4">
+                        <div className="text-center">
+                          <div className="text-xs text-gray-600 font-medium">{monthName}</div>
+                          <div className="text-4xl font-bold text-blue-600">{dayNumber}</div>
                         </div>
-                      )}
-                      <div className="mb-3">
-                        <MobileEventCard
-                          event={event}
-                          onClick={() => handleEventClick(event.slug || '')}
-                        />
+                        <div>
+                          <div className="text-lg font-semibold text-gray-900">{dayName}</div>
+                          <div className="text-sm text-gray-500">{groupedEvents[dateKey].length} event{groupedEvents[dateKey].length !== 1 ? 's' : ''}</div>
+                        </div>
+                      </div>
+
+                      <div className="divide-y divide-gray-100">
+                        {groupedEvents[dateKey].map((event) => (
+                          <AgendaEventCard key={event.id} event={event} />
+                        ))}
                       </div>
                     </div>
                   )
                 })
-              })()
-            ) : (
-              <div className="text-center py-12">
-                <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters</p>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                  <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                  <p className="text-gray-600">Try adjusting your search or filters</p>
+                </div>
+              )}
+            </div>
+          ) : viewMode === 'calendar' ? (
+            // CALENDAR VIEW
+            <CalendarView
+              currentDate={currentDate}
+              events={filteredEvents}
+              onDateSelect={(date) => {
+                setCurrentDate(date)
+                setViewMode('agenda')
+              }}
+            />
+          ) : (
+            // GRID VIEW (default)
+            <>
+              {filteredEvents.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                  <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                  <p className="text-gray-600">Try adjusting your search or filters</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Event Modal */}
