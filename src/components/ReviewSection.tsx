@@ -1,27 +1,48 @@
 import React, { useState, useEffect } from 'react'
-import { Star, ThumbsUp, MessageCircle, Plus } from 'lucide-react'
+import { Star, ThumbsUp, MessageCircle, Plus, Upload, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, type Review } from '../lib/supabase'
 
 interface ReviewSectionProps {
   entityType: 'event' | 'artist' | 'venue'
   entityId: string
+  createdBy?: string
 }
 
-export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entityId }) => {
+export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entityId, createdBy }) => {
   const { user, profile } = useAuth()
   const [reviews, setReviews] = useState<Review[]>([])
+  const [userHasReviewed, setUserHasReviewed] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [newReview, setNewReview] = useState({
     rating: 5,
     title: '',
-    content: ''
+    content: '',
+    image_url: ''
   })
   const [loading, setLoading] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   useEffect(() => {
     fetchReviews()
-  }, [entityType, entityId])
+    if (user) {
+      checkUserReview()
+    }
+  }, [entityType, entityId, user])
+
+  const checkUserReview = async () => {
+    if (!user) return
+
+    const { data } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .eq('user_id', user.id)
+      .single()
+
+    setUserHasReviewed(!!data)
+  }
 
   const fetchReviews = async () => {
     const { data } = await supabase
@@ -39,6 +60,23 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
     }
   }
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const result = event.target?.result as string
+        setImagePreview(result)
+        setNewReview(prev => ({ ...prev, image_url: result }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setImagePreview(null)
+    setNewReview(prev => ({ ...prev, image_url: '' }))
+  }
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
@@ -55,9 +93,11 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
         })
 
       if (!error) {
-        setNewReview({ rating: 5, title: '', content: '' })
+        setNewReview({ rating: 5, title: '', content: '', image_url: '' })
+        setImagePreview(null)
         setShowForm(false)
         fetchReviews()
+        setUserHasReviewed(true)
       }
     } catch (error) {
       console.error('Error submitting review:', error)
@@ -90,6 +130,8 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
     : 0
 
+  // Don't show write review button if user created the entity or has already reviewed
+  const canWriteReview = user && !userHasReviewed && user.id !== createdBy
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mt-8">
       <div className="flex justify-between items-center mb-6">
@@ -103,7 +145,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
           </div>
         </div>
         
-        {user && !showForm && (
+        {canWriteReview && !showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="btn-pink flex items-center space-x-2"
@@ -145,6 +187,43 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
             />
           </div>
           
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Photo (optional)</label>
+            {!imagePreview ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="review-image-upload"
+                />
+                <label
+                  htmlFor="review-image-upload"
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <Upload size={24} className="text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-600">Click to upload an image</span>
+                  <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 10MB</span>
+                </label>
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Review preview"
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </div>
           <div className="flex space-x-2">
             <button
               type="submit"
@@ -155,7 +234,11 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
             </button>
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false)
+                setImagePreview(null)
+                setNewReview({ rating: 5, title: '', content: '', image_url: '' })
+              }}
               className="btn-white"
             >
               Cancel
@@ -190,6 +273,16 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ entityType, entity
             
             {review.title && (
               <h4 className="font-medium text-gray-900 mb-2">{review.title}</h4>
+            )}
+            
+            {review.image_url && (
+              <div className="mb-3">
+                <img
+                  src={review.image_url}
+                  alt="Review"
+                  className="w-full max-w-md h-48 object-cover rounded-lg"
+                />
+              </div>
             )}
             
             {review.content && (

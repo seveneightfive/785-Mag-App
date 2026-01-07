@@ -41,8 +41,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Art', href: '/art', icon: Palette },
     { name: 'Events', href: '/events', icon: Calendar },
+    { name: 'Agenda', href: '/agenda', icon: Calendar },
     { name: 'Artists', href: '/artists', icon: Music },
     { name: 'Venues', href: '/venues', icon: MapPin },
+    { name: 'Organizers', href: '/organizers', icon: Building2 },
   ]
 
   const handleSearch = (e: React.FormEvent) => {
@@ -181,97 +183,170 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </header>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+      <aside className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${
+        sidebarExpanded ? 'lg:w-64' : 'lg:w-20'
+      }`}>
         <div className="flex min-h-0 flex-1 flex-col bg-white border-r border-gray-100">
           <div className="flex flex-1 flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-3">
+            <div className={`flex items-center flex-shrink-0 transition-all duration-300 ${
+              sidebarExpanded ? 'px-3' : 'px-2 justify-center'
+            }`}>
               <Link to="/" className="flex items-center">
-                <img 
-                  src="/785 Logo Valentine.png" 
-                  alt="seveneightfive" 
-                  className="h-8 w-auto"
-                />
+                {sidebarExpanded ? (
+                  <img
+                    src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
+                    alt="seveneightfive"
+                    className="h-12 w-auto"
+                  />
+                ) : (
+                  <img
+                    src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
+                    alt="seveneightfive"
+                    className="h-14 w-14 object-contain"
+                  />
+                )}
               </Link>
             </div>
-            
+
+            {/* Toggle Button */}
+            <div className={`mt-4 flex ${sidebarExpanded ? 'justify-end px-3' : 'justify-center'}`}>
+              <button
+                onClick={toggleSidebar}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+              >
+                {sidebarExpanded ? (
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                ) : (
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                )}
+              </button>
+            </div>
+
             {/* Navigation */}
-            <nav className="mt-6 flex-1 px-3 space-y-1">
-              {navigation.map((item) => (
+            <nav className={`mt-6 flex-1 space-y-1 transition-all duration-300 ${
+              sidebarExpanded ? 'px-3' : 'px-2'
+            }`}>
+              {navigation.filter(item => item.name !== 'Feed').map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`group flex items-center py-2 text-sm font-medium rounded-lg transition-colors relative ${
+                    sidebarExpanded ? 'px-3' : 'px-0 justify-center'
+                  } ${
                     isActiveRoute(item.href)
                       ? 'bg-black text-[#FFCE03]'
                       : 'text-gray-700 hover:bg-black hover:text-white'
                   }`}
+                  title={!sidebarExpanded ? item.name : undefined}
                 >
-                  <item.icon className={`mr-3 h-5 w-5 ${
+                  <item.icon className={`h-5 w-5 transition-all ${
+                    sidebarExpanded ? 'mr-3' : 'mr-0'
+                  } ${
                     isActiveRoute(item.href)
                       ? 'text-[#FFCE03]'
                       : 'text-gray-400 group-hover:text-white'
                   }`} />
-                  {item.name}
+                  {sidebarExpanded && (
+                    <span className="transition-opacity duration-200">
+                      {item.name}
+                    </span>
+                  )}
+                  {!sidebarExpanded && (
+                    <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                      {item.name}
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>
 
             {/* User Section */}
-            <div className="flex-shrink-0 px-6 pb-4">
-              {/* Tagline */}
-              <div className="mb-4">
-                <p className="text-sm font-oswald font-medium text-gray-700 text-center">
-                  Local. Vocal. Since 2006.
-                </p>
-              </div>
-              
-              {user ? (
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {profile?.username || user.email?.split('@')[0]}
-                      </p>
-                    </div>
+            <div className={`flex-shrink-0 pb-4 transition-all duration-300 ${
+              sidebarExpanded ? 'px-6' : 'px-2'
+            }`}>
+              {sidebarExpanded ? (
+                <>
+                  {/* Tagline */}
+                  <div className="mb-4">
+                    <p className="text-sm font-urbanist font-medium text-gray-700 text-center">
+                      Local. Vocal. Since 2006.
+                    </p>
                   </div>
-                  <div className="space-y-1">
-                    <Link
-                      to="/profile"
-                      className="block text-sm text-gray-600 hover:text-gray-900"
-                    >
-                      Edit Profile
-                    </Link>
+
+                  {user ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {profile?.username || user.email?.split('@')[0]}
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to="/dashboard"
+                        className="btn-black w-full text-center inline-block"
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={() => setContactModalOpen(true)}
+                        className="btn-white w-full text-center inline-block"
+                      >
+                        Contact Us
+                      </button>
+                      <button
+                        onClick={signOut}
+                        className="w-full text-left text-sm text-gray-500 hover:text-gray-700"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => openAuthModal('signin')}
+                        className="btn-black w-full text-center"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        onClick={() => setContactModalOpen(true)}
+                        className="btn-white w-full text-center inline-block"
+                      >
+                        Contact Us
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col items-center space-y-2">
+                  {user ? (
                     <Link
                       to="/dashboard"
-                      className="block text-sm text-gray-600 hover:text-gray-900"
+                      className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors group relative"
+                      title="Dashboard"
                     >
-                      Dashboard
+                      <User className="w-5 h-5 text-white" />
+                      <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                        Dashboard
+                      </span>
                     </Link>
-                  </div>
-                  <button
-                    onClick={signOut}
-                    className="w-full text-left text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => openAuthModal('signin')}
-                    className="btn-black w-full text-center"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => setContactModalOpen(true)}
-                    className="btn-white w-full text-center inline-block"
-                  >
-                    Contact Us
-                  </button>
+                  ) : (
+                    <button
+                      onClick={() => openAuthModal('signin')}
+                      className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors group relative"
+                      title="Sign In"
+                    >
+                      <User className="w-5 h-5 text-[#FFCE03]" />
+                      <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                        Sign In
+                      </span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -406,7 +481,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         mode={authMode}
       />
       
-      <ContactModal 
+      <ContactModal
         isOpen={contactModalOpen}
         onClose={() => setContactModalOpen(false)}
       />

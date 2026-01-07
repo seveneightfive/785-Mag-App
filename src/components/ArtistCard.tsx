@@ -1,8 +1,10 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, Music, Palette, Mic, BookOpen } from 'lucide-react'
+import { Calendar, Music, Palette, Mic, BookOpen, Heart } from 'lucide-react'
 import { supabase, type Artist } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
+import { ImageWithFallback } from './ImageWithFallback'
 
 interface ArtistCardProps {
   artist: Artist
@@ -24,12 +26,25 @@ const getArtistTypeIcon = (type: string) => {
 }
 
 export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
+  const { user } = useAuth()
   const [upcomingEventsCount, setUpcomingEventsCount] = useState(0)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
 
   useEffect(() => {
     fetchUpcomingEventsCount()
+    if (user) {
+      checkFollowStatus()
+    }
   }, [artist.id])
 
+  useEffect(() => {
+    if (user) {
+      checkFollowStatus()
+    } else {
+      setIsFollowing(false)
+    }
+  }, [user])
   const fetchUpcomingEventsCount = async () => {
     const { count } = await supabase
       .from('event_artists')
@@ -40,29 +55,69 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
     setUpcomingEventsCount(count || 0)
   }
 
+  const checkFollowStatus = async () => {
+    if (!user) return
+
+    const { data } = await supabase
+      .from('follows')
+      .select('id')
+      .eq('follower_id', user.id)
+      .eq('entity_type', 'artist')
+      .eq('entity_id', artist.id)
+      .maybeSingle()
+
+    setIsFollowing(!!data)
+  }
+
+  const handleFollow = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!user) return
+
+    setFollowLoading(true)
+    try {
+      if (isFollowing) {
+        await supabase
+          .from('follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('entity_type', 'artist')
+          .eq('entity_id', artist.id)
+      } else {
+        await supabase
+          .from('follows')
+          .insert({
+            follower_id: user.id,
+            entity_type: 'artist',
+            entity_id: artist.id
+          })
+      }
+      setIsFollowing(!isFollowing)
+    } catch (error) {
+      console.error('Error following artist:', error)
+    } finally {
+      setFollowLoading(false)
+    }
+  }, [user, artist.id, isFollowing])
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
       {/* Artist Image */}
       <Link to={`/artists/${artist.slug}`} className="block">
         <div className="aspect-square bg-gray-200 overflow-hidden">
-          {artist.image_url ? (
-            <img
-              src={artist.image_url}
-              alt={artist.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-100">
-              {getArtistTypeIcon(artist.artist_type || 'Musician')}
-            </div>
-          )}
+          <ImageWithFallback
+            src={artist.image_url || artist.avatar_url}
+            alt={artist.name}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+            fallbackType="artist"
+          />
         </div>
       </Link>
 
       {/* Artist Info */}
       <div className="p-4">
         <Link to={`/artists/${artist.slug}`} className="block">
-          <h3 className="font-oswald text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors mb-2 uppercase tracking-wide">
+          <h3 className="font-urbanist text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors mb-2 uppercase tracking-wide">
             {artist.name.toUpperCase()}
           </h3>
         </Link>
@@ -108,12 +163,29 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
           </div>
         )}
 
-        {/* Upcoming Events Count */}
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
-          <Calendar size={14} />
-          <span>
-            {upcomingEventsCount} upcoming event{upcomingEventsCount !== 1 ? 's' : ''}
-          </span>
+        {/* Upcoming Events Count and Follow Button */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Calendar size={14} />
+            <span>
+              {upcomingEventsCount} upcoming event{upcomingEventsCount !== 1 ? 's' : ''}
+            </span>
+          </div>
+          
+          {user && (
+            <button
+              onClick={handleFollow}
+              disabled={followLoading}
+              className={`p-2 rounded-full transition-colors ${
+                isFollowing 
+                  ? 'text-red-500 hover:text-red-600' 
+                  : 'text-gray-400 hover:text-red-500'
+              } ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title={isFollowing ? 'Unfollow artist' : 'Follow artist'}
+            >
+              <Heart size={16} fill={isFollowing ? 'currentColor' : 'none'} />
+            </button>
+          )}
         </div>
       </div>
     </div>

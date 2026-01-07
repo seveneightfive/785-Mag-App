@@ -13,9 +13,12 @@ type ViewMode = 'grid' | 'agenda' | 'calendar'
 type DateFilter = 'all' | 'today' | 'week' | 'month'
 
 export const EventsDirectoryPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [events, setEvents] = useState<Event[]>([])
   const [venues, setVenues] = useState<Venue[]>([])
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
+  const [activeAds, setActiveAds] = useState<Advertisement[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedVenue, setSelectedVenue] = useState<string>('all')
@@ -46,6 +49,30 @@ export const EventsDirectoryPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
+    const eventParam = searchParams.get('event')
+    if (eventParam) {
+      setModalEventSlug(eventParam)
+      setIsModalOpen(true)
+    } else {
+      setIsModalOpen(false)
+      setModalEventSlug(null)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const eventParam = searchParams.get('event')
+      if (!eventParam) {
+        setIsModalOpen(false)
+        setModalEventSlug(null)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [searchParams])
+
+  useEffect(() => {
     filterEvents()
     calculateEventCounts()
     calculateEventTypeCounts()
@@ -73,7 +100,7 @@ export const EventsDirectoryPage: React.FC = () => {
     // Get current date in local timezone, start of today
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    
+
     const { data, error } = await supabase
       .from('events')
       .select(`
@@ -283,6 +310,16 @@ export const EventsDirectoryPage: React.FC = () => {
     return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
   }
 
+  const handleEventClick = (slug: string) => {
+    setSearchParams({ event: slug })
+  }
+
+  const handleCloseModal = () => {
+    setSearchParams({})
+    setIsModalOpen(false)
+    setModalEventSlug(null)
+  }
+
   // Group events by date for mobile view
   const groupEventsByDate = (events: Event[]) => {
     const grouped: { [key: string]: Event[] } = {}
@@ -485,8 +522,6 @@ export const EventsDirectoryPage: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
 
           {/* Results Count */}
           <div className="mb-4">
@@ -568,13 +603,20 @@ export const EventsDirectoryPage: React.FC = () => {
             </>
           )}
         </div>
+
+        {/* Event Modal */}
+        <EventModal
+          eventSlug={modalEventSlug}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
       </div>
     </Layout>
   )
 }
 
 // Mobile Event Card Component with horizontal layout
-const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
+const MobileEventCard: React.FC<{ event: Event; onClick?: () => void }> = ({ event, onClick }) => {
   const formatTime = () => {
     if (event.event_start_time) {
       try {
@@ -616,9 +658,14 @@ const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
   const allArtists = event.event_artists || []
 
   return (
-    <Link 
-      to={`/events/${event.slug}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2"
+    <div
+      onClick={(e) => {
+        if (onClick) {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden mx-2 cursor-pointer"
     >
       <div className="flex">
         {/* Event Image - 16:9 aspect ratio */}
@@ -639,7 +686,7 @@ const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
         {/* Event Details */}
         <div className="flex-1 p-2 min-w-0">
           {/* Event Title */}
-          <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1 font-oswald">
+          <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1 font-urbanist">
             {event.title}
           </h3>
 
@@ -682,6 +729,6 @@ const MobileEventCard: React.FC<{ event: Event }> = ({ event }) => {
           )}
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

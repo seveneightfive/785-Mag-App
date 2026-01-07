@@ -4,7 +4,7 @@
 
 @layer base {
   .btn-primary {
-    font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -56,7 +56,7 @@
   }
   
   .btn-filter {
-    font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
