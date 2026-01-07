@@ -11,9 +11,9 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const allArtists = event.event_artists || []
 
   return (
-    <Link 
+    <Link
       to={`/events/${event.slug}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+      className="block bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group h-full"
     >
       {/* Event Image - Taller aspect ratio */}
       <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
