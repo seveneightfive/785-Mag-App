@@ -30,8 +30,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         )}
         
         {/* Date Badge - Upper Left */}
-        <div className="absolute top-0 left-0 bg-yellow-400 rounded-br-lg px-4 py-3 shadow-sm">
-          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide text-center">
+        <div className="absolute top-0 left-0 bg-supernova rounded-br-lg px-4 py-3 shadow-md">
+          <div className="text-xs font-medium text-gray-800 uppercase tracking-wide text-center font-semibold">
             {new Date(event.start_date).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
           </div>
           <div className="text-2xl font-bold text-black text-center">
