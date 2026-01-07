@@ -20,6 +20,7 @@ export const HomePage: React.FC = () => {
     totalArtists: 0,
     totalVenues: 0
   })
+  const eventsScrollRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     trackPageView('home')
