@@ -3,7 +3,7 @@ import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight, Star, Music, Users 
 import { Link } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { EventCard } from '../components/EventCard'
-import { ArtistCard } from '../components/ArtistCard'
+import { ArtistCard } from '../components/HomepageArtistCard'
 import { VenueCard } from '../components/VenueCard'
 import { OrganizerCard } from '../components/OrganizerCard'
 import { MenuProcCard } from '../components/MenuProcCard'
