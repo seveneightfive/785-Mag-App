@@ -33,6 +33,7 @@ export const ArtistDetailPage: React.FC = () => {
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const heroRef = useRef<HTMLDivElement>(null)
+  const [artistJsonLd, setArtistJsonLd] = useState<any>(null)
 
   const eventSlugFromUrl = searchParams.get('event')
   const isEventModalOpen = !!eventSlugFromUrl
@@ -83,6 +84,18 @@ export const ArtistDetailPage: React.FC = () => {
 
     setArtist(data)
     trackPageView('artist', data.id)
+
+    // Fetch JSON-LD from the view
+    const { data: jsonLdData } = await supabase
+      .from('artists_jsonld')
+      .select('jsonld')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (jsonLdData) {
+      setArtistJsonLd(jsonLdData.jsonld)
+    }
+
     setLoading(false)
   }
 
@@ -255,15 +268,6 @@ export const ArtistDetailPage: React.FC = () => {
   const galleryImages = artist.social_media || []
   const heroImage = artist.avatar_url || artist.image_url
 
-  const artistJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'MusicGroup',
-    name: artist.name,
-    description: artist.bio || `Discover ${artist.name}`,
-    image: heroImage,
-    url: `https://785mag.com/artists/${artist.slug}`,
-  }
-
   return (
     <Layout>
       <Helmet>
@@ -275,9 +279,11 @@ export const ArtistDetailPage: React.FC = () => {
         <meta property="og:title" content={artist.name} />
         <meta property="og:description" content={artist.bio || `Discover ${artist.name}`} />
         {heroImage && <meta property="og:image" content={heroImage} />}
-        <script type="application/ld+json">
-          {JSON.stringify(artistJsonLd)}
-        </script>
+        {artistJsonLd && (
+          <script type="application/ld+json">
+            {JSON.stringify(artistJsonLd)}
+          </script>
+        )}
       </Helmet>
 
       <div className="relative min-h-screen bg-white">
