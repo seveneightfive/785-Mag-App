@@ -272,6 +272,7 @@ export const EventDetailPage: React.FC = () => {
     '@type': 'Event',
     name: event.title,
     description: event.description || `Join us for ${event.title}`,
+    url: `https://785mag.com/events/${event.slug}/`,
     startDate: event.start_time,
     endDate: event.end_time,
     eventStatus: 'https://schema.org/EventScheduled',
@@ -296,13 +297,13 @@ export const EventDetailPage: React.FC = () => {
     },
     offers: event.ticket_price ? {
       '@type': 'Offer',
-      price: event.ticket_price,
+      price: event.ticket_price || '0',
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
       url: event.ticket_url || `https://785mag.com/events/${event.slug}/`
     } : undefined,
     performer: event.event_artists?.map((ea: any) => ({
-      '@type': 'PerformingGroup',
+      '@type': 'MusicGroup',
       name: ea.artist?.name
     }))
   };

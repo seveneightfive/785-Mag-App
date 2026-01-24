@@ -17,6 +17,8 @@ import { OrganizerDetailPage } from './pages/OrganizerDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FeedPage } from './pages/FeedPage'
+import BuilderPage from './pages/BuilderPage'
+import './builder-components'
 
 function AnalyticsTracker() {
   const location = useLocation()
@@ -70,6 +72,7 @@ function App() {
         <Route path="/venues/:slug" element={<VenueDetailPage />} />
         <Route path="/organizers" element={<OrganizersDirectoryPage />} />
         <Route path="/organizers/:slug" element={<OrganizerDetailPage />} />
+        <Route path="*" element={<BuilderPage />} />
       </Routes>
     </Router>
   )
