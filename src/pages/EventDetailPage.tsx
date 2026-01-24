@@ -266,6 +266,23 @@ export const EventDetailPage: React.FC = () => {
       </Layout>
     )
   }
+// Add this RIGHT BEFORE creating eventJsonLd
+console.log('DEBUG - event.start_date:', event.start_date);
+console.log('DEBUG - converted:', event.start_date ? new Date(event.start_date).toISOString() : 'MISSING');
+
+const eventJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: event.title,
+  description: event.description || `Join us for ${event.title}`,
+  url: `https://785mag.com/events/${event.slug}/`,
+  startDate: event.start_date ? new Date(event.start_date).toISOString() : undefined,
+  endDate: event.end_date ? new Date(event.end_date).toISOString() : undefined,
+  // ... rest
+};
+
+// Add this AFTER to see what's actually in the JSON
+console.log('DEBUG - Full JSON-LD:', JSON.stringify(eventJsonLd, null, 2));
 
   const eventJsonLd = {
     '@context': 'https://schema.org',
