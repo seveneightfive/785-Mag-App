@@ -273,8 +273,8 @@ export const EventDetailPage: React.FC = () => {
     name: event.title,
     description: event.description || `Join us for ${event.title}`,
     url: `https://785mag.com/events/${event.slug}/`,
-    startDate: event.start_time,
-    endDate: event.end_time,
+    startDate: event.start_date,
+    endDate: event.end_date,
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: event.venue ? {
@@ -304,7 +304,7 @@ export const EventDetailPage: React.FC = () => {
     } : undefined,
     performer: event.event_artists?.map((ea: any) => ({
       '@type': 'MusicGroup',
-      name: ea.artist?.name
+      performer: ea.artist?.name
     }))
   };
 
