@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import Sitemap from 'vite-plugin-sitemap';
 import { createClient } from '@supabase/supabase-js';
+import path from 'path';
 
 async function getDynamicRoutes(env: Record<string, string>) {
   const staticRoutes = [
@@ -25,7 +26,6 @@ async function getDynamicRoutes(env: Record<string, string>) {
 
   try {
     const supabase = createClient(supabaseUrl, supabaseKey);
-
     const [eventsRes, artistsRes, venuesRes] = await Promise.all([
       supabase.from('events').select('slug, updated_at').eq('status', 'approved').limit(500),
       supabase.from('artists').select('slug, updated_at').eq('status', 'approved').limit(500),
@@ -86,6 +86,11 @@ export default defineConfig(async ({ mode }) => {
         lastmod: Date.now(),
       }),
     ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      }
+    },
     optimizeDeps: {
       exclude: ['lucide-react'],
     },

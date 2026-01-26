@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Menu, X, User, Calendar, Music, MapPin, Home, Star, Plus, Bell, Heart, BarChart3, ChevronLeft, ChevronRight, Building2 } from 'lucide-react'
+import { Search, Menu, X, User, Calendar, Music, MapPin, Home, Star, Plus, Bell, Heart, BarChart3, Building2 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { AuthModal } from './AuthModal'
@@ -15,21 +15,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [contactModalOpen, setContactModalOpen] = useState(false)
-  const [sidebarExpanded, setSidebarExpanded] = useState(() => {
-    const stored = localStorage.getItem('sidebarExpanded')
-    return stored !== null ? stored === 'true' : true
-  })
   const { user, profile, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    localStorage.setItem('sidebarExpanded', String(sidebarExpanded))
-  }, [sidebarExpanded])
-
-  const toggleSidebar = () => {
-    setSidebarExpanded(!sidebarExpanded)
-  }
 
   const navigation = [
     { name: 'Feed', href: '/feed', icon: Heart },
@@ -56,184 +44,105 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-
-      {/* Desktop Sidebar */}
-      <aside className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${
-        sidebarExpanded ? 'lg:w-64' : 'lg:w-20'
-      }`}>
-        <div className="flex min-h-0 flex-1 flex-col bg-white border-r border-gray-100">
-          <div className="flex flex-1 flex-col pt-5 pb-4 overflow-y-auto">
-            <div className={`flex items-center flex-shrink-0 transition-all duration-300 ${
-              sidebarExpanded ? 'px-3' : 'px-2 justify-center'
-            }`}>
+    <div className="min-h-screen bg-white">
+      {/* Desktop Top Navigation */}
+      <header className="hidden lg:block sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex-shrink-0">
               <Link to="/" className="flex items-center">
-                {sidebarExpanded ? (
-                  <img
-                    src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
-                    alt="seveneightfive"
-                    className="h-12 w-auto"
-                  />
-                ) : (
-                  <img
-                    src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
-                    alt="seveneightfive"
-                    className="h-14 w-14 object-contain"
-                  />
-                )}
+                <img
+                  src="https://pjuyzybsyguuqaesiiyu.supabase.co/storage/v1/object/public/site-images/785-logo.png"
+                  alt="seveneightfive"
+                  className="h-10 w-auto"
+                />
               </Link>
             </div>
 
-            {/* Toggle Button */}
-            <div className={`mt-4 flex ${sidebarExpanded ? 'justify-end px-3' : 'justify-center'}`}>
-              <button
-                onClick={toggleSidebar}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-              >
-                {sidebarExpanded ? (
-                  <ChevronLeft className="w-5 h-5 text-gray-600" />
-                ) : (
-                  <ChevronRight className="w-5 h-5 text-gray-600" />
-                )}
-              </button>
-            </div>
-
-            {/* Navigation */}
-            <nav className={`mt-6 flex-1 space-y-1 transition-all duration-300 ${
-              sidebarExpanded ? 'px-3' : 'px-2'
-            }`}>
+            {/* Desktop Navigation */}
+            <nav className="flex space-x-1">
               {navigation.filter(item => item.name !== 'Feed').map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`group flex items-center py-2 text-sm font-medium rounded-lg transition-colors relative ${
-                    sidebarExpanded ? 'px-3' : 'px-0 justify-center'
-                  } ${
+                  className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActiveRoute(item.href)
                       ? 'bg-black text-[#FFCE03]'
-                      : 'text-gray-700 hover:bg-black hover:text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
-                  title={!sidebarExpanded ? item.name : undefined}
                 >
-                  <item.icon className={`h-5 w-5 transition-all ${
-                    sidebarExpanded ? 'mr-3' : 'mr-0'
-                  } ${
+                  <item.icon className={`h-5 w-5 mr-2 ${
                     isActiveRoute(item.href)
                       ? 'text-[#FFCE03]'
-                      : 'text-gray-400 group-hover:text-white'
+                      : 'text-gray-400'
                   }`} />
-                  {sidebarExpanded && (
-                    <span className="transition-opacity duration-200">
-                      {item.name}
-                    </span>
-                  )}
-                  {!sidebarExpanded && (
-                    <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
-                      {item.name}
-                    </span>
-                  )}
+                  {item.name}
                 </Link>
               ))}
             </nav>
 
             {/* User Section */}
-            <div className={`flex-shrink-0 pb-4 transition-all duration-300 ${
-              sidebarExpanded ? 'px-6' : 'px-2'
-            }`}>
-              {sidebarExpanded ? (
+            <div className="flex items-center space-x-3">
+              {user ? (
                 <>
-                  {/* Tagline */}
-                  <div className="mb-4">
-                    <p className="text-sm font-urbanist font-medium text-gray-700 text-center">
-                      Local. Vocal. Since 2006.
-                    </p>
-                  </div>
-
-                  {user ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                          <User className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
+                  <Link
+                    to="/dashboard"
+                    className="btn-black px-4 py-2"
+                  >
+                    Dashboard
+                  </Link>
+                  <div className="relative group">
+                    <button className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </button>
+                    {/* Dropdown menu */}
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                      <div className="py-2">
+                        <div className="px-4 py-2 border-b border-gray-200">
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {profile?.username || user.email?.split('@')[0]}
                           </p>
                         </div>
+                        <button
+                          onClick={() => setContactModalOpen(true)}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Contact Us
+                        </button>
+                        <button
+                          onClick={signOut}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Sign Out
+                        </button>
                       </div>
-                      <Link
-                        to="/dashboard"
-                        className="btn-black w-full text-center inline-block"
-                      >
-                        Dashboard
-                      </Link>
-                      <button
-                        onClick={() => setContactModalOpen(true)}
-                        className="btn-white w-full text-center inline-block"
-                      >
-                        Contact Us
-                      </button>
-                      <button
-                        onClick={signOut}
-                        className="w-full text-left text-sm text-gray-500 hover:text-gray-700"
-                      >
-                        Sign Out
-                      </button>
                     </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => openAuthModal('signin')}
-                        className="btn-black w-full text-center"
-                      >
-                        Sign In
-                      </button>
-                      <button
-                        onClick={() => setContactModalOpen(true)}
-                        className="btn-white w-full text-center inline-block"
-                      >
-                        Contact Us
-                      </button>
-                    </div>
-                  )}
+                  </div>
                 </>
               ) : (
-                <div className="flex flex-col items-center space-y-2">
-                  {user ? (
-                    <Link
-                      to="/dashboard"
-                      className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors group relative"
-                      title="Dashboard"
-                    >
-                      <User className="w-5 h-5 text-white" />
-                      <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
-                        Dashboard
-                      </span>
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => openAuthModal('signin')}
-                      className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors group relative"
-                      title="Sign In"
-                    >
-                      <User className="w-5 h-5 text-[#FFCE03]" />
-                      <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
-                        Sign In
-                      </span>
-                    </button>
-                  )}
-                </div>
+                <>
+                  <button
+                    onClick={() => openAuthModal('signin')}
+                    className="btn-black px-4 py-2"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => setContactModalOpen(true)}
+                    className="btn-white px-4 py-2"
+                  >
+                    Contact Us
+                  </button>
+                </>
               )}
             </div>
           </div>
         </div>
-      </aside>
+      </header>
 
       {/* Main Content */}
-      <main className={`pb-20 lg:pb-0 transition-all duration-300 ease-in-out ${
-        sidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'
-      }`}>
+      <main className="pb-20 lg:pb-0">
         {children}
       </main>
 

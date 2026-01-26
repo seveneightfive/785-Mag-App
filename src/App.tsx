@@ -17,6 +17,7 @@ import { OrganizerDetailPage } from './pages/OrganizerDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FeedPage } from './pages/FeedPage'
+import HolidayEvents from './pages/HolidayEvents'
 import BuilderPage from './pages/BuilderPage'
 import './builder-components'
 
@@ -64,6 +65,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/events" element={<EventsDirectoryPage />} />
+        <Route path="/holiday-events" element={<HolidayEvents />} />  {/* ADD THIS LINE */}
         <Route path="/agenda" element={<AgendaPage />} />
         <Route path="/artists" element={<ArtistsDirectoryPage />} />
         <Route path="/venues" element={<VenuesDirectoryPage />} />
